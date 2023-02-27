@@ -3,16 +3,11 @@ import { Button, Form, Input, Layout, Radio, Select, Typography } from "antd"
 import axios from "axios"
 import {Category} from "@/app/components/Category/types";
 import {QueryKey, useQuery, useMutation} from "@tanstack/react-query";
+import {TODO_SIZE} from "@/app/components/Todo/types";
 
 const { Header } = Layout
 const { Title } = Typography
 const { Option } = Select
-
-export enum TODO_SIZE {
-    SMALL="SMALL",
-    MEDIUM="MEDIUM",
-    LARGE="LARGE",
-}
 
 const sizeList = [
     {
@@ -36,7 +31,7 @@ export const AddTodo = () => {
     const [category, setCategory] = useState<Category | undefined>()
 
     const { isLoading: isFetchingCategories, error: categoriesError, data: categoriesData } =
-        useQuery(['categoriesDataz'] as unknown as QueryKey, async () =>
+        useQuery(['categoriesData'] as unknown as QueryKey, async () =>
         await fetch('/api/categories').then(res =>
             res.json()
         )

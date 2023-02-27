@@ -22,7 +22,7 @@ export default async function handler(
 const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         const results = await dbConnect.query(
-            "SELECT id, created, name, description, size, status, completed FROM todos"
+            "SELECT id, created, startDate, name, description, size, status, completedDateTime FROM todos"
         )
         await dbConnect.end()
         return res.status(200).json(results);
@@ -41,6 +41,7 @@ const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
         } = req.body
         const insertTodoQuery = `INSERT into todos
             VALUES (
+                null,
                 null,
                 null,
                 '${name}',
