@@ -22,7 +22,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       ORDER BY c.id`
     )
     await dbConnect.end()
-    return res.status(200).json(results)
+    return res.status(200).json(results || [])
   } catch (error) {
     return res.status(500).json({ error })
   }
