@@ -19,7 +19,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       FROM todos t
       LEFT JOIN todos_to_categories ON todos_to_categories.todo_id = t.id
       LEFT JOIN categories c ON todos_to_categories.category_id = c.id
-      ORDER BY c.id`
+      ORDER BY c.id, t.name DESC`
     )
     await dbConnect.end()
     return res.status(200).json(results || [])

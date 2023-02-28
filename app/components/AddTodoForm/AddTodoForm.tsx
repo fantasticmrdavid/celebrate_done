@@ -1,15 +1,10 @@
-import React, { useState } from 'react'
-import { Button, DatePicker, Form, Input, Radio, Select } from 'antd'
+import React, {useState} from 'react'
+import {Button, DatePicker, Form, Input, Radio, Select} from 'antd'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { Category } from '@/app/components/Category/types'
-import {
-  QueryKey,
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query'
-import { TODO_SIZE } from '@/app/components/Todo/types'
+import {Category} from '@/app/components/Category/types'
+import {QueryKey, useMutation, useQuery, useQueryClient,} from '@tanstack/react-query'
+import {NEW_TODO, TODO_SIZE} from '@/app/components/Todo/types'
 
 const { Option } = Select
 
@@ -30,11 +25,10 @@ const sizeList = [
 
 export const AddTodoForm = () => {
   const [name, setName] = useState<string>('')
-  const [description, setDescription] = useState<string>('')
   const [startDate, setStartDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   )
-  const [size, setSize] = useState<TODO_SIZE>(TODO_SIZE.MEDIUM)
+  const [size, setSize] = useState<TODO_SIZE>(TODO_SIZE.SMALL)
   const [category, setCategory] = useState<Category | undefined>()
 
   const queryClient = useQueryClient()
@@ -52,13 +46,13 @@ export const AddTodoForm = () => {
     mutationFn: () =>
       axios.post('/api/todos', {
         name,
-        description,
         startDate,
         size,
         category,
-      }),
-    onSuccess: (res) => {
+      } as NEW_TODO),
+    onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
+      setName("")
     },
     onError: () => {
       console.log('ERROR')
@@ -82,12 +76,6 @@ export const AddTodoForm = () => {
         <Input
           placeholder={'Enter the name for the to-do'}
           onChange={(e) => setName(e.target.value)}
-        />
-      </Form.Item>
-      <Form.Item label={'Description'}>
-        <Input
-          placeholder={'Enter the description for the to-do'}
-          onChange={(e) => setDescription(e.target.value)}
         />
       </Form.Item>
       <Form.Item label={'Size'}>

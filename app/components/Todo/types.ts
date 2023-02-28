@@ -27,6 +27,5 @@ export type NEW_TODO = {
   category?: number
   startDate: string
   name: string
-  description: string
   size: TODO_SIZE
 }

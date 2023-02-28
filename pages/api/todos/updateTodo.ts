@@ -40,7 +40,7 @@ export const updateTodos = async (
     await dbConnect.end()
     return res.status(200).json(result)
   } catch (error) {
-    console.log('SQL ERROR: ', error, updateTodoQuery)
+    console.error('SQL ERROR: ', error, updateTodoQuery)
     return res.status(500).json({ error })
   }
 }

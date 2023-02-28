@@ -1,8 +1,9 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {QueryKey, useMutation, useQuery} from '@tanstack/react-query'
 import {TODO, TODO_STATUS} from '@/app/components/Todo/types'
 import {Card, Checkbox, Space} from 'antd'
 import axios from 'axios'
+import ConfettiExplosion from "react-confetti-explosion";
 
 type UPDATE_TODO_COMPLETE_PARAMS = {
   action: string
@@ -18,6 +19,7 @@ type TODO_CATEGORY = {
 }
 
 export const TodoList = () => {
+  const [isExploding, setIsExploding] = useState<boolean>(false);
   const {
     isLoading,
     error,
@@ -37,6 +39,11 @@ export const TodoList = () => {
         completedDateTime: req.completedDateTime,
       }),
     onSuccess: (res) => {
+      const isDone = JSON.parse(res.config.data).status === TODO_STATUS.DONE
+      if (isDone) setIsExploding(true)
+      setTimeout(() => {
+        setIsExploding(false)
+      }, 3000)
       refetchTodoList()
     },
     onError: (e) => {
@@ -77,6 +84,14 @@ export const TodoList = () => {
 
   return (
     <Space size={'small'} align={'start'} style={{ display: 'flex' }}>
+      <Space style={{ position: "absolute", width: "100%", display: 'flex', justifyContent: 'space-around'}}>
+        { isExploding && <ConfettiExplosion
+            force={0.8}
+            duration={3000}
+            particleCount={250}
+            width={1600}
+        /> }
+      </Space>
       {categoryList.map((c) => (
         <Card title={c.name} size={'small'} key={`category_${c.id}`}>
           <div>{c.description}</div>
