@@ -1,7 +1,7 @@
 import React from 'react'
 import { QueryKey, useMutation, useQuery } from '@tanstack/react-query'
 import { TODO, TODO_STATUS } from '@/app/components/Todo/types'
-import { Checkbox } from 'antd'
+import { Card, Checkbox, Space } from 'antd'
 import axios from 'axios'
 
 type UPDATE_TODO_COMPLETE_PARAMS = {
@@ -76,10 +76,9 @@ export const TodoList = () => {
   )
 
   return (
-    <div>
+    <Space size={'small'} align={'start'} style={{ display: 'flex' }}>
       {categoryList.map((c) => (
-        <div key={`category_${c.id}`}>
-          <div>{c.name}</div>
+        <Card title={c.name} size={'small'} key={`category_${c.id}`}>
           <div>{c.description}</div>
           <div>
             {todoList
@@ -96,8 +95,8 @@ export const TodoList = () => {
                 )
               })}
           </div>
-        </div>
+        </Card>
       ))}
-    </div>
+    </Space>
   )
 }
