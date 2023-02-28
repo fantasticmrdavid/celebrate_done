@@ -6,10 +6,14 @@ import SqlString from 'sqlstring'
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const { name, description, size, category, startDate } = req.body
+    const createdDateTime = `"${new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace('T', ' ')}"`
     const insertTodoQuery = `INSERT into todos
             VALUES (
                 null,
-                null,
+                ${createdDateTime},
                 ${SqlString.escape(startDate)},
                 ${SqlString.escape(name)},
                 ${SqlString.escape(description)},
