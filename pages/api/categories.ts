@@ -18,7 +18,7 @@ export default async function handler(
 
 const getCategories = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        const results = await dbConnect.query("SELECT id, name, description, maxPerDay FROM categories")
+        const results = await dbConnect.query("SELECT id, name, description, maxPerDay FROM categories ORDER BY name")
         await dbConnect.end()
         return res.status(200).json(results);
     } catch (error) {

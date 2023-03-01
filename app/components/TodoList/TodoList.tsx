@@ -83,7 +83,7 @@ export const TodoList = () => {
   )
 
   return (
-    <Space size={'small'} align={'start'} style={{ display: 'flex' }}>
+    <Space size={'small'} align={'start'} style={{ display: 'flex', flexWrap: 'wrap' }}>
       <Space style={{ position: "absolute", width: "100%", display: 'flex', justifyContent: 'space-around'}}>
         { isExploding && <ConfettiExplosion
             force={0.8}
@@ -94,7 +94,7 @@ export const TodoList = () => {
       </Space>
       {categoryList.map((c) => (
         <Card title={c.name} size={'small'} key={`category_${c.id}`}>
-          <div>{c.description}</div>
+          <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem'}}>{c.description}</Space>
           <div>
             {todoList
               .filter((t: TODO) => t.category_id === c.id)
