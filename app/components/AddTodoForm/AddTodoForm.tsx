@@ -1,10 +1,15 @@
-import React, {useState} from 'react'
-import {Button, DatePicker, Form, Input, Radio, Select} from 'antd'
+import React, { useState } from 'react'
+import { Button, DatePicker, Form, Input, Radio, Select } from 'antd'
 import axios from 'axios'
 import dayjs from 'dayjs'
-import {Category} from '@/app/components/Category/types'
-import {QueryKey, useMutation, useQuery, useQueryClient,} from '@tanstack/react-query'
-import {NEW_TODO, TODO_SIZE} from '@/app/components/Todo/types'
+import { Category } from '@/app/components/Category/types'
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import { New_Todo, TODO_SIZE } from '@/app/components/Todo/types'
 
 const { Option } = Select
 
@@ -38,7 +43,7 @@ export const AddTodoForm = () => {
     error: categoriesError,
     data: categoriesData,
   } = useQuery(
-    ['categoriesData'] as unknown as QueryKey,
+    ['getCategories'] as unknown as QueryKey,
     async () => await fetch('/api/categories').then((res) => res.json())
   )
 
@@ -49,10 +54,10 @@ export const AddTodoForm = () => {
         startDate,
         size,
         category,
-      } as NEW_TODO),
+      } as New_Todo),
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
-      setName("")
+      setName('')
     },
     onError: () => {
       console.log('ERROR')

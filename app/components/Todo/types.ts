@@ -9,7 +9,7 @@ export enum TODO_STATUS {
   DONE = 'DONE',
 }
 
-export type TODO = {
+export type Todo = {
   id: number
   created: string
   startDate: string
@@ -23,7 +23,7 @@ export type TODO = {
   category_description: string
 }
 
-export type NEW_TODO = {
+export type New_Todo = {
   category?: number
   startDate: string
   name: string

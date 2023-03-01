@@ -1,9 +1,9 @@
-import React, {useState} from 'react'
-import {QueryKey, useMutation, useQuery} from '@tanstack/react-query'
-import {TODO, TODO_STATUS} from '@/app/components/Todo/types'
-import {Card, Checkbox, Space} from 'antd'
+import React, { useState } from 'react'
+import { QueryKey, useMutation, useQuery } from '@tanstack/react-query'
+import { Todo, TODO_STATUS } from '@/app/components/Todo/types'
+import { Card, Checkbox, Space } from 'antd'
 import axios from 'axios'
-import ConfettiExplosion from "react-confetti-explosion";
+import ConfettiExplosion from 'react-confetti-explosion'
 
 type UPDATE_TODO_COMPLETE_PARAMS = {
   action: string
@@ -19,7 +19,7 @@ type TODO_CATEGORY = {
 }
 
 export const TodoList = () => {
-  const [isExploding, setIsExploding] = useState<boolean>(false);
+  const [isExploding, setIsExploding] = useState<boolean>(false)
   const {
     isLoading,
     error,
@@ -55,7 +55,7 @@ export const TodoList = () => {
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
-  const handleOnChange = (t: TODO) => {
+  const handleOnChange = (t: Todo) => {
     const shouldMarkCompleted = t.status !== TODO_STATUS.DONE
     updateTodo.mutate({
       action: 'complete',
@@ -66,7 +66,7 @@ export const TodoList = () => {
   }
 
   const categoryList: TODO_CATEGORY[] = todoList.reduce(
-    (acc: TODO_CATEGORY[], currTodo: TODO) => {
+    (acc: TODO_CATEGORY[], currTodo: Todo) => {
       if (!acc.find((c) => c.id === currTodo.category_id)) {
         return [
           ...acc,
@@ -83,23 +83,38 @@ export const TodoList = () => {
   )
 
   return (
-    <Space size={'small'} align={'start'} style={{ display: 'flex', flexWrap: 'wrap' }}>
-      <Space style={{ position: "absolute", width: "100%", display: 'flex', justifyContent: 'space-around'}}>
-        { isExploding && <ConfettiExplosion
+    <Space
+      size={'small'}
+      align={'start'}
+      style={{ display: 'flex', flexWrap: 'wrap' }}
+    >
+      <Space
+        style={{
+          position: 'absolute',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-around',
+        }}
+      >
+        {isExploding && (
+          <ConfettiExplosion
             force={0.8}
             duration={3000}
             particleCount={250}
             width={1600}
-        /> }
+          />
+        )}
       </Space>
       {categoryList.map((c) => (
         <Card title={c.name} size={'small'} key={`category_${c.id}`}>
-          <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem'}}>{c.description}</Space>
+          <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
+            {c.description}
+          </Space>
           <div>
             {todoList
-              .filter((t: TODO) => t.category_id === c.id)
-              .sort((a: TODO) => a.status === TODO_STATUS.DONE ? 1 : -1)
-              .map((t: TODO) => {
+              .filter((t: Todo) => t.category_id === c.id)
+              .sort((a: Todo) => (a.status === TODO_STATUS.DONE ? 1 : -1))
+              .map((t: Todo) => {
                 const isDone = t.status === TODO_STATUS.DONE
                 return (
                   <div key={`todo_${t.id}`}>
@@ -107,7 +122,13 @@ export const TodoList = () => {
                       checked={isDone}
                       onChange={() => handleOnChange(t)}
                     />{' '}
-                    {!isDone ? t.name : <span style={{ textDecoration: "line-through"}}>{t.name}</span>}
+                    {!isDone ? (
+                      t.name
+                    ) : (
+                      <span style={{ textDecoration: 'line-through' }}>
+                        {t.name}
+                      </span>
+                    )}
                   </div>
                 )
               })}
