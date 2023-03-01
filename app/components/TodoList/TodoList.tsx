@@ -5,14 +5,14 @@ import { Card, Checkbox, Space } from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
 
-type UPDATE_TODO_COMPLETE_PARAMS = {
+type Update_Todo_Complete_Params = {
   action: string
   id: number
   status: TODO_STATUS
   completedDateTime: number | undefined
 }
 
-type TODO_CATEGORY = {
+type Todo_Category = {
   id: number
   name: string
   description: string
@@ -31,7 +31,7 @@ export const TodoList = () => {
   )
 
   const updateTodo = useMutation({
-    mutationFn: (req: UPDATE_TODO_COMPLETE_PARAMS) =>
+    mutationFn: (req: Update_Todo_Complete_Params) =>
       axios.patch('/api/todos', {
         action: req.action,
         id: req.id,
@@ -65,8 +65,8 @@ export const TodoList = () => {
     })
   }
 
-  const categoryList: TODO_CATEGORY[] = todoList.reduce(
-    (acc: TODO_CATEGORY[], currTodo: Todo) => {
+  const categoryList: Todo_Category[] = todoList.reduce(
+    (acc: Todo_Category[], currTodo: Todo) => {
       if (!acc.find((c) => c.id === currTodo.category_id)) {
         return [
           ...acc,
