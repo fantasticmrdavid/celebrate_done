@@ -1,16 +1,28 @@
-import React from 'react'
-import { Layout, Space, Typography } from 'antd'
+import React, { useState } from 'react'
+import { Button, Layout, Space, Typography } from 'antd'
 import { TodoList } from '@/app/components/TodoList/TodoList'
 import AddTodoForm from '@/app/components/AddTodoForm/AddTodoForm'
+import CategoryFormModal from '@/app/components/CategoryFormModal/CategoryFormModal'
 
 const { Header, Content } = Layout
 const { Title } = Typography
 
 export const TodosPage = () => {
+  const [isCategoryFormModalOpen, setIsCategoryFormModalOpen] =
+    useState<boolean>(false)
   return (
     <Layout>
-      <Header>
+      <Header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <Title level={2}>{`To-Do's`}</Title>
+        <Button onClick={() => setIsCategoryFormModalOpen(true)}>
+          +Category
+        </Button>
       </Header>
       <Content>
         <Space
@@ -22,6 +34,10 @@ export const TodosPage = () => {
           <AddTodoForm />
         </Space>
       </Content>
+      <CategoryFormModal
+        isOpen={isCategoryFormModalOpen}
+        onCancel={() => setIsCategoryFormModalOpen(false)}
+      />
     </Layout>
   )
 }
