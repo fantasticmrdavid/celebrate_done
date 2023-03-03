@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { QueryKey, useMutation, useQuery } from '@tanstack/react-query'
 import { Todo, TODO_STATUS } from '@/app/components/Todo/types'
-import { Card, Checkbox, Space } from 'antd'
+import { Button, Card, Checkbox, Space } from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
+import AddTodoFormModal from '@/app/components/AddTodoFormModal/AddTodoFormModal'
 
 type Update_Todo_Complete_Params = {
   action: string
@@ -20,6 +21,10 @@ type Todo_Category = {
 
 export const TodoList = () => {
   const [isExploding, setIsExploding] = useState<boolean>(false)
+  const [isAddTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
+  const [todoModalCategory, setTodoModalCategory] = useState<
+    Todo_Category | undefined
+  >()
   const {
     isLoading,
     error,
@@ -106,7 +111,21 @@ export const TodoList = () => {
         )}
       </Space>
       {categoryList.map((c) => (
-        <Card title={c.name} size={'small'} key={`category_${c.id}`}>
+        <Card
+          key={`category_${c.id}`}
+          title={c.name}
+          size={'small'}
+          extra={
+            <Button
+              onClick={() => {
+                setTodoModalCategory(c)
+                setIsTodoModalOpen(true)
+              }}
+            >
+              + Task
+            </Button>
+          }
+        >
           <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
             {c.description}
           </Space>
@@ -135,6 +154,13 @@ export const TodoList = () => {
           </div>
         </Card>
       ))}
+      {isAddTodoModalOpen && (
+        <AddTodoFormModal
+          isOpen={true}
+          onCancel={() => setIsTodoModalOpen(false)}
+          category={todoModalCategory}
+        />
+      )}
     </Space>
   )
 }
