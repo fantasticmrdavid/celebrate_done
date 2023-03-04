@@ -1,10 +1,24 @@
 import React, { useState } from 'react'
-import {Button, DatePicker, Form, Input, Modal, Radio, Select, Space} from 'antd'
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Radio,
+  Select,
+  Space,
+} from 'antd'
 import axios from 'axios'
 import { Category } from '@/app/components/Category/types'
-import {QueryKey, useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
-import dayjs from "dayjs";
-import {New_Todo, TODO_SIZE} from "@/app/components/Todo/types";
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import dayjs from 'dayjs'
+import { New_Todo, TODO_SIZE } from '@/app/components/Todo/types'
 
 type AddTodoFormModalProps = {
   isOpen: boolean
@@ -30,7 +44,7 @@ const sizeList = [
 const { Option } = Select
 
 export const TodoFormFormModal = (props: AddTodoFormModalProps) => {
-  const { isOpen, onCancel, category: propsCategory } = props;
+  const { isOpen, onCancel, category: propsCategory } = props
   const [name, setName] = useState<string>('')
   const [startDate, setStartDate] = useState<string>(
     new Date().toISOString().split('T')[0]
@@ -60,6 +74,7 @@ export const TodoFormFormModal = (props: AddTodoFormModalProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
       setName('')
+      if (onCancel) onCancel()
     },
     onError: () => {
       console.log('ERROR')

@@ -28,7 +28,7 @@ export const TodoList = () => {
   const {
     isLoading,
     error,
-    data: todoList,
+    data: todoList = [],
     refetch: refetchTodoList,
   } = useQuery(
     ['getTodos'] as unknown as QueryKey,
