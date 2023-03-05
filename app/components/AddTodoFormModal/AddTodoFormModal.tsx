@@ -5,6 +5,7 @@ import {
   Form,
   Input,
   Modal,
+  notification,
   Radio,
   Select,
   Space,
@@ -73,6 +74,13 @@ export const TodoFormFormModal = (props: AddTodoFormModalProps) => {
       } as New_Todo),
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
+      notification.success({
+        message: (
+          <>
+            <strong>{name}</strong> added to <strong>{category?.name}</strong>!
+          </>
+        ),
+      })
       setName('')
       if (onCancel) onCancel()
     },

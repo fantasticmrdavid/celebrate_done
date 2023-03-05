@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Form, Input, Modal, Space } from 'antd'
+import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
 import { Category } from '@/app/components/Category/types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -26,8 +26,15 @@ export const CategoryFormModal = ({
         description,
         maxPerDay,
       } as Category),
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries(['getCategories'])
+      notification.success({
+        message: (
+          <>
+            Category <strong>{name}</strong> added!
+          </>
+        ),
+      })
       setName('')
       setDescription('')
       setMaxPerDay(undefined)
