@@ -14,10 +14,7 @@ export const updateTodos = async (
       const { id, status, completedDateTime } = req.body
       const completedDateTimeValue =
         status === TODO_STATUS.DONE
-          ? `"${new Date(completedDateTime)
-              .toISOString()
-              .slice(0, 19)
-              .replace('T', ' ')}"`
+          ? `"${completedDateTime.slice(0, 19).replace('T', ' ')}"`
           : null
       updateTodoQuery = `UPDATE todos
            SET

@@ -1,5 +1,10 @@
 import React, { useState } from 'react'
-import { QueryKey, useMutation, useQuery } from '@tanstack/react-query'
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { Todo, TODO_STATUS } from '@/app/components/Todo/types'
 import { Button, Card, Checkbox, Space } from 'antd'
 import axios from 'axios'
@@ -10,7 +15,7 @@ type Update_Todo_Complete_Params = {
   action: string
   id: number
   status: TODO_STATUS
-  completedDateTime: number | undefined
+  completedDateTime: string | undefined
 }
 
 type Todo_Category = {
@@ -38,6 +43,8 @@ export const TodoList = () => {
     }
   )
 
+  const queryClient = useQueryClient()
+
   const updateTodo = useMutation({
     mutationFn: (req: Update_Todo_Complete_Params) =>
       axios.patch('/api/todos', {
@@ -46,16 +53,39 @@ export const TodoList = () => {
         status: req.status,
         completedDateTime: req.completedDateTime,
       }),
-    onSuccess: (res) => {
-      const isDone = JSON.parse(res.config.data).status === TODO_STATUS.DONE
+    onMutate: async (updateTodoParams) => {
+      await queryClient.cancelQueries({ queryKey: ['getTodos'] })
+      const previousTodos = queryClient.getQueryData(['getTodos'])
+      queryClient.setQueryData(
+        ['getTodos'],
+        (oldTodoList: Todo[] | undefined) =>
+          (oldTodoList || []).map((t) => {
+            if (updateTodoParams.id === t.id) {
+              return {
+                ...t,
+                ...updateTodoParams,
+              }
+            }
+
+            return t
+          })
+      )
+      const isDone = updateTodoParams.status === TODO_STATUS.DONE
       if (isDone) setIsExploding(true)
       setTimeout(() => {
         setIsExploding(false)
       }, 3000)
+      return { previousTodos }
+    },
+    onSuccess: (res) => {
       refetchTodoList()
     },
-    onError: (e) => {
+    onError: (e, updateTodoParams, context) => {
+      queryClient.setQueryData(['todos'], context?.previousTodos || [])
       console.error('ERROR: ', e)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['getTodos'] })
     },
   })
 
@@ -69,7 +99,9 @@ export const TodoList = () => {
       action: 'complete',
       id: t.id,
       status: shouldMarkCompleted ? TODO_STATUS.DONE : TODO_STATUS.INCOMPLETE,
-      completedDateTime: shouldMarkCompleted ? Date.now() : undefined,
+      completedDateTime: shouldMarkCompleted
+        ? new Date().toISOString()
+        : undefined,
     })
   }
 
