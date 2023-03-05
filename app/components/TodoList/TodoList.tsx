@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { Todo, TODO_STATUS } from '@/app/components/Todo/types'
-import { Button, Card, Checkbox, Space } from 'antd'
+import { Button, Card, Checkbox, Space, Typography } from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
 import AddTodoFormModal from '@/app/components/AddTodoFormModal/AddTodoFormModal'
@@ -24,7 +24,12 @@ type Todo_Category = {
   description: string
 }
 
+const { Title } = Typography
+
 export const TodoList = () => {
+  const [currentDate, setCurrentDate] = useState<string>(
+    new Date().toISOString()
+  )
   const [isExploding, setIsExploding] = useState<boolean>(false)
   const [isAddTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [todoModalCategory, setTodoModalCategory] = useState<
@@ -122,80 +127,89 @@ export const TodoList = () => {
     []
   )
 
+  const isToday = new Date(currentDate).getDate() === new Date().getDate()
+
   return (
-    <Space
-      size={'small'}
-      align={'start'}
-      style={{ display: 'flex', flexWrap: 'wrap' }}
-    >
+    <>
+      <Space>
+        <Title>
+          {isToday ? 'Today' : new Date(currentDate).toLocaleDateString()}
+        </Title>
+      </Space>
       <Space
-        style={{
-          position: 'absolute',
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'space-around',
-        }}
+        size={'small'}
+        align={'start'}
+        style={{ display: 'flex', flexWrap: 'wrap' }}
       >
-        {isExploding && (
-          <ConfettiExplosion
-            force={0.8}
-            duration={3000}
-            particleCount={250}
-            width={1600}
+        <Space
+          style={{
+            position: 'absolute',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-around',
+          }}
+        >
+          {isExploding && (
+            <ConfettiExplosion
+              force={0.8}
+              duration={3000}
+              particleCount={250}
+              width={1600}
+            />
+          )}
+        </Space>
+        {categoryList.map((c) => (
+          <Card
+            key={`category_${c.id}`}
+            title={c.name}
+            size={'small'}
+            extra={
+              <Button
+                onClick={() => {
+                  setTodoModalCategory(c)
+                  setIsTodoModalOpen(true)
+                }}
+              >
+                + Task
+              </Button>
+            }
+          >
+            <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
+              {c.description}
+            </Space>
+            <div>
+              {todoList
+                .filter((t: Todo) => t.category_id === c.id)
+                .sort((a: Todo) => (a.status === TODO_STATUS.DONE ? 1 : -1))
+                .map((t: Todo) => {
+                  const isDone = t.status === TODO_STATUS.DONE
+                  return (
+                    <div key={`todo_${t.id}`}>
+                      <Checkbox
+                        checked={isDone}
+                        onChange={() => handleOnChange(t)}
+                      />{' '}
+                      {!isDone ? (
+                        t.name
+                      ) : (
+                        <span style={{ textDecoration: 'line-through' }}>
+                          {t.name}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+            </div>
+          </Card>
+        ))}
+        {isAddTodoModalOpen && (
+          <AddTodoFormModal
+            isOpen={true}
+            onCancel={() => setIsTodoModalOpen(false)}
+            category={todoModalCategory}
           />
         )}
       </Space>
-      {categoryList.map((c) => (
-        <Card
-          key={`category_${c.id}`}
-          title={c.name}
-          size={'small'}
-          extra={
-            <Button
-              onClick={() => {
-                setTodoModalCategory(c)
-                setIsTodoModalOpen(true)
-              }}
-            >
-              + Task
-            </Button>
-          }
-        >
-          <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
-            {c.description}
-          </Space>
-          <div>
-            {todoList
-              .filter((t: Todo) => t.category_id === c.id)
-              .sort((a: Todo) => (a.status === TODO_STATUS.DONE ? 1 : -1))
-              .map((t: Todo) => {
-                const isDone = t.status === TODO_STATUS.DONE
-                return (
-                  <div key={`todo_${t.id}`}>
-                    <Checkbox
-                      checked={isDone}
-                      onChange={() => handleOnChange(t)}
-                    />{' '}
-                    {!isDone ? (
-                      t.name
-                    ) : (
-                      <span style={{ textDecoration: 'line-through' }}>
-                        {t.name}
-                      </span>
-                    )}
-                  </div>
-                )
-              })}
-          </div>
-        </Card>
-      ))}
-      {isAddTodoModalOpen && (
-        <AddTodoFormModal
-          isOpen={true}
-          onCancel={() => setIsTodoModalOpen(false)}
-          category={todoModalCategory}
-        />
-      )}
-    </Space>
+    </>
   )
 }

@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
+import { TODO_STATUS } from '@/app/components/Todo/types'
 
 export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -19,6 +20,8 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       FROM todos t
       LEFT JOIN todos_to_categories ON todos_to_categories.todo_id = t.id
       LEFT JOIN categories c ON todos_to_categories.category_id = c.id
+      WHERE (t.status != "${TODO_STATUS.DONE}" AND CURDATE() >= t.startDate) 
+      OR (t.status = "${TODO_STATUS.DONE}" AND DATE(t.completedDateTime) = CURDATE())
       ORDER BY c.id, t.name DESC`
     )
     await dbConnect.end()
