@@ -34,7 +34,7 @@ export const TodoList = () => {
     ['getTodos'] as unknown as QueryKey,
     async () => await fetch('/api/todos').then((res) => res.json()),
     {
-      placeholderData: [],
+      initialData: [],
     }
   )
 
