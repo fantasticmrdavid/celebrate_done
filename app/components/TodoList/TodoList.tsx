@@ -28,11 +28,14 @@ export const TodoList = () => {
   const {
     isLoading,
     error,
-    data: todoList = [],
+    data: todoList,
     refetch: refetchTodoList,
-  } = useQuery(
+  } = useQuery<Todo[]>(
     ['getTodos'] as unknown as QueryKey,
-    async () => await fetch('/api/todos').then((res) => res.json())
+    async () => await fetch('/api/todos').then((res) => res.json()),
+    {
+      placeholderData: [],
+    }
   )
 
   const updateTodo = useMutation({
