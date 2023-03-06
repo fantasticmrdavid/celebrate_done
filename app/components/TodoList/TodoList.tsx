@@ -5,11 +5,13 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { Todo, TODO_STATUS } from '@/app/components/Todo/types'
-import { Button, Card, Checkbox, Space, Typography } from 'antd'
+import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
+import { Button, Card, DatePicker, Space, Typography } from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
 import AddTodoFormModal from '@/app/components/AddTodoFormModal/AddTodoFormModal'
+import dayjs from 'dayjs'
+import { TodoItem } from '@/app/components/TodoItem/Todo'
 
 type Update_Todo_Complete_Params = {
   action: string
@@ -35,14 +37,20 @@ export const TodoList = () => {
   const [todoModalCategory, setTodoModalCategory] = useState<
     Todo_Category | undefined
   >()
+
+  const isToday = new Date(currentDate).getDate() === new Date().getDate()
+
   const {
     isLoading,
     error,
     data: todoList,
     refetch: refetchTodoList,
   } = useQuery<Todo[]>(
-    ['getTodos'] as unknown as QueryKey,
-    async () => await fetch('/api/todos').then((res) => res.json()),
+    ['getTodos', currentDate] as unknown as QueryKey,
+    async () =>
+      await fetch(`/api/todos${!isToday ? `?date=${currentDate}` : ''}`).then(
+        (res) => res.json()
+      ),
     {
       initialData: [],
     }
@@ -127,14 +135,23 @@ export const TodoList = () => {
     []
   )
 
-  const isToday = new Date(currentDate).getDate() === new Date().getDate()
-
   return (
     <>
-      <Space>
-        <Title>
-          {isToday ? 'Today' : new Date(currentDate).toLocaleDateString()}
+      <Space
+        style={{ display: 'flex', columnGap: '1em', paddingBottom: '1em' }}
+      >
+        <Title style={{ margin: 0 }}>
+          {isToday
+            ? 'Today'
+            : dayjs(new Date(currentDate)).format('ddd, MMM D, YYYY')}
         </Title>
+        <DatePicker
+          value={dayjs(new Date(currentDate))}
+          onChange={(_, dateString) => {
+            setCurrentDate(dateString)
+            refetchTodoList()
+          }}
+        />
       </Space>
       <Space
         size={'small'}
@@ -181,24 +198,13 @@ export const TodoList = () => {
               {todoList
                 .filter((t: Todo) => t.category_id === c.id)
                 .sort((a: Todo) => (a.status === TODO_STATUS.DONE ? 1 : -1))
-                .map((t: Todo) => {
-                  const isDone = t.status === TODO_STATUS.DONE
-                  return (
-                    <div key={`todo_${t.id}`}>
-                      <Checkbox
-                        checked={isDone}
-                        onChange={() => handleOnChange(t)}
-                      />{' '}
-                      {!isDone ? (
-                        t.name
-                      ) : (
-                        <span style={{ textDecoration: 'line-through' }}>
-                          {t.name}
-                        </span>
-                      )}
-                    </div>
-                  )
-                })}
+                .map((t: Todo) => (
+                  <TodoItem
+                    key={`todo_${t.id}`}
+                    todo={t}
+                    onChange={() => handleOnChange(t)}
+                  />
+                ))}
             </div>
           </Card>
         ))}

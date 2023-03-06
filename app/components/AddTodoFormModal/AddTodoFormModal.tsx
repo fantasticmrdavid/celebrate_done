@@ -18,7 +18,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { New_Todo, TODO_SIZE } from '@/app/components/Todo/types'
+import { New_Todo, TODO_SIZE } from '@/app/components/TodoItem/types'
 
 type AddTodoFormModalProps = {
   isOpen: boolean
@@ -145,7 +145,7 @@ export const TodoFormFormModal = (props: AddTodoFormModalProps) => {
         </Form.Item>
         <Form.Item label={'Start Date'}>
           <DatePicker
-            value={dayjs(startDate)}
+            value={dayjs(new Date(startDate))}
             onChange={(_, dateString) => setStartDate(dateString)}
           />
         </Form.Item>

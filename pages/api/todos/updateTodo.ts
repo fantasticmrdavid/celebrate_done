@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/Todo/types'
+import { TODO_STATUS } from '@/app/components/TodoItem/types'
 import { dbConnect } from '@/config/dbConnect'
 
 export const updateTodos = async (
