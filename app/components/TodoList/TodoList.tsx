@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
-import { Button, Card, DatePicker, Space, Typography } from 'antd'
+import { Button, Card, Collapse, DatePicker, Space, Typography } from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
 import AddTodoFormModal from '@/app/components/AddTodoFormModal/AddTodoFormModal'
@@ -26,6 +26,7 @@ type Todo_Category = {
   description: string
 }
 
+const { Panel } = Collapse
 const { Title } = Typography
 
 export const TodoList = () => {
@@ -176,25 +177,41 @@ export const TodoList = () => {
           )}
         </Space>
         {categoryList.map((c) => (
-          <Card
+          <Collapse
             key={`category_${c.id}`}
-            title={c.name}
-            size={'small'}
-            extra={
-              <Button
-                onClick={() => {
-                  setTodoModalCategory(c)
-                  setIsTodoModalOpen(true)
-                }}
-              >
-                + Task
-              </Button>
-            }
+            collapsible="icon"
+            expandIconPosition={'end'}
+            defaultActiveKey={c.id}
           >
-            <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
-              {c.description}
-            </Space>
-            <div>
+            <Panel
+              key={c.id}
+              header={
+                <Space direction={'vertical'} style={{ width: '100%' }}>
+                  <Title
+                    level={5}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      margin: 0,
+                    }}
+                  >
+                    {c.name}
+                    <Button
+                      onClick={() => {
+                        setTodoModalCategory(c)
+                        setIsTodoModalOpen(true)
+                      }}
+                    >
+                      + Task
+                    </Button>
+                  </Title>
+                  <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
+                    {c.description}
+                  </Space>
+                </Space>
+              }
+            >
               {todoList
                 .filter((t: Todo) => t.category_id === c.id)
                 .sort((a: Todo) => (a.status === TODO_STATUS.DONE ? 1 : -1))
@@ -205,8 +222,8 @@ export const TodoList = () => {
                     onChange={() => handleOnChange(t)}
                   />
                 ))}
-            </div>
-          </Card>
+            </Panel>
+          </Collapse>
         ))}
         {isAddTodoModalOpen && (
           <AddTodoFormModal
