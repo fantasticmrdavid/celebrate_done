@@ -146,6 +146,7 @@ export const TodoFormFormModal = (props: AddTodoFormModalProps) => {
         <Form.Item label={'Start Date'}>
           <DatePicker
             value={dayjs(new Date(startDate))}
+            allowClear={false}
             onChange={(_, dateString) => setStartDate(dateString)}
           />
         </Form.Item>

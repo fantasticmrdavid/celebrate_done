@@ -148,6 +148,7 @@ export const TodoList = () => {
         </Title>
         <DatePicker
           value={dayjs(new Date(currentDate))}
+          allowClear={false}
           onChange={(_, dateString) => {
             setCurrentDate(dateString)
             refetchTodoList()

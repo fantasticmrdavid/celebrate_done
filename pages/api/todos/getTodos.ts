@@ -5,7 +5,6 @@ import SqlString from 'sqlstring'
 
 export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
   const { date } = req.query
-  console.log('DATE: ', date)
   try {
     const results = await dbConnect.query(
       `SELECT
