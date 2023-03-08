@@ -237,16 +237,20 @@ export const TodoList = () => {
                       margin: 0,
                     }}
                   >
-                    {c.name}
-                    <Button
-                      onClick={() => {
-                        setTodoModalCategory(c)
-                        setTodoModalMode(TodoModal_Mode.ADD)
-                        setIsTodoModalOpen(true)
-                      }}
-                    >
-                      + Task
-                    </Button>
+                    <div>
+                      {c.name}
+                    </div>
+                    <div style={{ marginLeft: '1em'}}>
+                      <Button
+                        onClick={() => {
+                          setTodoModalCategory(c)
+                          setTodoModalMode(TodoModal_Mode.ADD)
+                          setIsTodoModalOpen(true)
+                        }}
+                      >
+                        + Task
+                      </Button>
+                    </div>
                   </Title>
                   <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
                     {c.description}
