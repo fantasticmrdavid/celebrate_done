@@ -1,0 +1,10 @@
+.actions {
+  margin-left: 1em;
+  opacity: 0;
+}
+
+.container {
+  &:hover .actions {
+    opacity: 1;
+  }
+}

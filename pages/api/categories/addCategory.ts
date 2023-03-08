@@ -13,7 +13,8 @@ export const addCategory = async (
                 null,
                 ${SqlString.escape(name)},
                 ${SqlString.escape(description)},
-                ${maxPerDay ? maxPerDay : null}
+                ${maxPerDay ? maxPerDay : null},
+                null
             )`
     try {
       const result = await dbConnect

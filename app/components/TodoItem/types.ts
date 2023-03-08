@@ -24,6 +24,7 @@ export type Todo = {
 }
 
 export type New_Todo = {
+  id?: number
   category?: number
   startDate: string
   name: string

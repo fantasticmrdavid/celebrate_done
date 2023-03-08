@@ -1,6 +1,7 @@
 export type Category = {
-    id?: number
+    id: number
     name: string
-    description: string,
+    description: string
     maxPerDay?: number
+    sortOrder: number
 }

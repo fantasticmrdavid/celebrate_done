@@ -1,17 +1,12 @@
-import React, { useState } from 'react'
-import {
-  QueryKey,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
-import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
-import { Button, Card, Collapse, DatePicker, Space, Typography } from 'antd'
+import React, {useState} from 'react'
+import {QueryKey, useMutation, useQuery, useQueryClient,} from '@tanstack/react-query'
+import {Todo, TODO_STATUS} from '@/app/components/TodoItem/types'
+import {Button, Collapse, DatePicker, Space, Typography} from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
-import AddTodoFormModal from '@/app/components/AddTodoFormModal/AddTodoFormModal'
+import TodoFormModal, {TodoModal_Mode} from '@/app/components/TodoFormModal/TodoFormModal'
 import dayjs from 'dayjs'
-import { TodoItem } from '@/app/components/TodoItem/Todo'
+import {TodoItem} from '@/app/components/TodoItem/Todo'
 
 type Update_Todo_Complete_Params = {
   action: string
@@ -20,7 +15,7 @@ type Update_Todo_Complete_Params = {
   completedDateTime: string | undefined
 }
 
-type Todo_Category = {
+export type Todo_Category = {
   id: number
   name: string
   description: string
@@ -34,7 +29,9 @@ export const TodoList = () => {
     new Date().toISOString()
   )
   const [isExploding, setIsExploding] = useState<boolean>(false)
-  const [isAddTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
+  const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
+  const [todoModalMode, setTodoModalMode] = useState<TodoModal_Mode>(TodoModal_Mode.ADD)
+  const [editTodoTarget, setEditTodoTarget] = useState<Todo | undefined>()
   const [todoModalCategory, setTodoModalCategory] = useState<
     Todo_Category | undefined
   >()
@@ -201,6 +198,7 @@ export const TodoList = () => {
                     <Button
                       onClick={() => {
                         setTodoModalCategory(c)
+                        setTodoModalMode(TodoModal_Mode.ADD)
                         setIsTodoModalOpen(true)
                       }}
                     >
@@ -221,16 +219,27 @@ export const TodoList = () => {
                     key={`todo_${t.id}`}
                     todo={t}
                     onChange={() => handleOnChange(t)}
+                    onEdit={() => {
+                      setEditTodoTarget(t)
+                      setTodoModalMode(TodoModal_Mode.EDIT)
+                      setIsTodoModalOpen(true)
+                    }}
+                    onDelete={() => {}}
                   />
                 ))}
             </Panel>
           </Collapse>
         ))}
-        {isAddTodoModalOpen && (
-          <AddTodoFormModal
+        {isTodoModalOpen && (
+          <TodoFormModal
             isOpen={true}
-            onCancel={() => setIsTodoModalOpen(false)}
+            onCancel={() => {
+              setIsTodoModalOpen(false)
+              if (todoModalMode === TodoModal_Mode.EDIT) setEditTodoTarget(undefined)
+            }}
             category={todoModalCategory}
+            mode={todoModalMode}
+            todo={todoModalMode === TodoModal_Mode.EDIT ? editTodoTarget : undefined}
           />
         )}
       </Space>
