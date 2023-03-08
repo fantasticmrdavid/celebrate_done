@@ -80,7 +80,10 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     data: categoriesData,
   } = useQuery(
     ['getCategories'] as unknown as QueryKey,
-    async () => await fetch('/api/categories').then((res) => res.json())
+    async () => await fetch('/api/categories').then((res) => res.json()),
+    {
+      initialData: [],
+    }
   )
 
   const createTodo = useMutation({
@@ -134,8 +137,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     },
   })
 
-  if (isFetchingCategories) return <div>LOADING CATEGORIES...</div>
-
   if (categoriesError) return <div>ERROR LOADING CATEGORIES...</div>
 
   const categoriesList: Category[] = categoriesData.map((c: any) => ({
@@ -185,12 +186,17 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         </Form.Item>
         <Form.Item label={'Category'}>
           <Select
-            defaultValue={category?.id}
+            defaultValue={isFetchingCategories ? undefined : category?.id}
+            disabled={isFetchingCategories}
             onChange={(value) =>
               setCategory(categoriesList.find((c) => c.id === value))
             }
-            placeholder={'Select a category for the task'}
-            allowClear
+            placeholder={
+              isFetchingCategories
+                ? 'Loading categories...'
+                : 'Select a category for the task'
+            }
+            allowClear={false}
           >
             {categoriesList.map((c) => (
               <Option key={`category_${c.id}`} value={c.id}>
