@@ -6,7 +6,14 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
-import { Button, Collapse, DatePicker, Space, Typography } from 'antd'
+import {
+  Button,
+  Collapse,
+  DatePicker,
+  notification,
+  Space,
+  Typography,
+} from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
 import TodoFormModal, {
@@ -97,7 +104,7 @@ export const TodoList = () => {
       }, 3000)
       return { previousTodos }
     },
-    onSuccess: (res) => {
+    onSuccess: () => {
       refetchTodoList()
     },
     onError: (e, updateTodoParams, context) => {
@@ -109,32 +116,32 @@ export const TodoList = () => {
     },
   })
 
-  // const deleteTodo = useMutation({
-  //   mutationFn: (req: { id: number }) =>
-  //     axios.delete('/api/todos', {
-  //       params: {}
-  //     }),
-  //   onMutate: async ({ id: number }) => {
-  //     await queryClient.cancelQueries({ queryKey: ['getTodos'] })
-  //     const previousTodos = queryClient.getQueryData(['getTodos'])
-  //     queryClient.setQueryData(
-  //       ['getTodos'],
-  //       (oldTodoList: Todo[] | undefined) =>
-  //         (oldTodoList || []).filter((t) => t.id !== id
-  //     ))
-  //     return { previousTodos }
-  //   },
-  //   onSuccess: (res) => {
-  //     refetchTodoList()
-  //   },
-  //   onError: (e, updateTodoParams, context) => {
-  //     queryClient.setQueryData(['todos'], context?.previousTodos || [])
-  //     console.error('ERROR: ', e)
-  //   },
-  //   onSettled: () => {
-  //     queryClient.invalidateQueries({ queryKey: ['getTodos'] })
-  //   },
-  // })
+  const deleteTodo = useMutation({
+    mutationFn: (req: { id: number }) => axios.delete(`/api/todos/${req.id}`),
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: ['getTodos'] })
+      const previousTodos = queryClient.getQueryData(['getTodos'])
+      queryClient.setQueryData(
+        ['getTodos'],
+        (oldTodoList: Todo[] | undefined) =>
+          (oldTodoList || []).filter((t) => t.id !== id)
+      )
+      return { previousTodos }
+    },
+    onSuccess: () => {
+      notification.success({
+        message: 'Task deleted.',
+      })
+      refetchTodoList()
+    },
+    onError: (e, updateTodoParams, context) => {
+      queryClient.setQueryData(['todos'], context?.previousTodos || [])
+      console.error('ERROR: ', e)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['getTodos'] })
+    },
+  })
 
   if (isLoading) return <div>LOADING TODOS...</div>
 
@@ -260,7 +267,7 @@ export const TodoList = () => {
                       setTodoModalMode(TodoModal_Mode.EDIT)
                       setIsTodoModalOpen(true)
                     }}
-                    onDelete={() => {}}
+                    onDelete={() => deleteTodo.mutate({ id: t.id })}
                   />
                 ))}
             </Panel>
