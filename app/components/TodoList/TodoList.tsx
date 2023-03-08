@@ -1,12 +1,19 @@
-import React, {useState} from 'react'
-import {QueryKey, useMutation, useQuery, useQueryClient,} from '@tanstack/react-query'
-import {Todo, TODO_STATUS} from '@/app/components/TodoItem/types'
-import {Button, Collapse, DatePicker, Space, Typography} from 'antd'
+import React, { useState } from 'react'
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
+import { Button, Collapse, DatePicker, Space, Typography } from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
-import TodoFormModal, {TodoModal_Mode} from '@/app/components/TodoFormModal/TodoFormModal'
+import TodoFormModal, {
+  TodoModal_Mode,
+} from '@/app/components/TodoFormModal/TodoFormModal'
 import dayjs from 'dayjs'
-import {TodoItem} from '@/app/components/TodoItem/Todo'
+import { TodoItem } from '@/app/components/TodoItem/Todo'
 
 type Update_Todo_Complete_Params = {
   action: string
@@ -30,7 +37,9 @@ export const TodoList = () => {
   )
   const [isExploding, setIsExploding] = useState<boolean>(false)
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
-  const [todoModalMode, setTodoModalMode] = useState<TodoModal_Mode>(TodoModal_Mode.ADD)
+  const [todoModalMode, setTodoModalMode] = useState<TodoModal_Mode>(
+    TodoModal_Mode.ADD
+  )
   const [editTodoTarget, setEditTodoTarget] = useState<Todo | undefined>()
   const [todoModalCategory, setTodoModalCategory] = useState<
     Todo_Category | undefined
@@ -99,6 +108,33 @@ export const TodoList = () => {
       queryClient.invalidateQueries({ queryKey: ['getTodos'] })
     },
   })
+
+  // const deleteTodo = useMutation({
+  //   mutationFn: (req: { id: number }) =>
+  //     axios.delete('/api/todos', {
+  //       params: {}
+  //     }),
+  //   onMutate: async ({ id: number }) => {
+  //     await queryClient.cancelQueries({ queryKey: ['getTodos'] })
+  //     const previousTodos = queryClient.getQueryData(['getTodos'])
+  //     queryClient.setQueryData(
+  //       ['getTodos'],
+  //       (oldTodoList: Todo[] | undefined) =>
+  //         (oldTodoList || []).filter((t) => t.id !== id
+  //     ))
+  //     return { previousTodos }
+  //   },
+  //   onSuccess: (res) => {
+  //     refetchTodoList()
+  //   },
+  //   onError: (e, updateTodoParams, context) => {
+  //     queryClient.setQueryData(['todos'], context?.previousTodos || [])
+  //     console.error('ERROR: ', e)
+  //   },
+  //   onSettled: () => {
+  //     queryClient.invalidateQueries({ queryKey: ['getTodos'] })
+  //   },
+  // })
 
   if (isLoading) return <div>LOADING TODOS...</div>
 
@@ -235,11 +271,14 @@ export const TodoList = () => {
             isOpen={true}
             onCancel={() => {
               setIsTodoModalOpen(false)
-              if (todoModalMode === TodoModal_Mode.EDIT) setEditTodoTarget(undefined)
+              if (todoModalMode === TodoModal_Mode.EDIT)
+                setEditTodoTarget(undefined)
             }}
             category={todoModalCategory}
             mode={todoModalMode}
-            todo={todoModalMode === TodoModal_Mode.EDIT ? editTodoTarget : undefined}
+            todo={
+              todoModalMode === TodoModal_Mode.EDIT ? editTodoTarget : undefined
+            }
           />
         )}
       </Space>

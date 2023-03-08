@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { TODO_STATUS } from '@/app/components/TodoItem/types'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from "sqlstring";
+import SqlString from 'sqlstring'
 
 export const updateTodos = async (
   req: NextApiRequest,
@@ -26,12 +26,15 @@ export const updateTodos = async (
     }
     case 'update': {
       const { id, name, startDate, size, category } = req.body
-      updateTodoQuery = `UPDATE todos
+      updateTodoQuery = `
+        UPDATE todos t
+        INNER JOIN todos_to_categories tc ON (t.id = tc.todo_id)
            SET
-            name=${SqlString.escape(name)},
-            startDate=${SqlString.escape(startDate)},
-            size=${SqlString.escape(size)},
-            WHERE id=${id}`
+            t.name=${SqlString.escape(name)},
+            t.startDate=${SqlString.escape(startDate)},
+            t.size=${SqlString.escape(size)},
+            tc.category_id=${category.id}
+            WHERE t.id=${id} AND tc.todo_id=${id}`
       break
     }
     default:
