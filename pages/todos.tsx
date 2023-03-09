@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { Button, Layout, Space, Typography } from 'antd'
 import { TodoList } from '@/app/components/TodoList/TodoList'
-import CategoryFormModal from '@/app/components/CategoryFormModal/CategoryFormModal'
+import CategoryFormModal, {
+  CategoryModal_Mode,
+} from '@/app/components/CategoryFormModal/CategoryFormModal'
 
 const { Header, Content } = Layout
 const { Title } = Typography
@@ -35,6 +37,7 @@ export const TodosPage = () => {
       <CategoryFormModal
         isOpen={isCategoryFormModalOpen}
         onCancel={() => setIsCategoryFormModalOpen(false)}
+        mode={CategoryModal_Mode.ADD}
       />
     </Layout>
   )

@@ -1,3 +1,5 @@
+import { Category } from '@/app/components/Category/types'
+
 export enum TODO_SIZE {
   SMALL = 'SMALL',
   MEDIUM = 'MEDIUM',
@@ -6,7 +8,7 @@ export enum TODO_SIZE {
 
 export enum TODO_PRIORITY {
   NORMAL = 'NORMAL',
-  URGENT = 'URGENT'
+  URGENT = 'URGENT',
 }
 
 export enum TODO_STATUS {
@@ -24,9 +26,7 @@ export type Todo = {
   priority: TODO_PRIORITY
   status: TODO_STATUS
   completedDateTime: string | undefined
-  category_id: number
-  category_name: string
-  category_description: string
+  category: Category
 }
 
 export type New_Todo = {

@@ -21,18 +21,17 @@ import TodoFormModal, {
 } from '@/app/components/TodoFormModal/TodoFormModal'
 import dayjs from 'dayjs'
 import { TodoItem } from '@/app/components/TodoItem/Todo'
+import CategoryFormModal, {
+  CategoryModal_Mode,
+} from '@/app/components/CategoryFormModal/CategoryFormModal'
+import { Category } from '@/app/components/Category/types'
+import { EditOutlined } from '@ant-design/icons'
 
 type Update_Todo_Complete_Params = {
   action: string
   id: number
   status: TODO_STATUS
   completedDateTime: string | undefined
-}
-
-export type Todo_Category = {
-  id: number
-  name: string
-  description: string
 }
 
 const { Panel } = Collapse
@@ -44,12 +43,13 @@ export const TodoList = () => {
   )
   const [isExploding, setIsExploding] = useState<boolean>(false)
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false)
   const [todoModalMode, setTodoModalMode] = useState<TodoModal_Mode>(
     TodoModal_Mode.ADD
   )
   const [editTodoTarget, setEditTodoTarget] = useState<Todo | undefined>()
   const [todoModalCategory, setTodoModalCategory] = useState<
-    Todo_Category | undefined
+    Category | undefined
   >()
 
   const isToday = new Date(currentDate).getDate() === new Date().getDate()
@@ -159,17 +159,10 @@ export const TodoList = () => {
     })
   }
 
-  const categoryList: Todo_Category[] = todoList.reduce(
-    (acc: Todo_Category[], currTodo: Todo) => {
-      if (!acc.find((c) => c.id === currTodo.category_id)) {
-        return [
-          ...acc,
-          {
-            id: currTodo.category_id,
-            name: currTodo.category_name,
-            description: currTodo.category_description,
-          },
-        ]
+  const categoryList: Category[] = todoList.reduce(
+    (acc: Category[], currTodo: Todo) => {
+      if (!acc.find((c) => c.id === currTodo.category.id)) {
+        return [...acc, currTodo.category]
       }
       return acc
     },
@@ -237,10 +230,15 @@ export const TodoList = () => {
                       margin: 0,
                     }}
                   >
-                    <div>
-                      {c.name}
-                    </div>
-                    <div style={{ marginLeft: '1em'}}>
+                    <div>{c.name}</div>
+                    <div style={{ marginLeft: '1em' }}>
+                      <Button
+                        icon={<EditOutlined />}
+                        onClick={() => {
+                          setTodoModalCategory(c)
+                          setIsCategoryModalOpen(true)
+                        }}
+                      />
                       <Button
                         onClick={() => {
                           setTodoModalCategory(c)
@@ -259,7 +257,7 @@ export const TodoList = () => {
               }
             >
               {todoList
-                .filter((t: Todo) => t.category_id === c.id)
+                .filter((t: Todo) => t.category.id === c.id)
                 .sort((a: Todo) => (a.status === TODO_STATUS.DONE ? 1 : -1))
                 .map((t: Todo) => (
                   <TodoItem
@@ -290,6 +288,17 @@ export const TodoList = () => {
             todo={
               todoModalMode === TodoModal_Mode.EDIT ? editTodoTarget : undefined
             }
+          />
+        )}
+        {isCategoryModalOpen && (
+          <CategoryFormModal
+            isOpen={isCategoryModalOpen}
+            onCancel={() => {
+              setIsCategoryModalOpen(false)
+              setTodoModalCategory(undefined)
+            }}
+            mode={CategoryModal_Mode.EDIT}
+            category={todoModalCategory}
           />
         )}
       </Space>

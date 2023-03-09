@@ -1,16 +1,34 @@
-import React, {useState} from 'react'
-import {DatePicker, Form, Input, Modal, notification, Radio, Select, Space,} from 'antd'
+import React, { useState } from 'react'
+import {
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Radio,
+  Select,
+  Space,
+} from 'antd'
 import axios from 'axios'
-import {Category} from '@/app/components/Category/types'
-import {QueryKey, useMutation, useQuery, useQueryClient,} from '@tanstack/react-query'
+import { Category } from '@/app/components/Category/types'
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import {New_Todo, Todo, TODO_PRIORITY, TODO_SIZE} from '@/app/components/TodoItem/types'
-import {Todo_Category} from '@/app/components/TodoList/TodoList'
+import {
+  New_Todo,
+  Todo,
+  TODO_PRIORITY,
+  TODO_SIZE,
+} from '@/app/components/TodoItem/types'
 
 type TodoFormModalProps = {
   isOpen: boolean
   onCancel?: () => any
-  category?: Todo_Category
+  category?: Category
   mode: TodoModal_Mode
   todo?: Todo
 }
@@ -38,11 +56,11 @@ const sizeList = [
 const priorityList = [
   {
     label: 'Normal',
-    value: TODO_PRIORITY.NORMAL
+    value: TODO_PRIORITY.NORMAL,
   },
   {
     label: 'Urgent',
-    value: TODO_PRIORITY.URGENT
+    value: TODO_PRIORITY.URGENT,
   },
 ]
 
@@ -62,14 +80,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const [priority, setPriority] = useState<TODO_PRIORITY>(
     todo ? todo.priority : TODO_PRIORITY.NORMAL
   )
-  const [category, setCategory] = useState<Todo_Category | undefined>(
-    todo
-      ? {
-          id: todo.category_id,
-          name: todo.category_name,
-          description: todo.category_description,
-        }
-      : propsCategory
+  const [category, setCategory] = useState<Category | undefined>(
+    todo ? todo.category : propsCategory
   )
 
   const queryClient = useQueryClient()

@@ -3,23 +3,37 @@ import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
 import { Category } from '@/app/components/Category/types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { addCategory } from '@/pages/api/categories/addCategory'
+
+export enum CategoryModal_Mode {
+  ADD = 'ADD',
+  EDIT = 'EDIT',
+}
 
 type CategoryFormModalProps = {
   isOpen: boolean
   onCancel?: () => any
+  mode: CategoryModal_Mode
+  category?: Category
 }
 
 export const CategoryFormModal = ({
   isOpen,
   onCancel,
+  mode,
+  category,
 }: CategoryFormModalProps) => {
-  const [name, setName] = useState<string>('')
-  const [description, setDescription] = useState<string>('')
-  const [maxPerDay, setMaxPerDay] = useState<number | undefined>()
+  const [name, setName] = useState<string>(category ? category.name : '')
+  const [description, setDescription] = useState<string>(
+    category ? category.description : ''
+  )
+  const [maxPerDay, setMaxPerDay] = useState<number | undefined>(
+    category ? category.maxPerDay : undefined
+  )
 
   const queryClient = useQueryClient()
 
-  const saveCategory = useMutation({
+  const createCategory = useMutation({
     mutationFn: () =>
       axios.post('/api/categories', {
         name,
@@ -45,16 +59,48 @@ export const CategoryFormModal = ({
     },
   })
 
+  const saveCategory = useMutation({
+    mutationFn: () =>
+      axios.patch('/api/categories', {
+        id: (category as Category).id,
+        name,
+        description,
+        maxPerDay,
+        sortOrder: (category as Category).sortOrder,
+      } as Category),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries(['getCategories'])
+      queryClient.invalidateQueries(['getTodos'])
+      notification.success({
+        message: (
+          <>
+            <strong>{name}</strong> updated!
+          </>
+        ),
+      })
+      if (onCancel) onCancel()
+    },
+    onError: () => {
+      console.log('ERROR')
+    },
+  })
+
+  const isLoading = createCategory.isLoading || saveCategory.isLoading
+
   return (
     <Modal
-      title={'Add Category'}
+      title={`${mode === CategoryModal_Mode.ADD ? 'Add' : 'Edit'} Category`}
       open={isOpen}
       onCancel={onCancel}
-      onOk={() => saveCategory.mutate()}
-      okText={'Add Category'}
+      onOk={() =>
+        mode === CategoryModal_Mode.ADD
+          ? createCategory.mutate()
+          : saveCategory.mutate()
+      }
+      okText={mode === CategoryModal_Mode.ADD ? 'Add Category' : 'Save'}
       okButtonProps={{
-        loading: saveCategory.isLoading,
-        disabled: saveCategory.isLoading,
+        loading: isLoading,
+        disabled: isLoading,
       }}
     >
       <Space style={{ padding: '1em' }} direction={'vertical'}>
