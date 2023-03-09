@@ -22,7 +22,7 @@ export const TodosPage = () => {
       >
         <Title level={2}>{`To-Do's`}</Title>
         <Button onClick={() => setIsCategoryFormModalOpen(true)}>
-          +Category
+          + Category
         </Button>
       </Header>
       <Content>
