@@ -1,25 +1,11 @@
-import React, { useState } from 'react'
-import {
-  DatePicker,
-  Form,
-  Input,
-  Modal,
-  notification,
-  Radio,
-  Select,
-  Space,
-} from 'antd'
+import React, {useState} from 'react'
+import {DatePicker, Form, Input, Modal, notification, Radio, Select, Space,} from 'antd'
 import axios from 'axios'
-import { Category } from '@/app/components/Category/types'
-import {
-  QueryKey,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import {Category} from '@/app/components/Category/types'
+import {QueryKey, useMutation, useQuery, useQueryClient,} from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { New_Todo, Todo, TODO_SIZE } from '@/app/components/TodoItem/types'
-import { Todo_Category } from '@/app/components/TodoList/TodoList'
+import {New_Todo, Todo, TODO_PRIORITY, TODO_SIZE} from '@/app/components/TodoItem/types'
+import {Todo_Category} from '@/app/components/TodoList/TodoList'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -49,6 +35,17 @@ const sizeList = [
   },
 ]
 
+const priorityList = [
+  {
+    label: 'Normal',
+    value: TODO_PRIORITY.NORMAL
+  },
+  {
+    label: 'Urgent',
+    value: TODO_PRIORITY.URGENT
+  },
+]
+
 const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
@@ -61,6 +58,9 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   )
   const [size, setSize] = useState<TODO_SIZE>(
     todo ? todo.size : TODO_SIZE.SMALL
+  )
+  const [priority, setPriority] = useState<TODO_PRIORITY>(
+    todo ? todo.priority : TODO_PRIORITY.NORMAL
   )
   const [category, setCategory] = useState<Todo_Category | undefined>(
     todo
@@ -92,6 +92,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         name,
         startDate,
         size,
+        priority,
         category,
       } as New_Todo),
     onSuccess: () => {
@@ -118,6 +119,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         name,
         startDate,
         size,
+        priority,
         category,
         action: 'update',
       }),
@@ -182,6 +184,15 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             buttonStyle={'solid'}
             optionType={'button'}
             onChange={(e) => setSize(e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item label={'Priority'}>
+          <Radio.Group
+            value={priority}
+            options={priorityList}
+            buttonStyle={'solid'}
+            optionType={'button'}
+            onChange={(e) => setPriority(e.target.value)}
           />
         </Form.Item>
         <Form.Item label={'Category'}>

@@ -12,6 +12,11 @@
   }
 }
 
+.isUrgent {
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .fadeOut {
   transition: 1s;
   animation: fadeOut 1s ease 1;

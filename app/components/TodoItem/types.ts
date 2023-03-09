@@ -4,6 +4,11 @@ export enum TODO_SIZE {
   LARGE = 'LARGE',
 }
 
+export enum TODO_PRIORITY {
+  NORMAL = 'NORMAL',
+  URGENT = 'URGENT'
+}
+
 export enum TODO_STATUS {
   INCOMPLETE = 'INCOMPLETE',
   DONE = 'DONE',
@@ -16,6 +21,7 @@ export type Todo = {
   name: string
   description: string
   size: TODO_SIZE
+  priority: TODO_PRIORITY
   status: TODO_STATUS
   completedDateTime: string | undefined
   category_id: number
@@ -29,4 +35,5 @@ export type New_Todo = {
   startDate: string
   name: string
   size: TODO_SIZE
+  priority: TODO_PRIORITY
 }

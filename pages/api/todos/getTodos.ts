@@ -14,6 +14,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         t.name,
         t.description,
         t.size,
+        t.priority,
         t.status,
         t.completedDateTime,
         c.id AS category_id,

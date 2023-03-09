@@ -5,7 +5,7 @@ import SqlString from 'sqlstring'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const { name, description, size, category, startDate } = req.body
+    const { name, description, priority, size, category, startDate } = req.body
     const createdDateTime = `"${new Date()
       .toISOString()
       .slice(0, 19)
@@ -18,6 +18,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                 ${SqlString.escape(name)},
                 ${SqlString.escape(description)},
                 '${size}',
+                '${priority}',
                 '${TODO_STATUS.INCOMPLETE}',
                 null
             )`

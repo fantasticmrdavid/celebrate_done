@@ -1,7 +1,7 @@
 import {Checkbox, Dropdown, MenuProps} from 'antd'
 import classNames from "classnames"
 import React, {useEffect, useState} from 'react'
-import {Todo, TODO_STATUS} from '@/app/components/TodoItem/types'
+import {Todo, TODO_PRIORITY, TODO_STATUS} from '@/app/components/TodoItem/types'
 import {DeleteOutlined, EditOutlined, EllipsisOutlined} from "@ant-design/icons";
 import styles from "./todo.module.scss"
 
@@ -42,7 +42,8 @@ export const TodoItem = (props: TodoProps) => {
     [styles.container]: true,
     [styles.isCompleted]: shouldAnimateCompleted,
     [styles.isDeleted]: shouldAnimateDeleted,
-    [styles.fadeOut]: shouldAnimateFadeOut
+    [styles.fadeOut]: shouldAnimateFadeOut,
+    [styles.isUrgent]: todo.priority === TODO_PRIORITY.URGENT && todo.status !== TODO_STATUS.DONE
   })
   return (
     <div style={{ display: "flex", justifyContent: "space-between"}} className={containerClassNames}>
