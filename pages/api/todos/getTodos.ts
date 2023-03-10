@@ -7,6 +7,7 @@ import {
   TODO_STATUS,
 } from '@/app/components/TodoItem/types'
 import SqlString from 'sqlstring'
+import dayjs from 'dayjs'
 
 export type Get_Todos_Response = {
   id: number
@@ -48,6 +49,11 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
 
 export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
   const { date } = req.query
+  const localStartOfDay = date
+    ? dayjs(new Date(date as string))
+        .startOf('day')
+        .toISOString()
+    : dayjs(new Date()).startOf('day').toISOString()
   try {
     const results = await dbConnect.query(
       `SELECT
@@ -68,12 +74,15 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       FROM todos t
       LEFT JOIN todos_to_categories ON todos_to_categories.todo_id = t.id
       LEFT JOIN categories c ON todos_to_categories.category_id = c.id
-      WHERE (t.status != "${TODO_STATUS.DONE}" AND ${
-        date ? SqlString.escape(date) : 'CURDATE()'
-      } >= t.startDate) 
-      OR (t.status = "${TODO_STATUS.DONE}" AND DATE(t.completedDateTime) = ${
-        date ? SqlString.escape(date) : 'CURDATE()'
-      })
+      WHERE (t.status != "${TODO_STATUS.DONE}" AND ${SqlString.escape(
+        date ? date : new Date().toISOString()
+      )} >= t.startDate) 
+      OR (t.status = "${
+        TODO_STATUS.DONE
+      }" AND DATE(t.completedDateTime) <= ${SqlString.escape(
+        date ? date : new Date().toISOString()
+      )} AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
+      )
       ORDER BY c.id, t.name DESC`
     )
     await dbConnect.end()

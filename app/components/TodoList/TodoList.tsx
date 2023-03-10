@@ -1,15 +1,35 @@
-import React, {useState} from 'react'
-import {QueryKey, useMutation, useQuery, useQueryClient,} from '@tanstack/react-query'
-import {Todo, TODO_PRIORITY, TODO_STATUS} from '@/app/components/TodoItem/types'
-import {Button, Collapse, DatePicker, notification, Space, Typography,} from 'antd'
+import React, { useState } from 'react'
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import {
+  Todo,
+  TODO_PRIORITY,
+  TODO_STATUS,
+} from '@/app/components/TodoItem/types'
+import {
+  Button,
+  Collapse,
+  DatePicker,
+  notification,
+  Space,
+  Typography,
+} from 'antd'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
-import TodoFormModal, {TodoModal_Mode,} from '@/app/components/TodoFormModal/TodoFormModal'
+import TodoFormModal, {
+  TodoModal_Mode,
+} from '@/app/components/TodoFormModal/TodoFormModal'
 import dayjs from 'dayjs'
-import {TodoItem} from '@/app/components/TodoItem/Todo'
-import CategoryFormModal, {CategoryModal_Mode,} from '@/app/components/CategoryFormModal/CategoryFormModal'
-import {Category} from '@/app/components/Category/types'
-import {EditOutlined} from '@ant-design/icons'
+import { TodoItem } from '@/app/components/TodoItem/Todo'
+import CategoryFormModal, {
+  CategoryModal_Mode,
+} from '@/app/components/CategoryFormModal/CategoryFormModal'
+import { Category } from '@/app/components/Category/types'
+import { EditOutlined } from '@ant-design/icons'
 
 type Update_Todo_Complete_Params = {
   action: string
@@ -243,8 +263,16 @@ export const TodoList = () => {
               {todoList
                 .filter((t: Todo) => t.category.id === c.id)
                 .sort((a: Todo, b: Todo) => {
-                  if (a.status !== TODO_STATUS.DONE && a.priority === TODO_PRIORITY.URGENT) return -1
-                  if (b.status !== TODO_STATUS.DONE && b.priority === TODO_PRIORITY.URGENT) return 1
+                  if (
+                    a.status !== TODO_STATUS.DONE &&
+                    a.priority === TODO_PRIORITY.URGENT
+                  )
+                    return -1
+                  if (
+                    b.status !== TODO_STATUS.DONE &&
+                    b.priority === TODO_PRIORITY.URGENT
+                  )
+                    return 1
                   return a.status === TODO_STATUS.DONE ? 1 : -1
                 })
                 .map((t: Todo) => (
