@@ -158,7 +158,7 @@ export const TodoList = () => {
       id: t.id,
       status: shouldMarkCompleted ? TODO_STATUS.DONE : TODO_STATUS.INCOMPLETE,
       completedDateTime: shouldMarkCompleted
-        ? new Date().toISOString()
+        ? new Date(currentDate).toISOString()
         : undefined,
     })
   }
