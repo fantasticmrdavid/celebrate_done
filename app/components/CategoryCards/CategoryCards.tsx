@@ -1,10 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import {
-  Todo,
-  TODO_PRIORITY,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/types'
+import { Todo } from '@/app/components/TodoItem/types'
 import { Button, Collapse, DatePicker, Space, Spin, Typography } from 'antd'
 import TodoFormModal, {
   TodoModal_Mode,
@@ -31,6 +27,12 @@ export const CategoryCards = () => {
   const { categoryList } = useContext(CategoriesContext)
 
   const isToday = new Date(currentDate).getDate() === new Date().getDate()
+  const isYesterday =
+    new Date(currentDate).getDate() ===
+    new Date(new Date().setDate(new Date().getDate() - 1)).getDate()
+  const isTomorrow =
+    new Date(currentDate).getDate() ===
+    new Date(new Date().setDate(new Date().getDate() + 1)).getDate()
 
   const {
     isLoading,
@@ -57,16 +59,20 @@ export const CategoryCards = () => {
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
+  const getDateTitle = () => {
+    if (isToday) return 'Today'
+    if (isYesterday) return 'Yesterday'
+    if (isTomorrow) return 'Tomorrow'
+
+    return dayjs(new Date(currentDate)).format('ddd, MMM D, YYYY')
+  }
+
   return (
     <>
       <Space
         style={{ display: 'flex', columnGap: '1em', paddingBottom: '1em' }}
       >
-        <Title style={{ margin: 0 }}>
-          {isToday
-            ? 'Today'
-            : dayjs(new Date(currentDate)).format('ddd, MMM D, YYYY')}
-        </Title>
+        <Title style={{ margin: 0 }}>{getDateTitle()}</Title>
         <DatePicker
           value={dayjs(new Date(currentDate))}
           allowClear={false}
