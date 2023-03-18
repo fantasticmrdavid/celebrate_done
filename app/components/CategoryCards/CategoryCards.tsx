@@ -33,7 +33,7 @@ export const CategoryCards = () => {
   const [todoModalCategory, setTodoModalCategory] = useState<
     Category | undefined
   >()
-  const { categoryList, isFetchingCategories } = useContext(CategoriesContext)
+  const { categoryList } = useContext(CategoriesContext)
 
   const isToday = new Date(currentDate).getDate() === new Date().getDate()
 

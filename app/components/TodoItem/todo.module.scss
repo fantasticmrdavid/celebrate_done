@@ -1,6 +1,10 @@
 .actions {
   margin-left: 1em;
-  opacity: 0;
+  opacity: 1;
+
+  @media only screen and (min-width: 800px) {
+    opacity: 0;
+  }
 }
 
 .container {
