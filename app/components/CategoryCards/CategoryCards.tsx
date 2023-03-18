@@ -1,7 +1,15 @@
 import React, { useContext, useState } from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Todo } from '@/app/components/TodoItem/types'
-import { Button, Collapse, DatePicker, Space, Spin, Typography } from 'antd'
+import {
+  Button,
+  Collapse,
+  DatePicker,
+  Space,
+  Spin,
+  Tooltip,
+  Typography,
+} from 'antd'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
@@ -11,7 +19,7 @@ import CategoryFormModal, {
   CategoryModal_Mode,
 } from '@/app/components/CategoryFormModal/CategoryFormModal'
 import { Category } from '@/app/components/CategoryFormModal/types'
-import { EditOutlined } from '@ant-design/icons'
+import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
 
 const { Panel } = Collapse
@@ -110,21 +118,24 @@ export const CategoryCards = () => {
                   >
                     <div>{c.name}</div>
                     <div style={{ marginLeft: '1em' }}>
-                      <Button
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setModalCategory(c)
-                          setIsCategoryModalOpen(true)
-                        }}
-                      />
-                      <Button
-                        onClick={() => {
-                          setModalCategory(c)
-                          setIsTodoModalOpen(true)
-                        }}
-                      >
-                        + Task
-                      </Button>
+                      <Tooltip title={'Edit Category'}>
+                        <Button
+                          icon={<EditOutlined />}
+                          onClick={() => {
+                            setModalCategory(c)
+                            setIsCategoryModalOpen(true)
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip title={'Add Task'}>
+                        <Button
+                          icon={<PlusSquareOutlined />}
+                          onClick={() => {
+                            setModalCategory(c)
+                            setIsTodoModalOpen(true)
+                          }}
+                        />
+                      </Tooltip>
                     </div>
                   </Title>
                   <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>

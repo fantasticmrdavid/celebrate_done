@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Button, Layout } from 'antd'
+import { Button, Layout, Tooltip } from 'antd'
 import CategoryFormModal, {
   CategoryModal_Mode,
 } from '@/app/components/CategoryFormModal/CategoryFormModal'
 import styles from './headerNav.module.scss'
+import { FolderAddOutlined } from '@ant-design/icons'
 
 const { Header } = Layout
 
@@ -13,9 +14,11 @@ export const HeaderNav = () => {
   return (
     <Header className={styles.container}>
       <h2 className={styles.title}>celebrate.DONE</h2>
-      <Button onClick={() => setIsCategoryFormModalOpen(true)}>
-        + Category
-      </Button>
+      <Tooltip title={'Add Category'}>
+        <Button onClick={() => setIsCategoryFormModalOpen(true)}>
+          <FolderAddOutlined />
+        </Button>
+      </Tooltip>
       <CategoryFormModal
         isOpen={isCategoryFormModalOpen}
         onCancel={() => setIsCategoryFormModalOpen(false)}

@@ -3,6 +3,7 @@ import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
 import { Category } from './types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { EditOutlined, FolderAddOutlined } from '@ant-design/icons'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',
@@ -88,7 +89,20 @@ export const CategoryFormModal = ({
 
   return (
     <Modal
-      title={`${mode === CategoryModal_Mode.ADD ? 'Add' : 'Edit'} Category`}
+      title={
+        <>
+          {mode === CategoryModal_Mode.ADD ? (
+            <>
+              <FolderAddOutlined /> Add
+            </>
+          ) : (
+            <>
+              <EditOutlined /> Edit
+            </>
+          )}{' '}
+          Category
+        </>
+      }
       open={isOpen}
       onCancel={onCancel}
       onOk={() =>

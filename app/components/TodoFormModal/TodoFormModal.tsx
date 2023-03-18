@@ -20,6 +20,7 @@ import {
   TODO_SIZE,
 } from '@/app/components/TodoItem/types'
 import { CategoriesContext } from '@/app/contexts/Categories'
+import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -148,7 +149,19 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
 
   return (
     <Modal
-      title={mode === TodoModal_Mode.ADD ? 'Add Task' : 'Edit Task'}
+      title={
+        <>
+          {mode === TodoModal_Mode.ADD ? (
+            <>
+              <PlusSquareOutlined /> Add Task
+            </>
+          ) : (
+            <>
+              <EditOutlined /> Edit Task
+            </>
+          )}
+        </>
+      }
       open={isOpen}
       onCancel={onCancel}
       onOk={() =>
