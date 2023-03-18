@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Layout, Space, Typography } from 'antd'
-import { TodoList } from '@/app/components/TodoList/TodoList'
+import { CategoryCards } from '@/app/components/CategoryCards/CategoryCards'
 import CategoryFormModal, {
   CategoryModal_Mode,
 } from '@/app/components/CategoryFormModal/CategoryFormModal'
@@ -31,7 +31,7 @@ export const TodosPage = () => {
           size={'middle'}
           style={{ display: 'flex', padding: '1em' }}
         >
-          <TodoList />
+          <CategoryCards />
         </Space>
       </Content>
       <CategoryFormModal

@@ -21,7 +21,7 @@ import { CategoriesContext } from '@/app/contexts/Categories'
 const { Panel } = Collapse
 const { Title } = Typography
 
-export const TodoList = () => {
+export const CategoryCards = () => {
   const [currentDate, setCurrentDate] = useState<string>(
     new Date().toISOString()
   )
@@ -87,6 +87,7 @@ export const TodoList = () => {
             collapsible="icon"
             expandIconPosition={'end'}
             defaultActiveKey={c.id}
+            size={'small'}
           >
             <Panel
               key={c.id}
