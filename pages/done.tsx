@@ -34,13 +34,19 @@ export const DonePage = () => {
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
   return (
-    <Space direction={'vertical'} size={'middle'}>
+    <Space
+      size={'middle'}
+      style={{ justifyContent: 'center', width: '100%', columnGap: '2em' }}
+    >
       <DoneCount count={todoList.length} />
-      <ul>
-        {todoList.map((t) => (
-          <li key={`todo_${t.id}`}>{t.name}</li>
-        ))}
-      </ul>
+      <div>
+        <h1>🎉 What I did today:</h1>
+        <ul>
+          {todoList.map((t) => (
+            <li key={`todo_${t.id}`}>{t.name}</li>
+          ))}
+        </ul>
+      </div>
     </Space>
   )
 }
