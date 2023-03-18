@@ -5,7 +5,7 @@ import {
   TODO_PRIORITY,
   TODO_STATUS,
 } from '@/app/components/TodoItem/types'
-import { Button, Collapse, DatePicker, Space, Typography } from 'antd'
+import { Button, Collapse, DatePicker, Space, Spin, Typography } from 'antd'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
@@ -33,7 +33,7 @@ export const CategoryCards = () => {
   const [todoModalCategory, setTodoModalCategory] = useState<
     Category | undefined
   >()
-  const { categoryList } = useContext(CategoriesContext)
+  const { categoryList, isFetchingCategories } = useContext(CategoriesContext)
 
   const isToday = new Date(currentDate).getDate() === new Date().getDate()
 
@@ -53,7 +53,12 @@ export const CategoryCards = () => {
     }
   )
 
-  if (isLoading) return <div>LOADING TODOS...</div>
+  if (isLoading)
+    return (
+      <Spin tip="Loading Todos" size="large">
+        <div className="content" />
+      </Spin>
+    )
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
 

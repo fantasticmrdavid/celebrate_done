@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, FC } from 'react'
 import { Category } from '@/app/components/CategoryFormModal/types'
 import { QueryKey, useQuery } from '@tanstack/react-query'
+import { Spin } from 'antd'
 
 export interface CategoriesContextValues {
   categoryList: Category[]
@@ -49,6 +50,11 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
         isFetchingCategoriesError: !!error,
       }}
     >
+      {isLoading && (
+        <Spin tip="Loading categories" size="large">
+          <div className="content" />
+        </Spin>
+      )}
       {children}
     </CategoriesContext.Provider>
   )
