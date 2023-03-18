@@ -1,4 +1,4 @@
-import { Category } from '@/app/components/Category/types'
+import { Category } from '@/app/components/CategoryFormModal/types'
 
 export enum TODO_SIZE {
   SMALL = 'SMALL',

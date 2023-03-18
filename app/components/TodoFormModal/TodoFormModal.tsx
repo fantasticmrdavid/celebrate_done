@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import {
   DatePicker,
   Form,
@@ -10,13 +10,8 @@ import {
   Space,
 } from 'antd'
 import axios from 'axios'
-import { Category } from '@/app/components/Category/types'
-import {
-  QueryKey,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { Category } from '@/app/components/CategoryFormModal/types'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import {
   New_Todo,
@@ -24,6 +19,7 @@ import {
   TODO_PRIORITY,
   TODO_SIZE,
 } from '@/app/components/TodoItem/types'
+import { CategoriesContext } from '@/app/contexts/Categories'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -86,17 +82,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
 
   const queryClient = useQueryClient()
 
-  const {
-    isLoading: isFetchingCategories,
-    error: categoriesError,
-    data: categoriesData,
-  } = useQuery(
-    ['getCategories'] as unknown as QueryKey,
-    async () => await fetch('/api/categories').then((res) => res.json()),
-    {
-      initialData: [],
-    }
-  )
+  const { categoryList, isFetchingCategories, isFetchingCategoriesError } =
+    useContext(CategoriesContext)
 
   const createTodo = useMutation({
     mutationFn: () =>
@@ -151,15 +138,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     },
   })
 
-  if (categoriesError) return <div>ERROR LOADING CATEGORIES...</div>
-
-  const categoriesList: Category[] = categoriesData.map((c: any) => ({
-    id: c.id,
-    name: c.name,
-    description: c.description,
-    maxPerDay: c.maxPerDay,
-    sortOrder: c.sortOrder,
-  }))
+  if (isFetchingCategoriesError) return <div>ERROR LOADING CATEGORIES...</div>
 
   const isLoading = createTodo.isLoading || saveTodo.isLoading
   const getOkButtonLabel = () => {
@@ -212,7 +191,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             defaultValue={isFetchingCategories ? undefined : category?.id}
             disabled={isFetchingCategories}
             onChange={(value) =>
-              setCategory(categoriesList.find((c) => c.id === value))
+              setCategory(categoryList.find((c) => c.id === value))
             }
             placeholder={
               isFetchingCategories
@@ -221,7 +200,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             }
             allowClear={false}
           >
-            {categoriesList.map((c) => (
+            {categoryList.map((c) => (
               <Option key={`category_${c.id}`} value={c.id}>
                 {c.name}
               </Option>

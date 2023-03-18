@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
-import { Category } from '@/app/components/Category/types'
+import { Category } from './types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { addCategory } from '@/pages/api/categories/addCategory'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',

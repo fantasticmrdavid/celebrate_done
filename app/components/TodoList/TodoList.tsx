@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import {
   QueryKey,
   useMutation,
@@ -28,8 +28,9 @@ import { TodoItem } from '@/app/components/TodoItem/Todo'
 import CategoryFormModal, {
   CategoryModal_Mode,
 } from '@/app/components/CategoryFormModal/CategoryFormModal'
-import { Category } from '@/app/components/Category/types'
+import { Category } from '@/app/components/CategoryFormModal/types'
 import { EditOutlined } from '@ant-design/icons'
+import { CategoriesContext } from '@/app/contexts/Categories'
 
 type Update_Todo_Complete_Params = {
   action: string
@@ -55,6 +56,7 @@ export const TodoList = () => {
   const [todoModalCategory, setTodoModalCategory] = useState<
     Category | undefined
   >()
+  const { categoryList } = useContext(CategoriesContext)
 
   const isToday = new Date(currentDate).getDate() === new Date().getDate()
 
@@ -162,16 +164,6 @@ export const TodoList = () => {
         : undefined,
     })
   }
-
-  const categoryList: Category[] = todoList.reduce(
-    (acc: Category[], currTodo: Todo) => {
-      if (!acc.find((c) => c.id === currTodo.category.id)) {
-        return [...acc, currTodo.category]
-      }
-      return acc
-    },
-    []
-  )
 
   return (
     <>

@@ -6,6 +6,8 @@ import 'antd/dist/reset.css'
 
 import Head from 'next/head'
 
+import { CategoriesProvider } from '@/app/contexts/Categories'
+
 export default function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = React.useState(() => new QueryClient())
 
@@ -16,10 +18,12 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           algorithm: theme.defaultAlgorithm,
         }}
       >
-        <Head>
-          <title>CelebrateDone</title>
-        </Head>
-        <Component {...pageProps} />
+        <CategoriesProvider>
+          <Head>
+            <title>CelebrateDone</title>
+          </Head>
+          <Component {...pageProps} />
+        </CategoriesProvider>
       </ConfigProvider>
     </QueryClientProvider>
   )
