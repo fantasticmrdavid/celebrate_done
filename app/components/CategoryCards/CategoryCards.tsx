@@ -27,12 +27,7 @@ export const CategoryCards = () => {
   )
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false)
-  const [todoModalMode, setTodoModalMode] = useState<TodoModal_Mode>(
-    TodoModal_Mode.ADD
-  )
-  const [todoModalCategory, setTodoModalCategory] = useState<
-    Category | undefined
-  >()
+  const [modalCategory, setModalCategory] = useState<Category | undefined>()
   const { categoryList } = useContext(CategoriesContext)
 
   const isToday = new Date(currentDate).getDate() === new Date().getDate()
@@ -112,14 +107,13 @@ export const CategoryCards = () => {
                       <Button
                         icon={<EditOutlined />}
                         onClick={() => {
-                          setTodoModalCategory(c)
+                          setModalCategory(c)
                           setIsCategoryModalOpen(true)
                         }}
                       />
                       <Button
                         onClick={() => {
-                          setTodoModalCategory(c)
-                          setTodoModalMode(TodoModal_Mode.ADD)
+                          setModalCategory(c)
                           setIsTodoModalOpen(true)
                         }}
                       >
@@ -164,8 +158,8 @@ export const CategoryCards = () => {
             onCancel={() => {
               setIsTodoModalOpen(false)
             }}
-            category={todoModalCategory}
-            mode={todoModalMode}
+            category={modalCategory}
+            mode={TodoModal_Mode.ADD}
           />
         )}
         {isCategoryModalOpen && (
@@ -173,10 +167,10 @@ export const CategoryCards = () => {
             isOpen={isCategoryModalOpen}
             onCancel={() => {
               setIsCategoryModalOpen(false)
-              setTodoModalCategory(undefined)
+              setModalCategory(undefined)
             }}
             mode={CategoryModal_Mode.EDIT}
-            category={todoModalCategory}
+            category={modalCategory}
           />
         )}
       </Space>
