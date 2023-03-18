@@ -58,7 +58,7 @@ export const CategoryCards = () => {
     }
   )
 
-  if (isLoading)
+  if (isLoading || !todoList)
     return (
       <Spin tip="Loading Todos" size="large">
         <div className="content" />

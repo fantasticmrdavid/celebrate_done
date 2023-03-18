@@ -8,3 +8,10 @@
   color: white;
   margin-bottom: 0;
 }
+
+.menu {
+  display: flex;
+  li {
+    text-overflow: initial !important;
+  }
+}
