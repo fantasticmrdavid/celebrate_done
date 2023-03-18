@@ -86,7 +86,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       ORDER BY
         (t.status = "${TODO_STATUS.INCOMPLETE}") DESC,
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
-        c.id, t.name DESC`
+        c.id, t.name ASC`
     )
     await dbConnect.end()
     return res
