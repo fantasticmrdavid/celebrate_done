@@ -129,19 +129,6 @@ export const CategoryCards = () => {
             >
               {todoList
                 .filter((t: Todo) => t.category.id === c.id)
-                .sort((a: Todo, b: Todo) => {
-                  if (
-                    a.status !== TODO_STATUS.DONE &&
-                    a.priority === TODO_PRIORITY.URGENT
-                  )
-                    return -1
-                  if (
-                    b.status !== TODO_STATUS.DONE &&
-                    b.priority === TODO_PRIORITY.URGENT
-                  )
-                    return 1
-                  return a.status === TODO_STATUS.DONE ? 1 : -1
-                })
                 .map((t: Todo) => (
                   <TodoItem
                     key={`todo_${t.id}`}

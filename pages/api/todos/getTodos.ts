@@ -83,7 +83,10 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         date ? date : new Date().toISOString()
       )} AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
       )
-      ORDER BY c.id, t.name DESC`
+      ORDER BY
+        (t.status = "${TODO_STATUS.INCOMPLETE}") DESC,
+        (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
+        c.id, t.name DESC`
     )
     await dbConnect.end()
     return res
