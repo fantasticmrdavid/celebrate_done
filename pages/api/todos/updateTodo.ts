@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/TodoItem/types'
+import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/types'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
 
@@ -21,6 +21,18 @@ export const updateTodos = async (
            SET
             completedDateTime=${completedDateTimeValue},
             status="${status}"
+            WHERE id=${id}`
+      break
+    }
+    case 'togglePriority': {
+      const { id, priority } = req.body
+      updateTodoQuery = `UPDATE todos
+           SET
+            priority=${SqlString.escape(
+              priority === TODO_PRIORITY.URGENT
+                ? TODO_PRIORITY.NORMAL
+                : TODO_PRIORITY.URGENT
+            )}
             WHERE id=${id}`
       break
     }

@@ -1,25 +1,11 @@
 import React, { useContext, useState } from 'react'
-import {
-  QueryKey,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { QueryKey, useQuery } from '@tanstack/react-query'
 import {
   Todo,
   TODO_PRIORITY,
   TODO_STATUS,
 } from '@/app/components/TodoItem/types'
-import {
-  Button,
-  Collapse,
-  DatePicker,
-  notification,
-  Space,
-  Typography,
-} from 'antd'
-import axios from 'axios'
-import ConfettiExplosion from 'react-confetti-explosion'
+import { Button, Collapse, DatePicker, Space, Typography } from 'antd'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
@@ -32,13 +18,6 @@ import { Category } from '@/app/components/CategoryFormModal/types'
 import { EditOutlined } from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
 
-type Update_Todo_Complete_Params = {
-  action: string
-  id: number
-  status: TODO_STATUS
-  completedDateTime: string | undefined
-}
-
 const { Panel } = Collapse
 const { Title } = Typography
 
@@ -46,13 +25,11 @@ export const TodoList = () => {
   const [currentDate, setCurrentDate] = useState<string>(
     new Date().toISOString()
   )
-  const [isExploding, setIsExploding] = useState<boolean>(false)
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false)
   const [todoModalMode, setTodoModalMode] = useState<TodoModal_Mode>(
     TodoModal_Mode.ADD
   )
-  const [editTodoTarget, setEditTodoTarget] = useState<Todo | undefined>()
   const [todoModalCategory, setTodoModalCategory] = useState<
     Category | undefined
   >()
@@ -76,94 +53,9 @@ export const TodoList = () => {
     }
   )
 
-  const queryClient = useQueryClient()
-
-  const updateTodo = useMutation({
-    mutationFn: (req: Update_Todo_Complete_Params) =>
-      axios.patch('/api/todos', {
-        action: req.action,
-        id: req.id,
-        status: req.status,
-        completedDateTime: req.completedDateTime,
-      }),
-    onMutate: async (updateTodoParams) => {
-      await queryClient.cancelQueries({ queryKey: ['getTodos'] })
-      const previousTodos = queryClient.getQueryData(['getTodos'])
-      queryClient.setQueryData(
-        ['getTodos'],
-        (oldTodoList: Todo[] | undefined) =>
-          (oldTodoList || []).map((t) => {
-            if (updateTodoParams.id === t.id) {
-              return {
-                ...t,
-                ...updateTodoParams,
-              }
-            }
-
-            return t
-          })
-      )
-      const isDone = updateTodoParams.status === TODO_STATUS.DONE
-      if (isDone) setIsExploding(true)
-      setTimeout(() => {
-        setIsExploding(false)
-      }, 3000)
-      return { previousTodos }
-    },
-    onSuccess: () => {
-      refetchTodoList()
-    },
-    onError: (e, updateTodoParams, context) => {
-      queryClient.setQueryData(['todos'], context?.previousTodos || [])
-      console.error('ERROR: ', e)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['getTodos'] })
-    },
-  })
-
-  const deleteTodo = useMutation({
-    mutationFn: (req: { id: number }) => axios.delete(`/api/todos/${req.id}`),
-    onMutate: async ({ id }) => {
-      await queryClient.cancelQueries({ queryKey: ['getTodos'] })
-      const previousTodos = queryClient.getQueryData(['getTodos'])
-      queryClient.setQueryData(
-        ['getTodos'],
-        (oldTodoList: Todo[] | undefined) =>
-          (oldTodoList || []).filter((t) => t.id !== id)
-      )
-      return { previousTodos }
-    },
-    onSuccess: () => {
-      notification.success({
-        message: 'Task deleted.',
-      })
-      refetchTodoList()
-    },
-    onError: (e, updateTodoParams, context) => {
-      queryClient.setQueryData(['todos'], context?.previousTodos || [])
-      console.error('ERROR: ', e)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['getTodos'] })
-    },
-  })
-
   if (isLoading) return <div>LOADING TODOS...</div>
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
-
-  const handleOnChange = (t: Todo) => {
-    const shouldMarkCompleted = t.status !== TODO_STATUS.DONE
-    updateTodo.mutate({
-      action: 'complete',
-      id: t.id,
-      status: shouldMarkCompleted ? TODO_STATUS.DONE : TODO_STATUS.INCOMPLETE,
-      completedDateTime: shouldMarkCompleted
-        ? new Date(currentDate).toISOString()
-        : undefined,
-    })
-  }
 
   return (
     <>
@@ -189,23 +81,6 @@ export const TodoList = () => {
         align={'start'}
         style={{ display: 'flex', flexWrap: 'wrap' }}
       >
-        <Space
-          style={{
-            position: 'absolute',
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-around',
-          }}
-        >
-          {isExploding && (
-            <ConfettiExplosion
-              force={0.8}
-              duration={3000}
-              particleCount={250}
-              width={1600}
-            />
-          )}
-        </Space>
         {categoryList.map((c) => (
           <Collapse
             key={`category_${c.id}`}
@@ -271,13 +146,7 @@ export const TodoList = () => {
                   <TodoItem
                     key={`todo_${t.id}`}
                     todo={t}
-                    onChange={() => handleOnChange(t)}
-                    onEdit={() => {
-                      setEditTodoTarget(t)
-                      setTodoModalMode(TodoModal_Mode.EDIT)
-                      setIsTodoModalOpen(true)
-                    }}
-                    onDelete={() => deleteTodo.mutate({ id: t.id })}
+                    currentDate={currentDate}
                   />
                 ))}
             </Panel>
@@ -288,14 +157,9 @@ export const TodoList = () => {
             isOpen={true}
             onCancel={() => {
               setIsTodoModalOpen(false)
-              if (todoModalMode === TodoModal_Mode.EDIT)
-                setEditTodoTarget(undefined)
             }}
             category={todoModalCategory}
             mode={todoModalMode}
-            todo={
-              todoModalMode === TodoModal_Mode.EDIT ? editTodoTarget : undefined
-            }
           />
         )}
         {isCategoryModalOpen && (
