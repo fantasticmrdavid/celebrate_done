@@ -36,7 +36,7 @@ type Update_Todo_Params = {
   priority?: TODO_PRIORITY
 }
 
-const sizeTags = {
+export const sizeTags = {
   [TODO_SIZE.SMALL]: {
     label: 'S',
     color: 'green',

@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Space, Spin } from 'antd'
+import { Space, Spin, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { Todo } from '@/app/components/TodoItem/types'
+import { Todo, TODO_SIZE } from '@/app/components/TodoItem/types'
 import { DoneCount } from '@/app/components/DoneCount/DoneCount'
+import { sizeTags } from '@/app/components/TodoItem/Todo'
 
 export const DonePage = () => {
   const [currentDate, setCurrentDate] = useState<string>(
@@ -41,9 +42,16 @@ export const DonePage = () => {
       <DoneCount count={todoList.length} />
       <div>
         <h1>🎉 What I did today:</h1>
-        <ul>
+        <ul style={{ fontSize: '1rem', lineHeight: 1.25 }}>
           {todoList.map((t) => (
-            <li key={`todo_${t.id}`}>{t.name}</li>
+            <li key={`todo_${t.id}`}>
+              {t.name}{' '}
+              {t.size !== TODO_SIZE.SMALL && (
+                <Tag color={sizeTags[t.size].color}>
+                  {sizeTags[t.size].label}
+                </Tag>
+              )}
+            </li>
           ))}
         </ul>
       </div>

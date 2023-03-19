@@ -7,7 +7,7 @@ type Props = {
 
 export const DoneCount = ({ count }: Props) => {
   return (
-    <div style={{ textAlign: 'center', fontWeight: 700 }}>
+    <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '1.2rem' }}>
       <div style={{ fontSize: '10rem' }}>
         <CountUp isCounting end={count} />
       </div>
