@@ -1,5 +1,4 @@
 import React from 'react'
-import styles from './doneCount.module.scss'
 
 type Props = {
   count: number
@@ -7,8 +6,8 @@ type Props = {
 
 export const DoneCount = ({ count }: Props) => {
   return (
-    <div className={styles.container}>
-      <div className={styles.count}>{count}</div>
+    <div style={{ textAlign: 'center', fontWeight: 700 }}>
+      <div style={{ fontSize: '10rem' }}>{count}</div>
       <div>things done!</div>
     </div>
   )
