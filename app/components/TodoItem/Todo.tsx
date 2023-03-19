@@ -159,6 +159,7 @@ export const TodoItem = (props: TodoProps) => {
       key: '3',
       label: (
         <div
+          style={{ color: 'red' }}
           onClick={() => {
             setShouldAnimateFadeOut(true)
             setShouldAnimateDeleted(true)

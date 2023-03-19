@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { Todo } from '@/app/components/TodoItem/types'
+import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
 import {
   Button,
   Collapse,
@@ -99,6 +99,9 @@ export const CategoryCards = () => {
           const filteredTodoList = todoList.filter(
             (t: Todo) => t.category.id === c.id
           )
+          const doneCount = filteredTodoList.filter(
+            (t) => t.status === TODO_STATUS.DONE
+          )?.length
           return (
             <Collapse
               activeKey={filteredTodoList.length > 0 ? [c.id] : []}
@@ -121,7 +124,18 @@ export const CategoryCards = () => {
                         margin: 0,
                       }}
                     >
-                      <div>{c.name}</div>
+                      <div>
+                        {c.name}
+                        <span
+                          style={{
+                            fontWeight: 500,
+                            fontSize: '0.8rem',
+                            marginLeft: '0.5em',
+                          }}
+                        >
+                          {doneCount > 0 && ` 🎉 x${doneCount}`}
+                        </span>
+                      </div>
                       <div style={{ marginLeft: '1em' }}>
                         <Tooltip title={'Edit Category'}>
                           <Button
