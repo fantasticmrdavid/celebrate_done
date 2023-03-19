@@ -15,6 +15,11 @@ export const getDoneTodos = async (
         .startOf('day')
         .toISOString()
     : dayjs(new Date()).startOf('day').toISOString()
+  const localEndOfDay = date
+    ? dayjs(new Date(date as string))
+        .endOf('day')
+        .toISOString()
+    : dayjs(new Date()).endOf('day').toISOString()
   try {
     const results = await dbConnect.query(
       `SELECT
@@ -38,7 +43,7 @@ export const getDoneTodos = async (
       WHERE t.status = "${
         TODO_STATUS.DONE
       }" AND DATE(t.completedDateTime) <= ${SqlString.escape(
-        date ? date : new Date().toISOString()
+        date ? date : localEndOfDay
       )} AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
       ORDER BY
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,

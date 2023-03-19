@@ -54,9 +54,13 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         .startOf('day')
         .toISOString()
     : dayjs(new Date()).startOf('day').toISOString()
+  const localEndOfDay = date
+    ? dayjs(new Date(date as string))
+        .endOf('day')
+        .toISOString()
+    : dayjs(new Date()).endOf('day').toISOString()
   try {
-    const results = await dbConnect.query(
-      `SELECT
+    const query = `SELECT
         t.id,
         t.created,
         t.startDate,
@@ -75,19 +79,17 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       LEFT JOIN todos_to_categories ON todos_to_categories.todo_id = t.id
       LEFT JOIN categories c ON todos_to_categories.category_id = c.id
       WHERE (t.status != "${TODO_STATUS.DONE}" AND ${SqlString.escape(
-        date ? date : new Date().toISOString()
-      )} >= t.startDate) 
-      OR (t.status = "${
-        TODO_STATUS.DONE
-      }" AND DATE(t.completedDateTime) <= ${SqlString.escape(
-        date ? date : new Date().toISOString()
-      )} AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
+      localEndOfDay
+    )} >= t.startDate) 
+      OR (t.status = "${TODO_STATUS.DONE}" 
+        AND DATE(t.completedDateTime) <= ${SqlString.escape(localEndOfDay)} 
+        AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
       )
       ORDER BY
         (t.status = "${TODO_STATUS.INCOMPLETE}") DESC,
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
         c.id, t.name ASC`
-    )
+    const results = await dbConnect.query(query)
     await dbConnect.end()
     return res
       .status(200)
