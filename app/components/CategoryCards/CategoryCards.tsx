@@ -95,67 +95,73 @@ export const CategoryCards = () => {
         align={'start'}
         style={{ display: 'flex', flexWrap: 'wrap' }}
       >
-        {categoryList.map((c) => (
-          <Collapse
-            key={`category_${c.id}`}
-            collapsible="icon"
-            expandIconPosition={'end'}
-            defaultActiveKey={c.id}
-            size={'small'}
-          >
-            <Panel
-              key={c.id}
-              header={
-                <Space direction={'vertical'} style={{ width: '100%' }}>
-                  <Title
-                    level={5}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      margin: 0,
-                    }}
-                  >
-                    <div>{c.name}</div>
-                    <div style={{ marginLeft: '1em' }}>
-                      <Tooltip title={'Edit Category'}>
-                        <Button
-                          icon={<EditOutlined />}
-                          onClick={() => {
-                            setModalCategory(c)
-                            setIsCategoryModalOpen(true)
-                          }}
-                        />
-                      </Tooltip>
-                      <Tooltip title={'Add Task'}>
-                        <Button
-                          icon={<PlusSquareOutlined />}
-                          onClick={() => {
-                            setModalCategory(c)
-                            setIsTodoModalOpen(true)
-                          }}
-                        />
-                      </Tooltip>
-                    </div>
-                  </Title>
-                  <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
-                    {c.description}
-                  </Space>
-                </Space>
-              }
+        {categoryList.map((c) => {
+          const filteredTodoList = todoList.filter(
+            (t: Todo) => t.category.id === c.id
+          )
+          return (
+            <Collapse
+              activeKey={filteredTodoList.length > 0 ? [c.id] : []}
+              key={`category_${c.id}`}
+              collapsible="icon"
+              expandIconPosition={'end'}
+              defaultActiveKey={c.id}
+              size={'small'}
             >
-              {todoList
-                .filter((t: Todo) => t.category.id === c.id)
-                .map((t: Todo) => (
+              <Panel
+                key={c.id}
+                header={
+                  <Space direction={'vertical'} style={{ width: '100%' }}>
+                    <Title
+                      level={5}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        margin: 0,
+                      }}
+                    >
+                      <div>{c.name}</div>
+                      <div style={{ marginLeft: '1em' }}>
+                        <Tooltip title={'Edit Category'}>
+                          <Button
+                            icon={<EditOutlined />}
+                            onClick={() => {
+                              setModalCategory(c)
+                              setIsCategoryModalOpen(true)
+                            }}
+                          />
+                        </Tooltip>
+                        <Tooltip title={'Add Task'}>
+                          <Button
+                            icon={<PlusSquareOutlined />}
+                            onClick={() => {
+                              setModalCategory(c)
+                              setIsTodoModalOpen(true)
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    </Title>
+                    <Space
+                      style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}
+                    >
+                      {c.description}
+                    </Space>
+                  </Space>
+                }
+              >
+                {filteredTodoList.map((t: Todo) => (
                   <TodoItem
                     key={`todo_${t.id}`}
                     todo={t}
                     currentDate={currentDate}
                   />
                 ))}
-            </Panel>
-          </Collapse>
-        ))}
+              </Panel>
+            </Collapse>
+          )
+        })}
         {isTodoModalOpen && (
           <TodoFormModal
             isOpen={true}
