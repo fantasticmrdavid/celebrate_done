@@ -24,6 +24,8 @@
 
 .isUrgent {
   font-weight: 800;
+  animation: flashOnLoad 1s ease 1;
+  animation-fill-mode: forwards;
 }
 
 .fadeOut {
@@ -34,20 +36,20 @@
 
 .isCompleted {
   transition: 1s;
-  background-color: chartreuse;
+  background-color: rgba(chartreuse, 0.5);
   @media only screen and (min-width: 800px) {
     &:hover {
-      background-color: chartreuse;
+      background-color: rgba(chartreuse, 0.5);
     }
   }
 }
 
 .isDeleted {
   transition: 1s;
-  background-color: tomato;
+  background-color: rgba(tomato, 0.5);
   @media only screen and (min-width: 800px) {
     &:hover {
-      background-color: tomato;
+      background-color: rgba(tomato, 0.5);
     }
   }
 }
@@ -68,5 +70,23 @@
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes flashOnLoad {
+  0% {
+    background-color: white;
+  }
+  25% {
+    background-color: rgba(fuchsia, 0.25);
+  }
+  50% {
+    background-color: white;
+  }
+  75% {
+    background-color: rgba(fuchsia, 0.25);
+  }
+  100% {
+    background-color: white;
   }
 }

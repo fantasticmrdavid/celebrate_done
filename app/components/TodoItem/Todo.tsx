@@ -224,19 +224,22 @@ export const TodoItem = (props: TodoProps) => {
           </span>
         )}
       </div>
-      <div className={styles.actions}>
-        {updateTodo.isLoading ? (
-          <LoadingOutlined />
-        ) : (
-          <Dropdown
-            trigger={['click']}
-            placement={'bottomLeft'}
-            menu={{ items: actionList }}
-          >
-            <EllipsisOutlined />
-          </Dropdown>
-        )}
-      </div>
+      {!updateTodo.isLoading && (
+        <div className={styles.actions}>
+          {updateTodo.isLoading ? (
+            <LoadingOutlined />
+          ) : (
+            <Dropdown
+              trigger={['click']}
+              placement={'bottomLeft'}
+              menu={{ items: actionList }}
+            >
+              <EllipsisOutlined />
+            </Dropdown>
+          )}
+        </div>
+      )}
+      {updateTodo.isLoading && <LoadingOutlined />}
       {isTodoModalOpen && (
         <TodoFormModal
           isOpen={true}
