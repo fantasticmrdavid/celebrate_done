@@ -1,4 +1,5 @@
 import React from 'react'
+import { CountUp } from 'use-count-up'
 
 type Props = {
   count: number
@@ -7,7 +8,9 @@ type Props = {
 export const DoneCount = ({ count }: Props) => {
   return (
     <div style={{ textAlign: 'center', fontWeight: 700 }}>
-      <div style={{ fontSize: '10rem' }}>{count}</div>
+      <div style={{ fontSize: '10rem' }}>
+        <CountUp isCounting end={count} />
+      </div>
       <div>things done!</div>
     </div>
   )

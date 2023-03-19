@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react'
 import {
+  AutoComplete,
   DatePicker,
   Form,
-  Input,
   Modal,
   notification,
   Radio,
@@ -11,7 +11,12 @@ import {
 } from 'antd'
 import axios from 'axios'
 import { Category } from '@/app/components/CategoryFormModal/types'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import {
   New_Todo,
@@ -21,6 +26,7 @@ import {
 } from '@/app/components/TodoItem/types'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
+import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -79,6 +85,15 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   )
   const [category, setCategory] = useState<Category | undefined>(
     todo ? todo.category : propsCategory
+  )
+
+  const { data: suggestionList } = useQuery<Get_Suggestions_Response[]>(
+    ['getTodoSuggestions'] as unknown as QueryKey,
+    async () =>
+      await fetch('/api/todos/getSuggestions').then((res) => res.json()),
+    {
+      initialData: [],
+    }
   )
 
   const queryClient = useQueryClient()
@@ -175,10 +190,18 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     >
       <Space style={{ padding: '1em' }} direction={'vertical'}>
         <Form.Item label={'Name'}>
-          <Input
+          <AutoComplete
+            options={suggestionList.map((s) => ({ value: s.name }))}
+            filterOption={(inputValue, option) => {
+              return (
+                (option?.value as string)
+                  .toUpperCase()
+                  .indexOf(inputValue.toUpperCase()) !== -1
+              )
+            }}
             defaultValue={name}
             placeholder={'Enter the name for the task'}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(val) => setName(val)}
           />
         </Form.Item>
         <Form.Item label={'Size'}>
