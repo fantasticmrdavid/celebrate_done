@@ -50,7 +50,7 @@ export const CategoryCards = () => {
   } = useQuery<Todo[]>(
     ['getTodos', currentDate] as unknown as QueryKey,
     async () =>
-      await fetch(`/api/todos${!isToday ? `?date=${currentDate}` : ''}`).then(
+      await fetch(`/api/todos?date=${currentDate}`).then(
         (res) => res.json()
       ),
     {

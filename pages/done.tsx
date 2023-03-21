@@ -9,7 +9,6 @@ export const DonePage = () => {
   const [currentDate, setCurrentDate] = useState<string>(
     new Date().toISOString()
   )
-  const isToday = new Date(currentDate).getDate() === new Date().getDate()
   const {
     isLoading,
     error,
@@ -18,7 +17,7 @@ export const DonePage = () => {
     ['getTodos', currentDate] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/done${!isToday ? `?date=${currentDate}` : ''}`
+        `/api/todos/done?date=${currentDate}`
       ).then((res) => res.json()),
     {
       initialData: [],
