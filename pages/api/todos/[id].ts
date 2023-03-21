@@ -16,7 +16,10 @@ export const deleteTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const deleteTodoResult = await dbConnect
       .transaction()
-      .query(`DELETE FROM todos WHERE id=${parseInt(id as string)} LIMIT 1`)
+      .query(`DELETE t, tc
+        FROM todos t
+        JOIN todos_to_categories tc ON tc.todo_id = t.id
+        WHERE t.id=${parseInt(id as string)}`)
       .rollback((e: any) => console.error(e))
       .commit()
     const result = deleteTodoResult

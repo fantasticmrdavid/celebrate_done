@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, {useContext, useState} from 'react'
 import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
 import { Category } from './types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EditOutlined, FolderAddOutlined } from '@ant-design/icons'
+import {UserContext} from "@/app/contexts/User";
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',
@@ -23,6 +24,7 @@ export const CategoryFormModal = ({
   mode,
   category,
 }: CategoryFormModalProps) => {
+  const { user } = useContext(UserContext)
   const [name, setName] = useState<string>(category ? category.name : '')
   const [description, setDescription] = useState<string>(
     category ? category.description : ''
@@ -39,6 +41,7 @@ export const CategoryFormModal = ({
         name,
         description,
         maxPerDay,
+        user_id: user.uuid
       } as Category),
     onSuccess: (res) => {
       queryClient.invalidateQueries(['getCategories'])

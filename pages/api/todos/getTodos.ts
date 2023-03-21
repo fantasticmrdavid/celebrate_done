@@ -25,6 +25,7 @@ export type Get_Todos_Response = {
   category_description: string
   category_maxPerDay: number
   category_sortOrder: number
+  category_user_uuid: string
 }
 
 export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
@@ -39,12 +40,12 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
     status: TODO_STATUS[r.status],
     completedDateTime: r.completedDateTime,
     category: {
-      id: r.category_id,
       uuid: r.category_uuid,
       name: r.category_name,
       description: r.category_description,
       maxPerDay: r.category_maxPerDay,
       sortOrder: r.category_sortOrder,
+      user_id: r.category_user_uuid
     },
   }))
 }
@@ -78,11 +79,12 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         c.uuid AS category_uuid,
         c.description AS category_description,
         c.maxPerDay AS category_maxPerDay,
-        c.sortOrder AS category_sortOrder
+        c.sortOrder AS category_sortOrder,
+        c.user_uuid AS category_user_uuid
       FROM todos t
       LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
       LEFT JOIN categories c ON tc.category_id = c.uuid
-      WHERE tc.user_id = ${SqlString.escape(user_id)} AND ((t.status != "${
+      WHERE c.user_uuid = ${SqlString.escape(user_id)} AND ((t.status != "${
       TODO_STATUS.DONE
     }" AND ${SqlString.escape(localEndOfDay)} >= t.startDate) 
       OR (t.status = "${TODO_STATUS.DONE}" 

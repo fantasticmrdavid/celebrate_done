@@ -8,11 +8,12 @@ export const addCategory = async (
   res: NextApiResponse
 ) => {
   try {
-    const { name, description, maxPerDay } = req.body
+    const { name, description, maxPerDay, user_id } = req.body
     const insertCategoryQuery = `INSERT into categories
             VALUES (
                 null,
                 ${SqlString.escape(uuidv4())},
+                ${SqlString.escape(user_id)},
                 ${SqlString.escape(name)},
                 ${SqlString.escape(description)},
                 ${maxPerDay ? maxPerDay : null},
