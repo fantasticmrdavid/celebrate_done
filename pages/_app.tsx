@@ -20,24 +20,23 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider>
-        <CategoriesProvider>
-          <Head>
-            <title>CelebrateDone</title>
-          </Head>
-
-          <Layout>
-            {uuid ? (
-              <UserProvider uuid={uuid}>
+        {uuid ? (
+          <UserProvider uuid={uuid}>
+            <CategoriesProvider>
+              <Head>
+                <title>CelebrateDone</title>
+              </Head>
+              <Layout>
                 <HeaderNav />
                 <Content style={{ padding: '1em 3.5em' }}>
                   <Component {...pageProps} />
                 </Content>
-              </UserProvider>
-            ) : (
-              <UserSelector onSelect={(uuid) => setUuid(uuid)} />
-            )}
-          </Layout>
-        </CategoriesProvider>
+              </Layout>
+            </CategoriesProvider>
+          </UserProvider>
+        ) : (
+          <UserSelector onSelect={(uuid) => setUuid(uuid)} />
+        )}
       </ConfigProvider>
     </QueryClientProvider>
   )

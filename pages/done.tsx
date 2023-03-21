@@ -26,7 +26,7 @@ export const DonePage = () => {
     }
   )
 
-  if (isLoading || isFetchingUser)
+  if (isLoading)
     return (
       <Spin tip="Loading..." size="large">
         <div className="content" />

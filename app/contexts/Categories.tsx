@@ -1,7 +1,8 @@
-import React, { createContext, ReactNode, FC } from 'react'
+import React, { createContext, ReactNode, FC, useContext } from 'react'
 import { Category } from '@/app/components/CategoryFormModal/types'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Spin } from 'antd'
+import { UserContext } from '@/app/contexts/User'
 
 export interface CategoriesContextValues {
   categoryList: Category[]
@@ -26,13 +27,25 @@ export const CategoriesContext = createContext<CategoriesContextValues>(
 export const CategoriesProvider: FC<CategoriesContextProps> = ({
   children,
 }) => {
+  const { user } = useContext(UserContext)
   const { isLoading, error, data } = useQuery(
     ['getCategories'] as unknown as QueryKey,
-    async () => await fetch('/api/categories').then((res) => res.json()),
+    async () =>
+      await fetch(`/api/categories?user_id=${user?.uuid || ''}`).then((res) =>
+        res.json()
+      ),
     {
       initialData: [],
     }
   )
+
+  if (isLoading || !data) {
+    return (
+      <Spin tip="Loading categories" size="large">
+        <div className="content" />
+      </Spin>
+    )
+  }
 
   const categoriesList: Category[] = data.map((c: any) => ({
     id: c.id,
@@ -51,11 +64,6 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
         isFetchingCategoriesError: !!error,
       }}
     >
-      {isLoading && (
-        <Spin tip="Loading categories" size="large">
-          <div className="content" />
-        </Spin>
-      )}
       {children}
     </CategoriesContext.Provider>
   )

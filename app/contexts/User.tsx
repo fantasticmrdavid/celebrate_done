@@ -47,6 +47,13 @@ export const UserProvider: FC<UserContextProps> = ({ uuid, children }) => {
     async () => await fetch(`/api/users/${uuid}`).then((res) => res.json())
   )
 
+  if (isLoading)
+    return (
+      <Spin tip="Loading users..." size="large">
+        <div className="content" />
+      </Spin>
+    )
+
   return (
     <UserContext.Provider
       value={{
