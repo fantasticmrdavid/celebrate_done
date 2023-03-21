@@ -1,11 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
-import { Button, Layout, Menu, MenuProps, Space, Tooltip } from 'antd'
-import CategoryFormModal, {
-  CategoryModal_Mode,
-} from '@/app/components/CategoryFormModal/CategoryFormModal'
+import { Layout, Menu, MenuProps, Space, Tooltip } from 'antd'
 import styles from './headerNav.module.scss'
-import { FolderAddOutlined } from '@ant-design/icons'
 import Link from 'next/link'
 
 const { Header } = Layout
@@ -33,8 +29,6 @@ const menuKeysToRoutes = [
 ]
 
 export const HeaderNav = () => {
-  const [isCategoryFormModalOpen, setIsCategoryFormModalOpen] =
-    useState<boolean>(false)
   const router = useRouter()
   return (
     <Header className={styles.container}>
@@ -47,16 +41,6 @@ export const HeaderNav = () => {
           selectedKeys={menuKeysToRoutes
             .filter((mk) => router.route === mk.route)
             .map((i) => i.key)}
-        />
-        <Tooltip title={'Add Category'}>
-          <Button onClick={() => setIsCategoryFormModalOpen(true)}>
-            <FolderAddOutlined />
-          </Button>
-        </Tooltip>
-        <CategoryFormModal
-          isOpen={isCategoryFormModalOpen}
-          onCancel={() => setIsCategoryFormModalOpen(false)}
-          mode={CategoryModal_Mode.ADD}
         />
       </Space>
     </Header>

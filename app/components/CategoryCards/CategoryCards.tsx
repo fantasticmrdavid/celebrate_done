@@ -19,7 +19,7 @@ import CategoryFormModal, {
   CategoryModal_Mode,
 } from '@/app/components/CategoryFormModal/CategoryFormModal'
 import { Category } from '@/app/components/CategoryFormModal/types'
-import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
+import {EditOutlined, FolderAddOutlined, PlusSquareOutlined} from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
 
 const { Panel } = Collapse
@@ -78,17 +78,27 @@ export const CategoryCards = () => {
   return (
     <>
       <Space
-        style={{ display: 'flex', columnGap: '1em', paddingBottom: '1em' }}
+        style={{ display: 'flex', justifyContent:"space-between", columnGap: '1em', paddingBottom: '1em' }}
       >
-        <Title style={{ margin: 0 }}>{getDateTitle()}</Title>
-        <DatePicker
-          value={dayjs(new Date(currentDate))}
-          allowClear={false}
-          onChange={(_, dateString) => {
-            setCurrentDate(dateString)
-            refetchTodoList()
-          }}
-        />
+        <Space>
+          <Title style={{ margin: 0 }}>{getDateTitle()}</Title>
+          <DatePicker
+            value={dayjs(new Date(currentDate))}
+            allowClear={false}
+            onChange={(_, dateString) => {
+              setCurrentDate(dateString)
+              refetchTodoList()
+            }}
+          />
+        </Space>
+        <Tooltip title={'Add Category'}>
+          <Button onClick={() => {
+            setModalCategory(undefined)
+            setIsCategoryModalOpen(true)
+          }}>
+            <FolderAddOutlined />
+          </Button>
+        </Tooltip>
       </Space>
       <Space
         size={'small'}
@@ -193,7 +203,7 @@ export const CategoryCards = () => {
               setIsCategoryModalOpen(false)
               setModalCategory(undefined)
             }}
-            mode={CategoryModal_Mode.EDIT}
+            mode={modalCategory ? CategoryModal_Mode.EDIT : CategoryModal_Mode.ADD}
             category={modalCategory}
           />
         )}

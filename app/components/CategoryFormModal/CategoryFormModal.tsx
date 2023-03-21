@@ -110,7 +110,7 @@ export const CategoryFormModal = ({
           ? createCategory.mutate()
           : saveCategory.mutate()
       }
-      okText={mode === CategoryModal_Mode.ADD ? 'Add CategoryCards' : 'Save'}
+      okText={mode === CategoryModal_Mode.ADD ? 'Add Category' : 'Save'}
       okButtonProps={{
         loading: isLoading,
         disabled: isLoading,
