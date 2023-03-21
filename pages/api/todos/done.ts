@@ -47,7 +47,7 @@ export const getDoneTodos = async (
       )} AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
       ORDER BY
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
-        c.id, t.name ASC`
+        c.name, t.name ASC`
     )
     await dbConnect.end()
     return res

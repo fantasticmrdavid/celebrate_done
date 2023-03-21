@@ -62,7 +62,7 @@ export const CategoryFormModal = ({
   const saveCategory = useMutation({
     mutationFn: () =>
       axios.patch('/api/categories', {
-        id: (category as Category).id,
+        uuid: (category as Category).uuid,
         name,
         description,
         maxPerDay,

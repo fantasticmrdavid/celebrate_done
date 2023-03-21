@@ -20,6 +20,7 @@ export type Get_Todos_Response = {
   status: TODO_STATUS
   completedDateTime: string
   category_id: number
+  category_uuid: string
   category_name: string
   category_description: string
   category_maxPerDay: number
@@ -39,6 +40,7 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
     completedDateTime: r.completedDateTime,
     category: {
       id: r.category_id,
+      uuid: r.category_uuid,
       name: r.category_name,
       description: r.category_description,
       maxPerDay: r.category_maxPerDay,
@@ -72,12 +74,13 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         t.completedDateTime,
         c.id AS category_id,
         c.name AS category_name,
+        c.uuid AS category_uuid,
         c.description AS category_description,
         c.maxPerDay AS category_maxPerDay,
         c.sortOrder AS category_sortOrder
       FROM todos t
       LEFT JOIN todos_to_categories ON todos_to_categories.todo_id = t.id
-      LEFT JOIN categories c ON todos_to_categories.category_id = c.id
+      LEFT JOIN categories c ON todos_to_categories.category_id = c.uuid
       WHERE (t.status != "${TODO_STATUS.DONE}" AND ${SqlString.escape(
       localEndOfDay
     )} >= t.startDate) 
@@ -88,7 +91,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       ORDER BY
         (t.status = "${TODO_STATUS.INCOMPLETE}") DESC,
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
-        c.id, t.name ASC`
+        c.name, t.name ASC`
     const results = await dbConnect.query(query)
     await dbConnect.end()
     return res

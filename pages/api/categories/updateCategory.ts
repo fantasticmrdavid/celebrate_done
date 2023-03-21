@@ -7,14 +7,14 @@ export const updateCategory = async (
   res: NextApiResponse
 ) => {
   try {
-    const { id, name, description, maxPerDay, sortOrder } = req.body
+    const { uuid, name, description, maxPerDay, sortOrder } = req.body
     const updateCategoryQuery = `UPDATE categories
             SET
             name=${SqlString.escape(name)},
             description=${SqlString.escape(description)},
             maxPerDay=${maxPerDay},
             sortOrder=${sortOrder}
-            WHERE id=${SqlString.escape(id)}
+            WHERE uuid=${SqlString.escape(uuid)}
             LIMIT 1
             `
     try {

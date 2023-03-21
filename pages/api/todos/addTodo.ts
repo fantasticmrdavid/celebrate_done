@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { TODO_STATUS } from '@/app/components/TodoItem/types'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
+import { v4 as uuidv4 } from 'uuid'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -10,9 +11,11 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
       .toISOString()
       .slice(0, 19)
       .replace('T', ' ')}"`
+    const new_uuid = uuidv4()
     const insertTodoQuery = `INSERT into todos
             VALUES (
                 null,
+                ${SqlString.escape(new_uuid)},
                 ${createdDateTime},
                 ${SqlString.escape(startDate)},
                 ${SqlString.escape(name)},
@@ -29,7 +32,13 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
         .query((r: any) => {
           if (r.affectedRows === 1) {
             return [
-              `INSERT into todos_to_categories VALUES(null, ${r.insertId}, ${category.id})`,
+              `INSERT into todos_to_categories
+                VALUES(
+                  null,
+                  ${r.insertId},
+                  "${category.uuid}",
+                  "32af11c6-000d-4656-8db2-e3f795c020d5"
+                )`,
             ]
           } else {
             return null

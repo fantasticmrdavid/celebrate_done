@@ -224,10 +224,10 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         </Form.Item>
         <Form.Item label={'Category'}>
           <Select
-            defaultValue={isFetchingCategories ? undefined : category?.id}
+            defaultValue={isFetchingCategories ? undefined : category?.uuid}
             disabled={isFetchingCategories}
             onChange={(value) =>
-              setCategory(categoryList.find((c) => c.id === value))
+              setCategory(categoryList.find((c) => c.uuid === value))
             }
             placeholder={
               isFetchingCategories
@@ -237,7 +237,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             allowClear={false}
           >
             {categoryList.map((c) => (
-              <Option key={`category_${c.id}`} value={c.id}>
+              <Option key={`category_${c.uuid}`} value={c.uuid}>
                 {c.name}
               </Option>
             ))}

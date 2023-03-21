@@ -8,7 +8,7 @@ export const getCategories = async (
 ) => {
   try {
     const results = await dbConnect.query(
-      'SELECT id, uuid, name, description, maxPerDay, sortOrder FROM categories ORDER BY sortOrder, name'
+      'SELECT id, name, description, maxPerDay, sortOrder FROM categories ORDER BY sortOrder, name'
     )
     await dbConnect.end()
     return res.status(200).json(results)

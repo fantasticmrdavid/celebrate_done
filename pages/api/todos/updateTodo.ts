@@ -46,7 +46,7 @@ export const updateTodos = async (
             t.startDate=${SqlString.escape(startDate)},
             t.size=${SqlString.escape(size)},
             t.priority=${SqlString.escape(priority)},
-            tc.category_id=${category.id}
+            tc.category_id=${SqlString.escape(category.uuid)}
             WHERE t.id=${id} AND tc.todo_id=${id}`
       break
     }

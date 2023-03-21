@@ -19,7 +19,11 @@ import CategoryFormModal, {
   CategoryModal_Mode,
 } from '@/app/components/CategoryFormModal/CategoryFormModal'
 import { Category } from '@/app/components/CategoryFormModal/types'
-import {EditOutlined, FolderAddOutlined, PlusSquareOutlined} from '@ant-design/icons'
+import {
+  EditOutlined,
+  FolderAddOutlined,
+  PlusSquareOutlined,
+} from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
 
 const { Panel } = Collapse
@@ -50,9 +54,7 @@ export const CategoryCards = () => {
   } = useQuery<Todo[]>(
     ['getTodos', currentDate] as unknown as QueryKey,
     async () =>
-      await fetch(`/api/todos?date=${currentDate}`).then(
-        (res) => res.json()
-      ),
+      await fetch(`/api/todos?date=${currentDate}`).then((res) => res.json()),
     {
       initialData: [],
     }
@@ -78,7 +80,12 @@ export const CategoryCards = () => {
   return (
     <>
       <Space
-        style={{ display: 'flex', justifyContent:"space-between", columnGap: '1em', paddingBottom: '1em' }}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          columnGap: '1em',
+          paddingBottom: '1em',
+        }}
       >
         <Space>
           <Title style={{ margin: 0 }}>{getDateTitle()}</Title>
@@ -92,10 +99,12 @@ export const CategoryCards = () => {
           />
         </Space>
         <Tooltip title={'Add Category'}>
-          <Button onClick={() => {
-            setModalCategory(undefined)
-            setIsCategoryModalOpen(true)
-          }}>
+          <Button
+            onClick={() => {
+              setModalCategory(undefined)
+              setIsCategoryModalOpen(true)
+            }}
+          >
             <FolderAddOutlined />
           </Button>
         </Tooltip>
@@ -107,22 +116,22 @@ export const CategoryCards = () => {
       >
         {categoryList.map((c) => {
           const filteredTodoList = todoList.filter(
-            (t: Todo) => t.category.id === c.id
+            (t: Todo) => t.category.uuid === c.uuid
           )
           const doneCount = filteredTodoList.filter(
             (t) => t.status === TODO_STATUS.DONE
           )?.length
           return (
             <Collapse
-              activeKey={filteredTodoList.length > 0 ? [c.id] : []}
-              key={`category_${c.id}`}
+              activeKey={filteredTodoList.length > 0 ? [c.uuid] : []}
+              key={`category_${c.uuid}`}
               collapsible="icon"
               expandIconPosition={'end'}
-              defaultActiveKey={c.id}
+              defaultActiveKey={c.uuid}
               size={'small'}
             >
               <Panel
-                key={c.id}
+                key={c.uuid}
                 header={
                   <Space direction={'vertical'} style={{ width: '100%' }}>
                     <Title
@@ -203,7 +212,9 @@ export const CategoryCards = () => {
               setIsCategoryModalOpen(false)
               setModalCategory(undefined)
             }}
-            mode={modalCategory ? CategoryModal_Mode.EDIT : CategoryModal_Mode.ADD}
+            mode={
+              modalCategory ? CategoryModal_Mode.EDIT : CategoryModal_Mode.ADD
+            }
             category={modalCategory}
           />
         )}

@@ -36,6 +36,7 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
 
   const categoriesList: Category[] = data.map((c: any) => ({
     id: c.id,
+    uuid: c.uuid,
     name: c.name,
     description: c.description,
     maxPerDay: c.maxPerDay,

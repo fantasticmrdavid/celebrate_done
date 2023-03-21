@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
+import { v4 as uuidv4 } from 'uuid'
 
 export const addCategory = async (
   req: NextApiRequest,
@@ -11,6 +12,7 @@ export const addCategory = async (
     const insertCategoryQuery = `INSERT into categories
             VALUES (
                 null,
+                ${SqlString.escape(uuidv4())},
                 ${SqlString.escape(name)},
                 ${SqlString.escape(description)},
                 ${maxPerDay ? maxPerDay : null},
