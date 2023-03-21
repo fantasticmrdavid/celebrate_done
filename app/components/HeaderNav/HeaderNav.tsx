@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useRouter } from 'next/router'
-import { Layout, Menu, MenuProps, Space, Tooltip } from 'antd'
+import { Divider, Layout, Menu, MenuProps, Space, Tooltip } from 'antd'
 import styles from './headerNav.module.scss'
 import Link from 'next/link'
+import { UserContext } from '@/app/contexts/User'
 
 const { Header } = Layout
 
@@ -29,7 +30,9 @@ const menuKeysToRoutes = [
 ]
 
 export const HeaderNav = () => {
+  const { user, isFetchingUser } = useContext(UserContext)
   const router = useRouter()
+  if (isFetchingUser) return null
   return (
     <Header className={styles.container}>
       <h2 className={styles.title}>celebrate.DONE</h2>
@@ -42,6 +45,7 @@ export const HeaderNav = () => {
             .filter((mk) => router.route === mk.route)
             .map((i) => i.key)}
         />
+        <div style={{ color: 'white' }}>{user.username}</div>
       </Space>
     </Header>
   )

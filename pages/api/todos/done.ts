@@ -9,7 +9,7 @@ export const getDoneTodos = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
-  const { date } = req.query
+  const { user_id, date } = req.query
   const localStartOfDay = date
     ? dayjs(new Date(date as string))
         .startOf('day')
@@ -38,9 +38,11 @@ export const getDoneTodos = async (
         c.maxPerDay AS category_maxPerDay,
         c.sortOrder AS category_sortOrder
       FROM todos t
-      LEFT JOIN todos_to_categories ON todos_to_categories.todo_id = t.id
-      LEFT JOIN categories c ON todos_to_categories.category_id = c.id
-      WHERE t.status = "${
+      LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
+      LEFT JOIN categories c ON tc.category_id = c.id
+      WHERE 
+      tc.user_id = ${SqlString.escape(user_id)} AND
+      t.status = "${
         TODO_STATUS.DONE
       }" AND DATE(t.completedDateTime) <= ${SqlString.escape(
         date ? date : localEndOfDay
@@ -54,6 +56,7 @@ export const getDoneTodos = async (
       .status(200)
       .json(mapTodosResponse(results as Get_Todos_Response[]))
   } catch (error) {
+    console.error(error)
     return res.status(500).json({ error })
   }
 }

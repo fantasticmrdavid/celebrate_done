@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Space, Spin, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Todo, TODO_SIZE } from '@/app/components/TodoItem/types'
 import { DoneCount } from '@/app/components/DoneCount/DoneCount'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
+import { UserContext } from '@/app/contexts/User'
 
 export const DonePage = () => {
+  const { user, isFetchingUser } = useContext(UserContext)
   const [currentDate, setCurrentDate] = useState<string>(
     new Date().toISOString()
   )
@@ -14,17 +16,17 @@ export const DonePage = () => {
     error,
     data: todoList,
   } = useQuery<Todo[]>(
-    ['getTodos', currentDate] as unknown as QueryKey,
+    ['getDoneTodos', currentDate] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/done?date=${currentDate}`
+        `/api/todos/done?user_id=${user.uuid}&date=${currentDate}`
       ).then((res) => res.json()),
     {
       initialData: [],
     }
   )
 
-  if (isLoading)
+  if (isLoading || isFetchingUser)
     return (
       <Spin tip="Loading..." size="large">
         <div className="content" />

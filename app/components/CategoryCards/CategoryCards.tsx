@@ -25,11 +25,13 @@ import {
   PlusSquareOutlined,
 } from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
+import { UserContext } from '@/app/contexts/User'
 
 const { Panel } = Collapse
 const { Title } = Typography
 
 export const CategoryCards = () => {
+  const { user, isFetchingUser } = useContext(UserContext)
   const [currentDate, setCurrentDate] = useState<string>(
     new Date().toISOString()
   )
@@ -52,15 +54,17 @@ export const CategoryCards = () => {
     data: todoList,
     refetch: refetchTodoList,
   } = useQuery<Todo[]>(
-    ['getTodos', currentDate] as unknown as QueryKey,
+    ['getTodos', currentDate, user] as unknown as QueryKey,
     async () =>
-      await fetch(`/api/todos?date=${currentDate}`).then((res) => res.json()),
+      await fetch(
+        `/api/todos?user_id=${user?.uuid || ''}&date=${currentDate}`
+      ).then((res) => res.json()),
     {
       initialData: [],
     }
   )
 
-  if (isLoading || !todoList)
+  if (isLoading || !todoList || isFetchingUser)
     return (
       <Spin tip="Loading Todos" size="large">
         <div className="content" />
