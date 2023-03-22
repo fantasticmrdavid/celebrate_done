@@ -59,12 +59,9 @@ export const CategoryCards = () => {
       await fetch(
         `/api/todos?user_id=${user?.uuid || ''}&date=${currentDate}`
       ).then((res) => res.json()),
-    {
-      initialData: [],
-    }
   )
 
-  if (isLoading || !todoList || isFetchingUser)
+  if (isLoading || !todoList)
     return (
       <Spin tip="Loading Todos" size="large">
         <div className="content" />

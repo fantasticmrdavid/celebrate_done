@@ -20,13 +20,10 @@ export const DonePage = () => {
     async () =>
       await fetch(
         `/api/todos/done?user_id=${user.uuid}&date=${currentDate}`
-      ).then((res) => res.json()),
-    {
-      initialData: [],
-    }
+      ).then((res) => res.json())
   )
 
-  if (isLoading)
+  if (isLoading || !todoList)
     return (
       <Spin tip="Loading..." size="large">
         <div className="content" />
