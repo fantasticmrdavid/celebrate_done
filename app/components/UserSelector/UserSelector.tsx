@@ -1,6 +1,6 @@
 import React from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { Select } from 'antd'
+import {Select, Space} from 'antd'
 import { User } from '@/app/contexts/User'
 import styles from '@/app/components/HeaderNav/headerNav.module.scss'
 
@@ -22,9 +22,10 @@ export const UserSelector = ({ onSelect }: Props) => {
   if (error) return <div>ERROR LOADING USERS...</div>
 
   return (
-    <>
+    <Space direction={"vertical"}>
       <h2>celebrate.DONE</h2>
       <Select
+        style={{ minWidth: '250px'}}
         placeholder={'Select user'}
         onChange={(val) => onSelect(val)}
         options={users.map((u: User) => ({
@@ -32,6 +33,6 @@ export const UserSelector = ({ onSelect }: Props) => {
           value: u.uuid,
         }))}
       />
-    </>
+    </Space>
   )
 }
