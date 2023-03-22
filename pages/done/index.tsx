@@ -6,6 +6,8 @@ import { DoneCount } from '@/app/components/DoneCount/DoneCount'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
 import { UserContext } from '@/app/contexts/User'
 
+import styles from "./done.module.scss"
+
 export const DonePage = () => {
   const { user, isFetchingUser } = useContext(UserContext)
   const [currentDate, setCurrentDate] = useState<string>(
@@ -35,7 +37,7 @@ export const DonePage = () => {
   return (
     <Space
       size={'middle'}
-      style={{ justifyContent: 'center', width: '100%', columnGap: '2em' }}
+      className={styles.container}
     >
       <DoneCount count={todoList.length} />
       <div>
