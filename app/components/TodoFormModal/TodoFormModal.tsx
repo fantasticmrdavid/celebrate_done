@@ -74,8 +74,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const [name, setName] = useState<string>(todo ? todo.name : '')
   const [startDate, setStartDate] = useState<string>(
     todo
-      ? new Date(todo.startDate).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0]
+      ? dayjs(new Date(todo.startDate)).startOf("day").toISOString()
+      : dayjs(new Date()).startOf("day").toISOString()
   )
   const [size, setSize] = useState<TODO_SIZE>(
     todo ? todo.size : TODO_SIZE.SMALL
