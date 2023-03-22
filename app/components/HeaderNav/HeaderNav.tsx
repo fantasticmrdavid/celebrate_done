@@ -34,7 +34,7 @@ export const HeaderNav = () => {
   const router = useRouter()
   if (isFetchingUser) return null
   return (
-    <Header className={styles.container}>
+    <Space className={styles.container}>
       <h2 className={styles.title}>celebrate.DONE</h2>
       <Space>
         <Menu
@@ -45,9 +45,9 @@ export const HeaderNav = () => {
             .filter((mk) => router.route === mk.route)
             .map((i) => i.key)}
         />
-        <div style={{ color: 'white' }}>{user.username}</div>
+        <div className={styles.user}>{user.username}</div>
       </Space>
-    </Header>
+    </Space>
   )
 }
 

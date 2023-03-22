@@ -26,12 +26,13 @@ import {
 } from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { UserContext } from '@/app/contexts/User'
+import styles from "./categoryCards.module.scss"
 
 const { Panel } = Collapse
 const { Title } = Typography
 
 export const CategoryCards = () => {
-  const { user, isFetchingUser } = useContext(UserContext)
+  const { user } = useContext(UserContext)
   const [currentDate, setCurrentDate] = useState<string>(
     new Date().toISOString()
   )
@@ -81,14 +82,9 @@ export const CategoryCards = () => {
   return (
     <>
       <Space
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          columnGap: '1em',
-          paddingBottom: '1em',
-        }}
+        className={styles.header}
       >
-        <Space>
+        <Space className={styles.headerDate}>
           <Title style={{ margin: 0 }}>{getDateTitle()}</Title>
           <DatePicker
             value={dayjs(new Date(currentDate))}
@@ -107,6 +103,7 @@ export const CategoryCards = () => {
             }}
           >
             <FolderAddOutlined />
+            <div className={styles.buttonText}>Add Category</div>
           </Button>
         </Tooltip>
       </Space>
