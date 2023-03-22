@@ -1,0 +1,6 @@
+.content {
+  padding: 1em;
+  @media only screen and (min-width: 800px) {
+    padding: 1em 3.5em;
+  }
+}

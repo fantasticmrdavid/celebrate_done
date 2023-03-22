@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { UserContext } from '@/app/contexts/User'
-import styles from "./categoryCards.module.scss"
+import styles from './categoryCards.module.scss'
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -59,7 +59,7 @@ export const CategoryCards = () => {
     async () =>
       await fetch(
         `/api/todos?user_id=${user?.uuid || ''}&date=${currentDate}`
-      ).then((res) => res.json()),
+      ).then((res) => res.json())
   )
 
   if (isLoading || !todoList)
@@ -81,9 +81,7 @@ export const CategoryCards = () => {
 
   return (
     <>
-      <Space
-        className={styles.header}
-      >
+      <Space className={styles.header}>
         <Space className={styles.headerDate}>
           <Title style={{ margin: 0 }}>{getDateTitle()}</Title>
           <DatePicker
@@ -107,10 +105,7 @@ export const CategoryCards = () => {
           </Button>
         </Tooltip>
       </Space>
-      <Space
-        size={'small'}
-        className={styles.categoryCardContainer}
-      >
+      <Space size={'small'} className={styles.categoryCardContainer}>
         {categoryList.map((c) => {
           const filteredTodoList = todoList.filter(
             (t: Todo) => t.category.uuid === c.uuid
@@ -153,7 +148,7 @@ export const CategoryCards = () => {
                           {doneCount > 0 && ` 🎉 x${doneCount}`}
                         </div>
                       </div>
-                      <div style={{ marginLeft: '1em' }}>
+                      <div style={{ display: 'flex', marginLeft: '1em' }}>
                         <Tooltip title={'Edit Category'}>
                           <Button
                             icon={<EditOutlined />}

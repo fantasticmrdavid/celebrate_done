@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ConfigProvider, Layout } from 'antd'
 import 'antd/dist/reset.css'
+import styles from './styles.module.scss'
 
 import Head from 'next/head'
 
@@ -28,7 +29,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
               </Head>
               <Layout>
                 <HeaderNav />
-                <Content style={{ padding: '1em 3.5em' }}>
+                <Content className={styles.content}>
                   <Component {...pageProps} />
                 </Content>
               </Layout>
