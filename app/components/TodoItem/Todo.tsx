@@ -116,7 +116,7 @@ export const TodoItem = (props: TodoProps) => {
       id: todo.id,
       status: shouldMarkCompleted ? TODO_STATUS.DONE : TODO_STATUS.INCOMPLETE,
       completedDateTime: shouldMarkCompleted
-        ? new Date(currentDate).toISOString()
+        ? new Date().toISOString()
         : undefined,
     })
   }

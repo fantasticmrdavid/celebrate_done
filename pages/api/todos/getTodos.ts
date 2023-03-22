@@ -8,6 +8,9 @@ import {
 } from '@/app/components/TodoItem/types'
 import SqlString from 'sqlstring'
 import dayjs from 'dayjs'
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import {dateIsoToSql} from "@/pages/api/utils";
 
 export type Get_Todos_Response = {
   id: number
@@ -53,16 +56,18 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
 export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
   const { user_id, date } = req.query
   if (!user_id) return {}
-  const localStartOfDay = date
+
+  const localStartOfDay = dateIsoToSql(date
     ? dayjs(new Date(date as string))
         .startOf('day')
         .toISOString()
-    : dayjs(new Date()).startOf('day').toISOString()
-  const localEndOfDay = date
+    : dayjs(new Date()).startOf('day').toISOString())
+  const localEndOfDay = dateIsoToSql(date
     ? dayjs(new Date(date as string))
         .endOf('day')
         .toISOString()
-    : dayjs(new Date()).endOf('day').toISOString()
+    : dayjs(new Date()).endOf('day').toISOString())
+
   try {
     const query = `SELECT
         t.id,
@@ -84,13 +89,19 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       FROM todos t
       LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
       LEFT JOIN categories c ON tc.category_id = c.uuid
-      WHERE c.user_uuid = ${SqlString.escape(user_id)} AND ((t.status != "${
-      TODO_STATUS.DONE
-    }" AND ${SqlString.escape(localEndOfDay)} >= t.startDate) 
-      OR (t.status = "${TODO_STATUS.DONE}" 
-        AND DATE(t.completedDateTime) <= ${SqlString.escape(localEndOfDay)} 
-        AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
-      ))
+      WHERE
+      c.user_uuid = ${SqlString.escape(user_id)} AND
+      (
+        (
+            t.status != "${TODO_STATUS.DONE}" AND
+            ${SqlString.escape(localStartOfDay)} >= t.startDate
+        ) OR
+        (
+          t.status = "${TODO_STATUS.DONE}" 
+          AND DATE(t.completedDateTime) <= ${SqlString.escape(localEndOfDay)} 
+          AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
+        )
+      )
       ORDER BY
         (t.status = "${TODO_STATUS.INCOMPLETE}") DESC,
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,

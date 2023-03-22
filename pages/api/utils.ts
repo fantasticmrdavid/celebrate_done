@@ -1,0 +1,1 @@
+export const dateIsoToSql = (d: string) => d.replace(/T|Z/g, " ")
