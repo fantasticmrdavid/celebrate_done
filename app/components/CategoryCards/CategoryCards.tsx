@@ -109,8 +109,7 @@ export const CategoryCards = () => {
       </Space>
       <Space
         size={'small'}
-        align={'start'}
-        style={{ display: 'flex', flexWrap: 'wrap' }}
+        className={styles.categoryCardContainer}
       >
         {categoryList.map((c) => {
           const filteredTodoList = todoList.filter(
@@ -141,9 +140,10 @@ export const CategoryCards = () => {
                         margin: 0,
                       }}
                     >
-                      <div>
+                      <div className={styles.categoryCardTitle}>
                         {c.name}
-                        <span
+                        <div
+                          className={styles.categoryCardDoneCount}
                           style={{
                             fontWeight: 500,
                             fontSize: '0.8rem',
@@ -151,7 +151,7 @@ export const CategoryCards = () => {
                           }}
                         >
                           {doneCount > 0 && ` 🎉 x${doneCount}`}
-                        </span>
+                        </div>
                       </div>
                       <div style={{ marginLeft: '1em' }}>
                         <Tooltip title={'Edit Category'}>

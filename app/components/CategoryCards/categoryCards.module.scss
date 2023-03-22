@@ -24,3 +24,30 @@
     display: none;
   }
 }
+
+.categoryCardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  @media only screen and (min-width: 800px) {
+    justify-content: flex-start;
+    flex-direction: row;
+  }
+}
+
+.categoryCardTitle {
+  display: flex;
+  flex-direction: column;
+
+  @media only screen and (min-width: 800px) {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.categoryCardDoneCount {
+  font-weight: 500;
+  font-size: 0.8rem;
+  margin-left: 0.5em;
+}
