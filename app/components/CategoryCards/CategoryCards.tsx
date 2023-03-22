@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react'
-import { QueryKey, useQuery } from '@tanstack/react-query'
+import React, {useContext, useEffect, useState} from 'react'
+import {QueryKey, useQuery, useQueryClient} from '@tanstack/react-query'
 import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
 import {
   Button,
@@ -32,10 +32,13 @@ const { Panel } = Collapse
 const { Title } = Typography
 
 export const CategoryCards = () => {
+  const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
+  const today = new Date();
   const [currentDate, setCurrentDate] = useState<string>(
-    new Date().toISOString()
+  `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
   )
+
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false)
   const [modalCategory, setModalCategory] = useState<Category | undefined>()
@@ -55,12 +58,15 @@ export const CategoryCards = () => {
     data: todoList,
     refetch: refetchTodoList,
   } = useQuery<Todo[]>(
-    ['getTodos', currentDate, user] as unknown as QueryKey,
+    ['getTodos', currentDate] as unknown as QueryKey,
     async () =>
       await fetch(
         `/api/todos?user_id=${user?.uuid || ''}&date=${currentDate}`
       ).then((res) => res.json())
   )
+  useEffect(() => {
+    refetchTodoList()
+  }, [currentDate])
 
   if (isLoading || !todoList)
     return (
@@ -89,7 +95,6 @@ export const CategoryCards = () => {
             allowClear={false}
             onChange={(_, dateString) => {
               setCurrentDate(dateString)
-              refetchTodoList()
             }}
           />
         </Space>

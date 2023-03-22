@@ -9,9 +9,10 @@ import { UserContext } from '@/app/contexts/User'
 import styles from "./done.module.scss"
 
 export const DonePage = () => {
+  const today = new Date();
   const { user, isFetchingUser } = useContext(UserContext)
   const [currentDate, setCurrentDate] = useState<string>(
-    new Date().toISOString()
+`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
   )
   const {
     isLoading,

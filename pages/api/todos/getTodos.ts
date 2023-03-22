@@ -8,8 +8,6 @@ import {
 } from '@/app/components/TodoItem/types'
 import SqlString from 'sqlstring'
 import dayjs from 'dayjs'
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import {dateIsoToSql} from "@/pages/api/utils";
 
 export type Get_Todos_Response = {
