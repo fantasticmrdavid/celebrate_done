@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Space, Spin, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Todo, TODO_SIZE } from '@/app/components/TodoItem/types'
@@ -9,13 +9,16 @@ import { UserContext } from '@/app/contexts/User'
 import { Fireworks } from '@fireworks-js/react'
 import type { FireworksHandlers } from '@fireworks-js/react'
 
-import styles from "./done.module.scss"
+import styles from './done.module.scss'
 
 export const DonePage = () => {
-  const today = new Date();
+  const today = new Date()
   const { user, isFetchingUser } = useContext(UserContext)
   const [currentDate, setCurrentDate] = useState<string>(
-`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(today.getDate()).padStart(2, '0')}`
   )
   const {
     isLoading,
@@ -40,30 +43,35 @@ export const DonePage = () => {
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
   return (
-    <Space
-      size={'middle'}
-      className={styles.container}
-    >
+    <Space size={'middle'} className={styles.container}>
       <div className={styles.bg}>
         <Fireworks
-            ref={ref}
-            options={{ delay: { min: 100, max: 500 }}}
-            style={{
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-            }}
+          ref={ref}
+          options={{ delay: { min: 100, max: 500 } }}
+          style={{
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+          }}
         />
       </div>
       <div className={styles.content}>
         <DoneCount count={todoList.length} />
         <div>
-          <h1>🎉 What I did today:</h1>
-          <ul style={{ fontSize: '1rem', lineHeight: 1.25 }}>
+          <h1>What I did today:</h1>
+          <ul
+            style={{
+              fontSize: '1rem',
+              lineHeight: 1.25,
+              padding: 0,
+              listStylePosition: 'inside',
+              listStyle: 'none',
+            }}
+          >
             {todoList.map((t) => (
-              <li key={`todo_${t.id}`}>
+              <li key={`todo_${t.id}`} className={styles.doneItem}>
                 {t.name}{' '}
                 {t.size !== TODO_SIZE.SMALL && (
                   <Tag color={sizeTags[t.size].color}>
