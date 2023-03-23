@@ -1,5 +1,5 @@
-import React, {useContext, useEffect, useState} from 'react'
-import {QueryKey, useQuery, useQueryClient} from '@tanstack/react-query'
+import React, { useContext, useEffect, useState } from 'react'
+import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
 import {
   Button,
@@ -32,11 +32,13 @@ const { Panel } = Collapse
 const { Title } = Typography
 
 export const CategoryCards = () => {
-  const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
-  const today = new Date();
+  const today = new Date()
   const [currentDate, setCurrentDate] = useState<string>(
-  `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(today.getDate()).padStart(2, '0')}`
   )
 
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)

@@ -27,7 +27,7 @@ import {
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
-import {UserContext} from "@/app/contexts/User";
+import { UserContext } from '@/app/contexts/User'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -76,8 +76,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const [name, setName] = useState<string>(todo ? todo.name : '')
   const [startDate, setStartDate] = useState<string>(
     todo
-      ? dayjs(new Date(todo.startDate)).startOf("day").toISOString()
-      : dayjs(new Date()).startOf("day").toISOString()
+      ? dayjs(new Date(todo.startDate)).startOf('day').toISOString()
+      : dayjs(new Date()).startOf('day').toISOString()
   )
   const [size, setSize] = useState<TODO_SIZE>(
     todo ? todo.size : TODO_SIZE.SMALL
@@ -111,7 +111,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         size,
         priority,
         category,
-        user_id: user.uuid
+        user_id: user.uuid,
       } as New_Todo),
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
@@ -125,8 +125,11 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       setName('')
       if (onCancel) onCancel()
     },
-    onError: () => {
-      console.log('ERROR')
+    onError: (error) => {
+      console.log('ERROR: ', error)
+      notification.error({
+        message: <>Error adding todo. Check console for details.</>,
+      })
     },
   })
 
@@ -152,8 +155,11 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       })
       if (onCancel) onCancel()
     },
-    onError: () => {
-      console.log('ERROR')
+    onError: (error) => {
+      console.log('ERROR: ', error)
+      notification.error({
+        message: <>Error saving todo. Check console for details.</>,
+      })
     },
   })
 

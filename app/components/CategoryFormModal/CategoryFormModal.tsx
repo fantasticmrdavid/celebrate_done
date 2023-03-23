@@ -52,8 +52,11 @@ export const CategoryFormModal = ({
       setDescription('')
       if (onCancel) onCancel()
     },
-    onError: () => {
+    onError: (error) => {
       console.log('ERROR')
+      notification.error({
+        message: <>Error creating category. Check console for details.</>,
+      })
     },
   })
 
@@ -77,8 +80,11 @@ export const CategoryFormModal = ({
       })
       if (onCancel) onCancel()
     },
-    onError: () => {
-      console.log('ERROR')
+    onError: (error) => {
+      console.log('ERROR: ', error)
+      notification.error({
+        message: <>Error saving category. Check console for details.</>,
+      })
     },
   })
 
