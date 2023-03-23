@@ -27,6 +27,7 @@ import {
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
+import {UserContext} from "@/app/contexts/User";
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -70,6 +71,7 @@ const priorityList = [
 const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
+  const { user } = useContext(UserContext)
   const { isOpen, onCancel, category: propsCategory, todo, mode } = props
   const [name, setName] = useState<string>(todo ? todo.name : '')
   const [startDate, setStartDate] = useState<string>(
@@ -109,6 +111,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         size,
         priority,
         category,
+        user_id: user.uuid
       } as New_Todo),
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])

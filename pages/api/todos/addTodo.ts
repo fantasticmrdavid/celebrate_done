@@ -7,7 +7,7 @@ import {dateIsoToSql} from "@/pages/api/utils";
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const { name, description, priority, size, category, startDate } = req.body
+    const { name, description, priority, size, category, startDate, user_id } = req.body
     const createdDateTime = dateIsoToSql(new Date().toISOString())
     const new_uuid = uuidv4()
     const insertTodoQuery = `INSERT into todos
@@ -34,8 +34,8 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                 VALUES(
                   null,
                   ${r.insertId},
-                  "${category.uuid}",
-                  "32af11c6-000d-4656-8db2-e3f795c020d5"
+                  ${SqlString.escape(category.uuid)},
+                  ${SqlString.escape(user_id)}
                 )`,
             ]
           } else {
