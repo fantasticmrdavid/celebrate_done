@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/types'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
+import { dateIsoToSql } from '@/pages/api/utils'
 
 export const updateTodos = async (
   req: NextApiRequest,
@@ -43,7 +44,7 @@ export const updateTodos = async (
         INNER JOIN todos_to_categories tc ON (t.id = tc.todo_id)
            SET
             t.name=${SqlString.escape(name)},
-            t.startDate=${SqlString.escape(startDate)},
+            t.startDate=${SqlString.escape(dateIsoToSql(startDate))},
             t.size=${SqlString.escape(size)},
             t.priority=${SqlString.escape(priority)},
             tc.category_id=${SqlString.escape(category.uuid)}

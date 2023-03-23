@@ -12,7 +12,7 @@ export const updateCategory = async (
             SET
             name=${SqlString.escape(name)},
             description=${SqlString.escape(description)},
-            maxPerDay=${maxPerDay},
+            maxPerDay=${maxPerDay || null},
             sortOrder=${sortOrder}
             WHERE uuid=${SqlString.escape(uuid)}
             LIMIT 1

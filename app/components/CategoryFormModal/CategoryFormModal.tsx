@@ -1,10 +1,10 @@
-import React, {useContext, useState} from 'react'
+import React, { useContext, useState } from 'react'
 import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
 import { Category } from './types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EditOutlined, FolderAddOutlined } from '@ant-design/icons'
-import {UserContext} from "@/app/contexts/User";
+import { UserContext } from '@/app/contexts/User'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',
@@ -29,9 +29,6 @@ export const CategoryFormModal = ({
   const [description, setDescription] = useState<string>(
     category ? category.description : ''
   )
-  const [maxPerDay, setMaxPerDay] = useState<number | undefined>(
-    category ? category.maxPerDay : undefined
-  )
 
   const queryClient = useQueryClient()
 
@@ -40,8 +37,7 @@ export const CategoryFormModal = ({
       axios.post('/api/categories', {
         name,
         description,
-        maxPerDay,
-        user_id: user.uuid
+        user_id: user.uuid,
       } as Category),
     onSuccess: (res) => {
       queryClient.invalidateQueries(['getCategories'])
@@ -54,7 +50,6 @@ export const CategoryFormModal = ({
       })
       setName('')
       setDescription('')
-      setMaxPerDay(undefined)
       if (onCancel) onCancel()
     },
     onError: () => {
@@ -68,7 +63,6 @@ export const CategoryFormModal = ({
         uuid: (category as Category).uuid,
         name,
         description,
-        maxPerDay,
         sortOrder: (category as Category).sortOrder,
       } as Category),
     onSuccess: (res) => {
@@ -132,16 +126,6 @@ export const CategoryFormModal = ({
             value={description}
             placeholder={'Enter a description for the category'}
             onChange={(e) => setDescription(e.target.value)}
-          />
-        </Form.Item>
-        <Form.Item label={'Max items per day (optional)'}>
-          <Input
-            value={maxPerDay}
-            type={'number'}
-            placeholder={
-              'Enter the maximum number of items this category is allowed to have per day'
-            }
-            onChange={(e) => setMaxPerDay(parseInt(e.target.value))}
           />
         </Form.Item>
       </Space>
