@@ -35,7 +35,7 @@ export const HeaderNav = () => {
   if (isFetchingUser) return null
   return (
     <Space className={styles.container}>
-      <h2 className={styles.title}>celebrate.DONE</h2>
+      <h2 className={styles.title}>celebrate.DONE 🎉</h2>
       <Space>
         <Menu
           className={styles.menu}
