@@ -26,6 +26,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             <CategoriesProvider>
               <Head>
                 <title>CelebrateDone</title>
+                <meta name={"viewport"} content="width=device-width, initial-scale=1" />
               </Head>
               <Layout>
                 <HeaderNav />
