@@ -103,6 +103,9 @@ export const TodoItem = (props: TodoProps) => {
     },
     onError: (e) => {
       console.error('ERROR: ', e)
+      notification.error({
+        message: <>Error deleting todo. Check console for details.</>,
+      })
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['getTodos'] })
