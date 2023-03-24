@@ -42,11 +42,11 @@ export const getDoneTodos = async (
       LEFT JOIN categories c ON tc.category_id = c.id
       WHERE 
       tc.user_id = ${SqlString.escape(user_id)} AND
-      t.status = "${
-        TODO_STATUS.DONE
-      }" AND t.completedDateTime <= ${SqlString.escape(
-        date ? date : localEndOfDay
-      )} AND t.completedDateTime >= ${SqlString.escape(localStartOfDay)}
+      (
+        t.status = "${TODO_STATUS.DONE}" 
+        AND t.completedDateTime <= ${SqlString.escape(localEndOfDay)} 
+        AND t.completedDateTime >= ${SqlString.escape(localStartOfDay)}
+      )
       ORDER BY
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
         c.name, t.name ASC`

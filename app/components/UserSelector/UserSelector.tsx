@@ -1,6 +1,6 @@
 import React from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import {Select, Space} from 'antd'
+import {Select, Space, Spin} from 'antd'
 import { User } from '@/app/contexts/User'
 import styles from '@/app/components/HeaderNav/headerNav.module.scss'
 
@@ -18,12 +18,12 @@ export const UserSelector = ({ onSelect }: Props) => {
     async () => await fetch(`/api/users`).then((res) => res.json())
   )
 
-  if (isLoading) return <div>LOADING USERS...</div>
+  if (isLoading) return <Spin tip="Loading users" size="large" />
   if (error) return <div>ERROR LOADING USERS...</div>
 
   return (
     <Space direction={"vertical"}>
-      <h2>celebrate.DONE</h2>
+      <h2>celebrate.DONE 🎉</h2>
       <Select
         style={{ minWidth: '250px'}}
         placeholder={'Select user'}

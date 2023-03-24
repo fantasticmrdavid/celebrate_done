@@ -72,9 +72,7 @@ export const CategoryCards = () => {
 
   if (isLoading || !todoList)
     return (
-      <Spin tip="Loading Todos" size="large">
-        <div className="content" />
-      </Spin>
+      <Spin tip="Loading Todos" size="large" />
     )
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
