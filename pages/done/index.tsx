@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { Space, Spin, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Todo, TODO_SIZE } from '@/app/components/TodoItem/types'
@@ -9,7 +9,7 @@ import { UserContext } from '@/app/contexts/User'
 import { Fireworks } from '@fireworks-js/react'
 import type { FireworksHandlers } from '@fireworks-js/react'
 
-import styles from './done.module.scss'
+import styles from './donePage.module.scss'
 
 export const DonePage = () => {
   const today = new Date()
@@ -35,9 +35,9 @@ export const DonePage = () => {
 
   if (isLoading || !todoList)
     return (
-      <Spin tip="Loading..." size="large">
-        <div className="content" />
-      </Spin>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+        <Spin tip="Loading..." size="large" />
+      </div>
     )
 
   if (error) return <div>ERROR FETCHING TODOS...</div>

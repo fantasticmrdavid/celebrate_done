@@ -2,7 +2,6 @@ import React from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import {Select, Space, Spin} from 'antd'
 import { User } from '@/app/contexts/User'
-import styles from '@/app/components/HeaderNav/headerNav.module.scss'
 
 type Props = {
   onSelect: (uuid: string) => any
@@ -18,8 +17,8 @@ export const UserSelector = ({ onSelect }: Props) => {
     async () => await fetch(`/api/users`).then((res) => res.json())
   )
 
-  if (isLoading) return <Spin tip="Loading users" size="large" />
-  if (error) return <div>ERROR LOADING USERS...</div>
+  if (isLoading) return <div className={"container"}><Spin tip="Loading users" size="large" /></div>
+  if (error) return <div className={"container"}>ERROR LOADING USERS...</div>
 
   return (
     <Space direction={"vertical"}>

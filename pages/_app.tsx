@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ConfigProvider, Layout } from 'antd'
 import 'antd/dist/reset.css'
 import styles from './styles.module.scss'
+import '../styles/globals.css'
 
 import Head from 'next/head'
 

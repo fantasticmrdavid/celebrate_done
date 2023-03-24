@@ -1,12 +1,12 @@
 import React from 'react'
-import { Space } from 'antd'
 import { CategoryCards } from '@/app/components/CategoryCards/CategoryCards'
+import styles from "./todosPage.module.scss"
 
 export const TodosPage = () => {
   return (
-    <Space direction={'vertical'} size={'middle'}>
+    <div className={styles.container}>
       <CategoryCards />
-    </Space>
+    </div>
   )
 }
 
