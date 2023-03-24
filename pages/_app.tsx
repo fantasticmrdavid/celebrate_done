@@ -40,7 +40,20 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             </CategoriesProvider>
           </UserProvider>
         ) : (
-          <UserSelector onSelect={(uuid) => setUuid(uuid)} />
+          <>
+            <Head>
+              <title>celebrate.DONE 🎉</title>
+              <meta
+                name={'viewport'}
+                content="width=device-width, initial-scale=1"
+              />
+            </Head>
+            <Layout>
+              <Content className={styles.centeredContent}>
+                <UserSelector onSelect={(uuid) => setUuid(uuid)} />
+              </Content>
+            </Layout>
+          </>
         )}
       </ConfigProvider>
     </QueryClientProvider>

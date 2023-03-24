@@ -4,3 +4,11 @@
     padding: 1em 3.5em;
   }
 }
+
+.centeredContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding-bottom: 5em;
+}
