@@ -44,9 +44,9 @@ export const getDoneTodos = async (
       tc.user_id = ${SqlString.escape(user_id)} AND
       t.status = "${
         TODO_STATUS.DONE
-      }" AND DATE(t.completedDateTime) <= ${SqlString.escape(
+      }" AND t.completedDateTime <= ${SqlString.escape(
         date ? date : localEndOfDay
-      )} AND DATE(t.completedDateTime) >= ${SqlString.escape(localStartOfDay)}
+      )} AND t.completedDateTime >= ${SqlString.escape(localStartOfDay)}
       ORDER BY
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
         c.name, t.name ASC`

@@ -29,6 +29,10 @@
   }
 }
 
+.doneItem {
+  padding: 0.2em 0;
+}
+
 .doneItem:before {
   content: '✅ ';
 }
