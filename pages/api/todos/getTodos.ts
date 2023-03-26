@@ -52,19 +52,8 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
 }
 
 export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { user_id, date } = req.query
+  const { user_id, localStartOfDay, localEndOfDay } = req.query
   if (!user_id) return {}
-
-  const localStartOfDay = dateIsoToSql(date
-    ? dayjs(new Date(date as string))
-        .startOf('day')
-        .toISOString()
-    : dayjs(new Date()).startOf('day').toISOString())
-  const localEndOfDay = dateIsoToSql(date
-    ? dayjs(new Date(date as string))
-        .endOf('day')
-        .toISOString()
-    : dayjs(new Date()).endOf('day').toISOString())
 
   try {
     const query = `SELECT

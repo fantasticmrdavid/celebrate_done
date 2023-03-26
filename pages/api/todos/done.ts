@@ -2,24 +2,13 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
 import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/types'
 import SqlString from 'sqlstring'
-import dayjs from 'dayjs'
 import { Get_Todos_Response, mapTodosResponse } from './getTodos'
 
 export const getDoneTodos = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
-  const { user_id, date } = req.query
-  const localStartOfDay = date
-    ? dayjs(new Date(date as string))
-        .startOf('day')
-        .toISOString()
-    : dayjs(new Date()).startOf('day').toISOString()
-  const localEndOfDay = date
-    ? dayjs(new Date(date as string))
-        .endOf('day')
-        .toISOString()
-    : dayjs(new Date()).endOf('day').toISOString()
+  const { user_id, localStartOfDay, localEndOfDay } = req.query
   try {
     const results = await dbConnect.query(
       `SELECT

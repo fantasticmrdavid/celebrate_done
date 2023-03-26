@@ -27,6 +27,7 @@ import {
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { UserContext } from '@/app/contexts/User'
 import styles from './categoryCards.module.scss'
+import {dateIsoToSql} from "@/pages/api/utils";
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -54,6 +55,18 @@ export const CategoryCards = () => {
     new Date(currentDate).getDate() ===
     new Date(new Date().setDate(new Date().getDate() + 1)).getDate()
 
+
+  const localStartOfDay = dateIsoToSql(currentDate
+    ? dayjs(new Date(currentDate as string))
+      .startOf('day')
+      .toISOString()
+    : dayjs(new Date()).startOf('day').toISOString())
+  const localEndOfDay = dateIsoToSql(currentDate
+    ? dayjs(new Date(currentDate as string))
+      .endOf('day')
+      .toISOString()
+    : dayjs(new Date()).endOf('day').toISOString())
+
   const {
     isLoading,
     error,
@@ -63,7 +76,7 @@ export const CategoryCards = () => {
     ['getTodos', currentDate] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos?user_id=${user?.uuid || ''}&date=${currentDate}`
+        `/api/todos?user_id=${user?.uuid || ''}&localStartOfDay=${localStartOfDay}&localEndOfDay=${localEndOfDay}`
       ).then((res) => res.json())
   )
   useEffect(() => {
