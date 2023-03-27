@@ -10,7 +10,8 @@ import { Fireworks } from '@fireworks-js/react'
 import type { FireworksHandlers } from '@fireworks-js/react'
 
 import styles from './donePage.module.scss'
-import dayjs from "dayjs";
+import {getLocalEndOfDay, getLocalStartOfDay} from "@/app/utils";
+import {dateIsoToSql} from "@/pages/api/utils";
 
 export const DonePage = () => {
   const today = new Date()
@@ -22,17 +23,6 @@ export const DonePage = () => {
     )}-${String(today.getDate()).padStart(2, '0')}`
   )
 
-  const localStartOfDay = currentDate
-    ? dayjs(new Date(currentDate))
-      .startOf('day')
-      .toISOString()
-    : dayjs(new Date()).startOf('day').toISOString()
-  const localEndOfDay = currentDate
-    ? dayjs(new Date(currentDate))
-      .endOf('day')
-      .toISOString()
-    : dayjs(new Date()).endOf('day').toISOString()
-
   const {
     isLoading,
     error,
@@ -41,7 +31,9 @@ export const DonePage = () => {
     ['getDoneTodos', currentDate] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/done?user_id=${user.uuid}&localStartOfDay=${localStartOfDay}&localEndOfDay=${localEndOfDay}`
+        `/api/todos/done?user_id=${user.uuid}
+        &localStartOfDay=${dateIsoToSql(getLocalStartOfDay(currentDate))}
+        &localEndOfDay=${dateIsoToSql(getLocalEndOfDay(currentDate))}`
       ).then((res) => res.json())
   )
   const ref = useRef<FireworksHandlers>(null)
