@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from 'react'
 import { Radio, Space, Spin, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { Todo, TODO_SIZE } from '@/app/components/TodoItem/types'
+import { TODO_SIZE } from '@/app/components/TodoItem/types'
 import { DoneCount } from '@/app/components/DoneCount/DoneCount'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
 import { UserContext } from '@/app/contexts/User'
@@ -21,8 +21,9 @@ import {
   getLocalStartOfYear,
 } from '@/app/utils'
 import { dateIsoToSql } from '@/pages/api/utils'
+import { DoneTodo } from '@/pages/api/todos/done'
 
-enum DateRangeType {
+export enum DateRangeType {
   DAY = 'DAY',
   WEEK = 'WEEK',
   MONTH = 'MONTH',
@@ -72,7 +73,7 @@ export const DonePage = () => {
     isLoading,
     error,
     data: todoList,
-  } = useQuery<Todo[]>(
+  } = useQuery<DoneTodo[]>(
     ['getDoneTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
@@ -125,7 +126,11 @@ export const DonePage = () => {
           />
         </div>
         <div className={styles.content}>
-          <DoneCount count={todoList.length} />
+          <DoneCount
+            count={todoList.length}
+            date={currentDate}
+            dateRangeType={dateRangeType}
+          />
           <div>
             <h1>
               What I did {titleStrings[dateRangeType].toLocaleLowerCase()}:
@@ -141,7 +146,7 @@ export const DonePage = () => {
             >
               {todoList.map((t) => (
                 <li key={`todo_${t.id}`} className={styles.doneItem}>
-                  {t.name}{' '}
+                  {t.name} {t.count > 1 && <strong>x{t.count}</strong>}
                   {t.size !== TODO_SIZE.SMALL && (
                     <Tag color={sizeTags[t.size].color}>
                       {sizeTags[t.size].label}
