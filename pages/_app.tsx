@@ -19,19 +19,27 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = React.useState(() => new QueryClient())
   const [uuid, setUuid] = useState<string>()
 
+  const head = (
+    <Head>
+      <title>celebrate.DONE 🎉</title>
+      <meta
+        name={'viewport'}
+        content="width=device-width, initial-scale=1"
+      />
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+    </Head>
+  )
+
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider>
         {uuid ? (
           <UserProvider uuid={uuid}>
             <CategoriesProvider>
-              <Head>
-                <title>celebrate.DONE 🎉</title>
-                <meta
-                  name={'viewport'}
-                  content="width=device-width, initial-scale=1"
-                />
-              </Head>
+              { head }
               <Layout>
                 <HeaderNav />
                 <Content className={styles.content}>
@@ -42,13 +50,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           </UserProvider>
         ) : (
           <>
-            <Head>
-              <title>celebrate.DONE 🎉</title>
-              <meta
-                name={'viewport'}
-                content="width=device-width, initial-scale=1"
-              />
-            </Head>
+            { head }
             <Layout>
               <Content className={styles.centeredContent}>
                 <UserSelector onSelect={(uuid) => setUuid(uuid)} />

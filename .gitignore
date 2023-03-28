@@ -4,6 +4,5 @@
 .vscode
 .next
 node_modules/
-public/
 npm-debug.log
 
