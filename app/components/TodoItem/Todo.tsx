@@ -89,9 +89,9 @@ export const TodoItem = (props: TodoProps) => {
     onError: (e) => {
       console.error('ERROR: ', e)
     },
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['getTodos', 'getDoneTodosCount', 'getDoneTodos'],
+        queryKey: ['getTodos'],
       })
     },
   })
