@@ -27,8 +27,14 @@ import {
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { UserContext } from '@/app/contexts/User'
 import styles from './categoryCards.module.scss'
-import {dateIsoToSql} from "@/pages/api/utils";
-import {getLocalEndOfDay, getLocalStartOfDay} from "@/app/utils";
+import { dateIsoToSql } from '@/pages/api/utils'
+import {
+  getLocalEndOfDay,
+  getLocalStartOfDay,
+  isToday,
+  isTomorrow,
+  isYesterday,
+} from '@/app/utils'
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -48,14 +54,6 @@ export const CategoryCards = () => {
   const [modalCategory, setModalCategory] = useState<Category | undefined>()
   const { categoryList } = useContext(CategoriesContext)
 
-  const isToday = new Date(currentDate).getDate() === new Date().getDate()
-  const isYesterday =
-    new Date(currentDate).getDate() ===
-    new Date(new Date().setDate(new Date().getDate() - 1)).getDate()
-  const isTomorrow =
-    new Date(currentDate).getDate() ===
-    new Date(new Date().setDate(new Date().getDate() + 1)).getDate()
-
   const {
     isLoading,
     error,
@@ -74,17 +72,14 @@ export const CategoryCards = () => {
     refetchTodoList()
   }, [currentDate])
 
-  if (isLoading || !todoList)
-    return (
-      <Spin tip="Loading Todos" size="large" />
-    )
+  if (isLoading || !todoList) return <Spin tip="Loading Todos" size="large" />
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
   const getDateTitle = () => {
-    if (isToday) return 'Today'
-    if (isYesterday) return 'Yesterday'
-    if (isTomorrow) return 'Tomorrow'
+    if (isToday(currentDate)) return 'Today'
+    if (isYesterday(currentDate)) return 'Yesterday'
+    if (isTomorrow(currentDate)) return 'Tomorrow'
 
     return dayjs(new Date(currentDate)).format('ddd, MMM D, YYYY')
   }

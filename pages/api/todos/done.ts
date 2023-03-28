@@ -8,10 +8,9 @@ export const getDoneTodos = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
-  const { user_id, localStartOfDay, localEndOfDay } = req.query
+  const { user_id, dateRangeStart, dateRangeEnd } = req.query
   try {
-    const results = await dbConnect.query(
-      `SELECT
+    const query = `SELECT
         t.id,
         t.created,
         t.startDate,
@@ -33,13 +32,13 @@ export const getDoneTodos = async (
       tc.user_id = ${SqlString.escape(user_id)} AND
       (
         t.status = "${TODO_STATUS.DONE}" 
-        AND t.completedDateTime <= ${SqlString.escape(localEndOfDay)} 
-        AND t.completedDateTime >= ${SqlString.escape(localStartOfDay)}
+        AND t.completedDateTime >= ${SqlString.escape(dateRangeStart)} 
+        AND t.completedDateTime <= ${SqlString.escape(dateRangeEnd)}
       )
       ORDER BY
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
         c.name, t.name ASC`
-    )
+    const results = await dbConnect.query(query)
     await dbConnect.end()
     return res
       .status(200)
