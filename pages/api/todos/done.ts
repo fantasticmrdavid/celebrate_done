@@ -59,8 +59,11 @@ export const getDoneTodos = async (
         AND t.completedDateTime >= ${SqlString.escape(dateRangeStart)} 
         AND t.completedDateTime <= ${SqlString.escape(dateRangeEnd)}
       )
-      GROUP BY t.name
-      ORDER BY count DESC`
+      GROUP BY t.name, size
+      ORDER BY
+      (size = "${TODO_SIZE.LARGE}") DESC,
+      (size = "${TODO_SIZE.MEDIUM}") DESC, 
+      count DESC`
     const results = await dbConnect.query(query)
     await dbConnect.end()
     return res
