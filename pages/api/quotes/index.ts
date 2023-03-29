@@ -16,9 +16,7 @@ export const getQuotes = async (
     };
     return axios.request(options).then((response) => {
       return res.status(200).json(response.data[0])
-    }).catch(function (error) {
-      console.error(error);
-    });
+    })
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error })
