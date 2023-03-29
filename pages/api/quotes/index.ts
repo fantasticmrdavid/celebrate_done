@@ -9,7 +9,7 @@ export const getQuotes = async (
   try {
     const options = {
       method: 'GET',
-      url: `https://api.api-ninjas.com/v1/quotes?category=imagination`,
+      url: `https://api.api-ninjas.com/v1/quotes?category=dreams`,
       headers: {
         'X-Api-Key': process.env.API_NINJA_KEY,
       }
