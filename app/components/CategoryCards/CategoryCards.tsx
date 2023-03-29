@@ -35,6 +35,7 @@ import {
   isTomorrow,
   isYesterday,
 } from '@/app/utils'
+import {Quote} from "@/app/components/Quote/Quote";
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -68,9 +69,25 @@ export const CategoryCards = () => {
         &localEndOfDay=${dateIsoToSql(getLocalEndOfDay(currentDate))}`
       ).then((res) => res.json())
   )
+  const {
+    isLoading: isQuoteLoading,
+    error: quoteError,
+    data: quote,
+    refetch: refetchQuote
+  } = useQuery(
+    ['getQuote'] as unknown as QueryKey,
+    async () =>
+      await fetch(
+        '/api/quotes'
+      ).then((res) => res.json())
+  )
   useEffect(() => {
     refetchTodoList()
   }, [currentDate])
+
+  useEffect(() => {
+    refetchQuote()
+  }, [])
 
   if (isLoading || !todoList) return <Spin tip="Loading Todos" size="large" />
 
@@ -109,6 +126,7 @@ export const CategoryCards = () => {
           </Button>
         </Tooltip>
       </Space>
+      {quote && <Space align={"center"}><Quote author={quote.author} content={quote.quote}/></Space>}
       <Space size={'small'} className={styles.categoryCardContainer}>
         {categoryList.map((c) => {
           const filteredTodoList = todoList.filter(

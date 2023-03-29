@@ -4,6 +4,12 @@
   justify-content: center;
 }
 
+.quoteWrapper {
+  @media only screen and (min-width: 800px) {
+    max-width: 320px;
+  }
+}
+
 .bg {
   position: relative;
   position: absolute;

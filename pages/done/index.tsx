@@ -22,6 +22,7 @@ import {
 } from '@/app/utils'
 import { dateIsoToSql } from '@/pages/api/utils'
 import { DoneTodo } from '@/pages/api/todos/done'
+import {Quote} from "@/app/components/Quote/Quote";
 
 export enum DateRangeType {
   DAY = 'DAY',
@@ -80,6 +81,18 @@ export const DonePage = () => {
         `/api/todos/done?user_id=${user.uuid}&${getDateRangeQuery()}`
       ).then((res) => res.json())
   )
+  const {
+    isLoading: isQuoteLoading,
+    error: quoteError,
+    data: quote,
+    refetch: refetchQuote
+  } = useQuery(
+    ['getQuote'] as unknown as QueryKey,
+    async () =>
+      await fetch(
+        '/api/quotes'
+      ).then((res) => res.json())
+  )
   const ref = useRef<FireworksHandlers>(null)
 
   if (isLoading || !todoList)
@@ -101,6 +114,7 @@ export const DonePage = () => {
     <Space direction={'vertical'} align={'center'} style={{ width: '100%' }}>
       <div style={{ padding: '1em 0' }}>
         <Radio.Group
+          size={"small"}
           value={dateRangeType}
           buttonStyle="solid"
           onChange={(e) => setDateRangeType(e.target.value)}
@@ -126,11 +140,18 @@ export const DonePage = () => {
           />
         </div>
         <div className={styles.content}>
-          <DoneCount
-            count={todoList.length}
-            date={currentDate}
-            dateRangeType={dateRangeType}
-          />
+          <div>
+            <DoneCount
+              count={todoList.length}
+              date={currentDate}
+              dateRangeType={dateRangeType}
+            />
+            {quote && (
+              <Space align={"center"} className={styles.quoteWrapper}>
+                <Quote author={quote.author} content={quote.quote}/>
+              </Space>
+            )}
+          </div>
           <div>
             <h1>
               What I did {titleStrings[dateRangeType].toLocaleLowerCase()}:
