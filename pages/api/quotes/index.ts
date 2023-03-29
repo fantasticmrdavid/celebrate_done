@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import axios from "axios";
-import {processEnv} from "@next/env";
 
 export const getQuotes = async (
   req: NextApiRequest,

@@ -8,7 +8,7 @@ type Props = {
 
 export const Quote = ({ author, content }: Props) => (
   <div className={styles.container}>
-    <div className={styles.content}>{content}</div>
+    <div className={styles.content}>"{content}"</div>
     <div className={styles.author}>- {author}</div>
   </div>
 )
