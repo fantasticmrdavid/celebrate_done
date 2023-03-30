@@ -46,7 +46,9 @@ export const updateTodos = async (
             t.name=${SqlString.escape(name)},
             t.startDate=${SqlString.escape(dateIsoToSql(startDate))},
             t.notes=${
-              notes.trim().length > 0 ? SqlString.escape(notes) : 'NULL'
+              notes && notes.trim().length > 0
+                ? SqlString.escape(notes)
+                : 'NULL'
             },
             t.size=${SqlString.escape(size)},
             t.priority=${SqlString.escape(priority)},
