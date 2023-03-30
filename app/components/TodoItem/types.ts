@@ -21,7 +21,7 @@ export type Todo = {
   created: string
   startDate: string
   name: string
-  description: string
+  notes: string
   size: TODO_SIZE
   priority: TODO_PRIORITY
   status: TODO_STATUS

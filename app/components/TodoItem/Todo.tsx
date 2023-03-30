@@ -1,4 +1,12 @@
-import { Checkbox, Dropdown, MenuProps, notification, Space, Tag } from 'antd'
+import {
+  Checkbox,
+  Dropdown,
+  MenuProps,
+  notification,
+  Space,
+  Tag,
+  Tooltip,
+} from 'antd'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import {
@@ -13,6 +21,7 @@ import {
   EditOutlined,
   EllipsisOutlined,
   ExclamationCircleOutlined,
+  FileTextOutlined,
   LoadingOutlined,
 } from '@ant-design/icons'
 import styles from './todo.module.scss'
@@ -62,7 +71,7 @@ export const TodoItem = (props: TodoProps) => {
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isExploding, setIsExploding] = useState<boolean>(false)
 
-  const { todo, currentDate } = props
+  const { todo } = props
   const isDone = todo.status === TODO_STATUS.DONE
 
   useEffect(() => {
@@ -188,6 +197,19 @@ export const TodoItem = (props: TodoProps) => {
   const labelClassNames = classNames({
     [styles.fadeOut]: shouldAnimateFadeOut,
   })
+
+  const content = (
+    <>
+      {todo.name}{' '}
+      <Tag color={sizeTags[todo.size].color}>{sizeTags[todo.size].label}</Tag>
+      {todo.notes && (
+        <Tooltip title={todo.notes}>
+          <FileTextOutlined />
+        </Tooltip>
+      )}
+    </>
+  )
+
   return (
     <div
       style={{ display: 'flex', justifyContent: 'space-between' }}
@@ -215,19 +237,9 @@ export const TodoItem = (props: TodoProps) => {
           }}
         />{' '}
         {!isDone ? (
-          <>
-            {todo.name}{' '}
-            <Tag color={sizeTags[todo.size].color}>
-              {sizeTags[todo.size].label}
-            </Tag>
-          </>
+          content
         ) : (
-          <span style={{ textDecoration: 'line-through' }}>
-            {todo.name}{' '}
-            <Tag color={sizeTags[todo.size].color}>
-              {sizeTags[todo.size].label}
-            </Tag>
-          </span>
+          <span style={{ textDecoration: 'line-through' }}>{content}</span>
         )}
       </div>
       {!updateTodo.isLoading && (

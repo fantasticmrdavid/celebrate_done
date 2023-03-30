@@ -3,6 +3,7 @@ import {
   AutoComplete,
   DatePicker,
   Form,
+  Input,
   Modal,
   notification,
   Radio,
@@ -79,6 +80,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       ? dayjs(new Date(todo.startDate)).startOf('day').toISOString()
       : dayjs(new Date()).startOf('day').toISOString()
   )
+  const [notes, setNotes] = useState<string>(todo ? todo.notes : '')
   const [size, setSize] = useState<TODO_SIZE>(
     todo ? todo.size : TODO_SIZE.SMALL
   )
@@ -108,6 +110,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       axios.post('/api/todos', {
         name,
         startDate,
+        notes,
         size,
         priority,
         category,
@@ -139,6 +142,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         id: (todo as Todo).id,
         name,
         startDate,
+        notes,
         size,
         priority,
         category,
@@ -257,6 +261,13 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             value={dayjs(new Date(startDate))}
             allowClear={false}
             onChange={(_, dateString) => setStartDate(dateString)}
+          />
+        </Form.Item>
+        <Form.Item label={'Notes'}>
+          <Input.TextArea
+            placeholder={'Add any notes (optional)'}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </Form.Item>
       </Space>
