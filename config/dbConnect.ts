@@ -9,7 +9,7 @@ const dbConnect = mysql({
     password: DB_PASS,
     port: DB_PORT as unknown as number,
     database: DB_NAME,
-    timezone: '+11:00',
+    timezone: 'utc',
   },
 })
 

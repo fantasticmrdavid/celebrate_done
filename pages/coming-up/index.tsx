@@ -38,10 +38,7 @@ export const ComingUpPage = () => {
   const { user, isFetchingUser } = useContext(UserContext)
   const { categoryList } = useContext(CategoriesContext)
   const [currentDate, setCurrentDate] = useState<string>(
-    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
-      2,
-      '0'
-    )}-${String(today.getDate()).padStart(2, '0')}`
+    today.toISOString().slice(0, 10)
   )
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
     DateRangeType.WEEK
@@ -137,10 +134,9 @@ export const ComingUpPage = () => {
                 (t) => t.category.name === c.name
               )
               return categoryTodoList.length > 0 ? (
-                <>
+                <div key={`category_${c.name}`}>
                   <h4 style={{ fontWeight: 700 }}>{c.name}</h4>
                   <ul
-                    key={`category_${c.name}`}
                     style={{
                       fontSize: '1rem',
                       lineHeight: 1.25,
@@ -150,17 +146,19 @@ export const ComingUpPage = () => {
                   >
                     {categoryTodoList.map((t) => (
                       <li key={`todo_${t.id}`} className={styles.doneItem}>
-                        {dayjs(t.startDate).format('MMM DD')} - {t.name}
-                        <Tag
-                          color={sizeTags[t.size].color}
-                          style={{ marginLeft: '0.5em' }}
-                        >
-                          {sizeTags[t.size].label}
-                        </Tag>
+                        <>
+                          {dayjs(t.startDate).format('MMM DD')} - {t.name}
+                          <Tag
+                            color={sizeTags[t.size].color}
+                            style={{ marginLeft: '0.5em' }}
+                          >
+                            {sizeTags[t.size].label}
+                          </Tag>
+                        </>
                       </li>
                     ))}
                   </ul>
-                </>
+                </div>
               ) : null
             })}
           </div>
