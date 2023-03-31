@@ -24,6 +24,7 @@ import { dateIsoToSql } from '@/pages/api/utils'
 import { DoneTodo } from '@/pages/api/todos/done'
 import { Quote } from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
+import { CategoriesContext } from '@/app/contexts/Categories'
 
 export enum DateRangeType {
   DAY = 'DAY',
@@ -42,6 +43,7 @@ const titleStrings = {
 export const DonePage = () => {
   const today = new Date()
   const { user, isFetchingUser } = useContext(UserContext)
+  const { categoryList } = useContext(CategoriesContext)
   const [currentDate, setCurrentDate] = useState<string>(
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
       2,
@@ -147,26 +149,45 @@ export const DonePage = () => {
             <h1>
               What I did {titleStrings[dateRangeType].toLocaleLowerCase()}:
             </h1>
-            <ul
-              style={{
-                fontSize: '1rem',
-                lineHeight: 1.25,
-                padding: 0,
-                listStylePosition: 'inside',
-                listStyle: 'none',
-              }}
-            >
-              {todoList.map((t) => (
-                <li key={`todo_${t.id}`} className={styles.doneItem}>
-                  {t.name} {t.count > 1 && <strong>x{t.count}</strong>}
-                  {t.size !== TODO_SIZE.SMALL && (
-                    <Tag color={sizeTags[t.size].color}>
-                      {sizeTags[t.size].label}
-                    </Tag>
-                  )}
-                </li>
-              ))}
-            </ul>
+            {categoryList.map((c) => {
+              const categoryTodoList = todoList.filter(
+                (t) => t.category.name === c.name
+              )
+              const categoryTotal = categoryTodoList.reduce(
+                (acc, curr) => (acc += curr.count),
+                0
+              )
+              return categoryTodoList.length > 0 ? (
+                <>
+                  <h4 style={{ fontWeight: 700 }}>
+                    {c.name}
+                    {dateRangeType !== DateRangeType.DAY &&
+                      ` (${categoryTotal})`}
+                  </h4>
+                  <ul
+                    key={`category_${c.name}`}
+                    style={{
+                      fontSize: '1rem',
+                      lineHeight: 1.25,
+                      padding: 0,
+                      listStylePosition: 'inside',
+                      listStyle: 'none',
+                    }}
+                  >
+                    {categoryTodoList.map((t) => (
+                      <li key={`todo_${t.id}`} className={styles.doneItem}>
+                        {t.name} {t.count > 1 && <strong>x{t.count}</strong>}
+                        {t.size !== TODO_SIZE.SMALL && (
+                          <Tag color={sizeTags[t.size].color}>
+                            {sizeTags[t.size].label}
+                          </Tag>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null
+            })}
           </div>
         </div>
       </Space>

@@ -13,6 +13,8 @@ export type Get_Done_Todos_Response = {
   size: TODO_SIZE
   priority: TODO_PRIORITY
   count: number
+  category_name: string
+  category_sortOrder: string
 }
 
 export type DoneTodo = {
@@ -21,6 +23,10 @@ export type DoneTodo = {
   size: TODO_SIZE
   priority: TODO_PRIORITY
   count: number
+  category: {
+    name: string
+    sortOrder: number
+  }
 }
 
 export function mapDoneTodosResponse(
@@ -32,6 +38,10 @@ export function mapDoneTodosResponse(
     size: TODO_SIZE[r.size],
     priority: TODO_PRIORITY[r.priority],
     count: r.count,
+    category: {
+      name: r.category_name,
+      sortOrder: parseInt(r.category_sortOrder),
+    },
   }))
 }
 
@@ -51,7 +61,7 @@ export const getDoneTodos = async (
         COUNT(*) AS count
       FROM todos t
       LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
-      LEFT JOIN categories c ON tc.category_id = c.id
+      LEFT JOIN categories c ON tc.category_id = c.uuid
       WHERE 
       tc.user_id = ${SqlString.escape(user_id)} AND
       (
@@ -59,11 +69,13 @@ export const getDoneTodos = async (
         AND t.completedDateTime >= ${SqlString.escape(dateRangeStart)} 
         AND t.completedDateTime <= ${SqlString.escape(dateRangeEnd)}
       )
-      GROUP BY t.name, size
+      GROUP BY t.name, size, c.name
       ORDER BY
+      c.name,
       (size = "${TODO_SIZE.LARGE}") DESC,
       (size = "${TODO_SIZE.MEDIUM}") DESC, 
       count DESC`
+    console.log(query)
     const results = await dbConnect.query(query)
     await dbConnect.end()
     return res
