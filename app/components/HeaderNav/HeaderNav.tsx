@@ -5,8 +5,6 @@ import styles from './headerNav.module.scss'
 import Link from 'next/link'
 import { UserContext } from '@/app/contexts/User'
 
-const { Header } = Layout
-
 const menuItemList: MenuProps['items'] = [
   {
     label: <Link href={'/'}>To Do</Link>,
@@ -15,6 +13,10 @@ const menuItemList: MenuProps['items'] = [
   {
     label: <Link href={'/done'}>Done</Link>,
     key: 'done',
+  },
+  {
+    label: <Link href={'/coming-up'}>Coming Up</Link>,
+    key: 'coming-up',
   },
 ]
 
@@ -26,6 +28,10 @@ const menuKeysToRoutes = [
   {
     key: 'done',
     route: '/done',
+  },
+  {
+    key: 'coming-up',
+    route: '/coming-up',
   },
 ]
 
