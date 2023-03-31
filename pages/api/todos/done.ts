@@ -75,7 +75,6 @@ export const getDoneTodos = async (
       (size = "${TODO_SIZE.LARGE}") DESC,
       (size = "${TODO_SIZE.MEDIUM}") DESC, 
       count DESC`
-    console.log(query)
     const results = await dbConnect.query(query)
     await dbConnect.end()
     return res
