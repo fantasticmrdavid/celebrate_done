@@ -45,10 +45,7 @@ export const CategoryCards = () => {
   const { user } = useContext(UserContext)
   const today = new Date()
   const [currentDate, setCurrentDate] = useState<string>(
-    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
-      2,
-      '0'
-    )}-${String(today.getDate()).padStart(2, '0')}`
+    new Date().toISOString().slice(0, 10)
   )
 
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)

@@ -29,6 +29,7 @@ import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
 import { UserContext } from '@/app/contexts/User'
+import { getLocalStartOfDay } from '@/app/utils'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -260,7 +261,9 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
           <DatePicker
             value={dayjs(new Date(startDate))}
             allowClear={false}
-            onChange={(_, dateString) => setStartDate(dateString)}
+            onChange={(_, dateString) =>
+              setStartDate(getLocalStartOfDay(dateString))
+            }
           />
         </Form.Item>
         <Form.Item label={'Notes'}>

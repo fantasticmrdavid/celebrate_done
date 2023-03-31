@@ -79,12 +79,12 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       (
         (
             t.status != "${TODO_STATUS.DONE}" AND
-            ${SqlString.escape(localStartOfDay)} >= t.startDate
-        ) OR
+           ${SqlString.escape(localStartOfDay)} >= t.startDate
+           ) OR
         (
           t.status = "${TODO_STATUS.DONE}" 
-          AND t.completedDateTime <= ${SqlString.escape(localEndOfDay)} 
           AND t.completedDateTime >= ${SqlString.escape(localStartOfDay)}
+          AND t.completedDateTime <= ${SqlString.escape(localEndOfDay)} 
         )
       )
       ORDER BY
