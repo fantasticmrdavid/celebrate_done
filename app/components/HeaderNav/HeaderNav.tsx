@@ -57,6 +57,7 @@ export const HeaderNav = () => {
         />
         <div className={styles.user}>
           <Dropdown
+            trigger={['click']}
             menu={{
               items: [
                 {
