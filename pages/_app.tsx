@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { getCookie, setCookie } from 'cookies-next'
 import type { AppProps } from 'next/app'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ConfigProvider, Layout } from 'antd'
@@ -15,6 +16,7 @@ import { UserSelector } from '@/app/components/UserSelector/UserSelector'
 
 import dayjs from 'dayjs'
 import updateLocale from 'dayjs/plugin/updateLocale'
+import { COOKIE_NAME } from '@/app/constants/constants'
 
 dayjs.extend(updateLocale)
 dayjs.updateLocale('en', {
@@ -24,8 +26,19 @@ dayjs.updateLocale('en', {
 const { Content } = Layout
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  const [queryClient] = React.useState(() => new QueryClient())
+  const [queryClient] = useState(() => new QueryClient())
   const [uuid, setUuid] = useState<string>()
+
+  const cookieRaw = getCookie(COOKIE_NAME) || ''
+
+  useEffect(() => {
+    if (!cookieRaw) {
+      setUuid(undefined)
+    } else {
+      const cookie = JSON.parse(cookieRaw as string)
+      setUuid(cookie.uuid as string)
+    }
+  }, [cookieRaw])
 
   const head = (
     <Head>
@@ -73,7 +86,12 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             {head}
             <Layout>
               <Content className={styles.centeredContent}>
-                <UserSelector onSelect={(uuid) => setUuid(uuid)} />
+                <UserSelector
+                  onSelect={(uuid) => {
+                    setCookie(COOKIE_NAME, { uuid })
+                    setUuid(uuid)
+                  }}
+                />
               </Content>
             </Layout>
           </>
