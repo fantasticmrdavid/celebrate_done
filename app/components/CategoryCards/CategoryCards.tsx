@@ -44,9 +44,7 @@ const { Title } = Typography
 export const CategoryCards = () => {
   const { user } = useContext(UserContext)
   const today = new Date()
-  const [currentDate, setCurrentDate] = useState<string>(
-    new Date().toISOString().slice(0, 10)
-  )
+  const [currentDate, setCurrentDate] = useState<string>(today.toISOString())
 
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false)
