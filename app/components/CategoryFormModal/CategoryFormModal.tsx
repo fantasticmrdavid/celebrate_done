@@ -5,6 +5,11 @@ import { Category } from './types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EditOutlined, FolderAddOutlined } from '@ant-design/icons'
 import { UserContext } from '@/app/contexts/User'
+import {
+  CategoryValidation,
+  validateCategory,
+} from '@/app/components/CategoryFormModal/utils'
+import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',
@@ -29,6 +34,7 @@ export const CategoryFormModal = ({
   const [description, setDescription] = useState<string>(
     category ? category.description : ''
   )
+  const [validation, setValidation] = useState<CategoryValidation>({})
 
   const queryClient = useQueryClient()
 
@@ -108,11 +114,15 @@ export const CategoryFormModal = ({
       }
       open={isOpen}
       onCancel={onCancel}
-      onOk={() =>
-        mode === CategoryModal_Mode.ADD
+      onOk={() => {
+        const validation = validateCategory({
+          name,
+        })
+        if (Object.keys(validation).length > 0) return setValidation(validation)
+        return mode === CategoryModal_Mode.ADD
           ? createCategory.mutate()
           : saveCategory.mutate()
-      }
+      }}
       okText={mode === CategoryModal_Mode.ADD ? 'Add Category' : 'Save'}
       okButtonProps={{
         loading: isLoading,
@@ -126,6 +136,7 @@ export const CategoryFormModal = ({
             placeholder={'Enter the name for the category'}
             onChange={(e) => setName(e.target.value)}
           />
+          {validation.name && <ValidationMessage message={validation.name} />}
         </Form.Item>
         <Form.Item label={'Description'}>
           <Input
