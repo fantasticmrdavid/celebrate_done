@@ -204,4 +204,8 @@ export default [
     quote:
       'We need to do a better job of putting ourselves higher on our own ‘to-do’ list',
   },
+  {
+    author: 'Benjamin Franklin',
+    quote: 'Well done is better than well said.',
+  },
 ]
