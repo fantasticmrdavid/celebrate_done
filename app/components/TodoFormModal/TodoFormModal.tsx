@@ -3,6 +3,7 @@ import {
   AutoComplete,
   DatePicker,
   Form,
+  Input,
   Modal,
   notification,
   Radio,
@@ -23,11 +24,16 @@ import {
   Todo,
   TODO_PRIORITY,
   TODO_SIZE,
+  TODO_STATUS,
 } from '@/app/components/TodoItem/types'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
 import { UserContext } from '@/app/contexts/User'
+import { getLocalStartOfDay } from '@/app/utils'
+
+import { TodoValidation, validateTodo } from './utils'
+import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -79,6 +85,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       ? dayjs(new Date(todo.startDate)).startOf('day').toISOString()
       : dayjs(new Date()).startOf('day').toISOString()
   )
+  const [notes, setNotes] = useState<string>(todo ? todo.notes : '')
   const [size, setSize] = useState<TODO_SIZE>(
     todo ? todo.size : TODO_SIZE.SMALL
   )
@@ -88,6 +95,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const [category, setCategory] = useState<Category | undefined>(
     todo ? todo.category : propsCategory
   )
+  const [validation, setValidation] = useState<TodoValidation>({})
 
   const { data: suggestionList } = useQuery<Get_Suggestions_Response[]>(
     ['getTodoSuggestions'] as unknown as QueryKey,
@@ -108,6 +116,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       axios.post('/api/todos', {
         name,
         startDate,
+        notes,
         size,
         priority,
         category,
@@ -139,6 +148,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         id: (todo as Todo).id,
         name,
         startDate,
+        notes,
         size,
         priority,
         category,
@@ -188,9 +198,15 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       }
       open={isOpen}
       onCancel={onCancel}
-      onOk={() =>
-        mode === TodoModal_Mode.ADD ? createTodo.mutate() : saveTodo.mutate()
-      }
+      onOk={() => {
+        const validation = validateTodo({
+          name,
+        })
+        if (Object.keys(validation).length > 0) return setValidation(validation)
+        return mode === TodoModal_Mode.ADD
+          ? createTodo.mutate()
+          : saveTodo.mutate()
+      }}
       okText={getOkButtonLabel()}
       okButtonProps={{
         loading: isLoading,
@@ -208,10 +224,12 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   .indexOf(inputValue.toUpperCase()) !== -1
               )
             }}
+            status={validation.name ? 'error' : undefined}
             defaultValue={name}
             placeholder={'Enter the name for the task'}
             onChange={(val) => setName(val)}
           />
+          {validation.name && <ValidationMessage message={validation.name} />}
         </Form.Item>
         <Form.Item label={'Size'}>
           <Radio.Group
@@ -256,7 +274,16 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
           <DatePicker
             value={dayjs(new Date(startDate))}
             allowClear={false}
-            onChange={(_, dateString) => setStartDate(dateString)}
+            onChange={(_, dateString) =>
+              setStartDate(getLocalStartOfDay(dateString))
+            }
+          />
+        </Form.Item>
+        <Form.Item label={'Notes'}>
+          <Input.TextArea
+            placeholder={'Add any notes (optional)'}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </Form.Item>
       </Space>

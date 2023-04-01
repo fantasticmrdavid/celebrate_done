@@ -35,7 +35,8 @@ import {
   isTomorrow,
   isYesterday,
 } from '@/app/utils'
-import {Quote} from "@/app/components/Quote/Quote";
+import { Quote } from '@/app/components/Quote/Quote'
+import quoteList from '@/app/data/quotes'
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -44,10 +45,7 @@ export const CategoryCards = () => {
   const { user } = useContext(UserContext)
   const today = new Date()
   const [currentDate, setCurrentDate] = useState<string>(
-    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
-      2,
-      '0'
-    )}-${String(today.getDate()).padStart(2, '0')}`
+    new Date().toISOString().slice(0, 10)
   )
 
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
@@ -69,25 +67,12 @@ export const CategoryCards = () => {
         &localEndOfDay=${dateIsoToSql(getLocalEndOfDay(currentDate))}`
       ).then((res) => res.json())
   )
-  const {
-    isLoading: isQuoteLoading,
-    error: quoteError,
-    data: quote,
-    refetch: refetchQuote
-  } = useQuery(
-    ['getQuote'] as unknown as QueryKey,
-    async () =>
-      await fetch(
-        '/api/quotes'
-      ).then((res) => res.json())
-  )
+
   useEffect(() => {
     refetchTodoList()
   }, [currentDate])
 
-  useEffect(() => {
-    refetchQuote()
-  }, [])
+  const quote = quoteList[(quoteList.length * Math.random()) | 0]
 
   if (isLoading || !todoList) return <Spin tip="Loading Todos" size="large" />
 
@@ -126,7 +111,11 @@ export const CategoryCards = () => {
           </Button>
         </Tooltip>
       </Space>
-      {quote && <Space align={"center"}><Quote author={quote.author} content={quote.quote}/></Space>}
+      {quote && (
+        <Space align={'center'}>
+          <Quote author={quote.author} content={quote.quote} />
+        </Space>
+      )}
       <Space size={'small'} className={styles.categoryCardContainer}>
         {categoryList.map((c) => {
           const filteredTodoList = todoList.filter(

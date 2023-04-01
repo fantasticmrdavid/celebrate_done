@@ -3,11 +3,12 @@ import { TODO_STATUS } from '@/app/components/TodoItem/types'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
 import { v4 as uuidv4 } from 'uuid'
-import {dateIsoToSql} from "@/pages/api/utils";
+import { dateIsoToSql } from '@/pages/api/utils'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const { name, description, priority, size, category, startDate, user_id } = req.body
+    const { name, notes, priority, size, category, startDate, user_id } =
+      req.body
     const createdDateTime = dateIsoToSql(new Date().toISOString())
     const new_uuid = uuidv4()
     const insertTodoQuery = `INSERT into todos
@@ -17,7 +18,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                 ${SqlString.escape(createdDateTime)},
                 ${SqlString.escape(dateIsoToSql(startDate))},
                 ${SqlString.escape(name)},
-                ${SqlString.escape(description)},
+                ${SqlString.escape(notes)},
                 '${size}',
                 '${priority}',
                 '${TODO_STATUS.INCOMPLETE}',

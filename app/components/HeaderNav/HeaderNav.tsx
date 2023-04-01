@@ -1,11 +1,12 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Divider, Layout, Menu, MenuProps, Space, Tooltip } from 'antd'
+import { Dropdown, Menu, MenuProps, Space } from 'antd'
 import styles from './headerNav.module.scss'
 import Link from 'next/link'
 import { UserContext } from '@/app/contexts/User'
-
-const { Header } = Layout
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { COOKIE_NAME } from '@/app/constants/constants'
+import { deleteCookie } from 'cookies-next'
 
 const menuItemList: MenuProps['items'] = [
   {
@@ -15,6 +16,10 @@ const menuItemList: MenuProps['items'] = [
   {
     label: <Link href={'/done'}>Done</Link>,
     key: 'done',
+  },
+  {
+    label: <Link href={'/coming-up'}>Coming Up</Link>,
+    key: 'coming-up',
   },
 ]
 
@@ -27,9 +32,14 @@ const menuKeysToRoutes = [
     key: 'done',
     route: '/done',
   },
+  {
+    key: 'coming-up',
+    route: '/coming-up',
+  },
 ]
 
 export const HeaderNav = () => {
+  const [isUserMenuCollapsed, setIsUserMenuCollapsed] = useState<boolean>(true)
   const { user, isFetchingUser } = useContext(UserContext)
   const router = useRouter()
   if (isFetchingUser) return null
@@ -45,7 +55,32 @@ export const HeaderNav = () => {
             .filter((mk) => router.route === mk.route)
             .map((i) => i.key)}
         />
-        <div className={styles.user}>{user.username}</div>
+        <div className={styles.user}>
+          <Dropdown
+            trigger={['click']}
+            menu={{
+              items: [
+                {
+                  label: (
+                    <div
+                      onClick={() => {
+                        deleteCookie(COOKIE_NAME)
+                        router.push('./')
+                      }}
+                    >
+                      <LogoutOutlined /> Logout {user.username}
+                    </div>
+                  ),
+                  key: '1',
+                },
+              ],
+            }}
+          >
+            <UserOutlined
+              onClick={() => setIsUserMenuCollapsed(!isUserMenuCollapsed)}
+            />
+          </Dropdown>
+        </div>
       </Space>
     </Space>
   )

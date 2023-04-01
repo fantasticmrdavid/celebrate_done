@@ -7,15 +7,13 @@ import {
   TODO_STATUS,
 } from '@/app/components/TodoItem/types'
 import SqlString from 'sqlstring'
-import dayjs from 'dayjs'
-import {dateIsoToSql} from "@/pages/api/utils";
 
 export type Get_Todos_Response = {
   id: number
   created: string
   startDate: string
   name: string
-  description: string
+  notes: string
   size: TODO_SIZE
   priority: TODO_PRIORITY
   status: TODO_STATUS
@@ -35,7 +33,7 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
     created: r.created,
     startDate: r.startDate,
     name: r.name,
-    description: r.description,
+    notes: r.notes,
     size: TODO_SIZE[r.size],
     priority: TODO_PRIORITY[r.priority],
     status: TODO_STATUS[r.status],
@@ -46,7 +44,7 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
       description: r.category_description,
       maxPerDay: r.category_maxPerDay,
       sortOrder: r.category_sortOrder,
-      user_id: r.category_user_uuid
+      user_id: r.category_user_uuid,
     },
   }))
 }
@@ -61,7 +59,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         t.created,
         t.startDate,
         t.name,
-        t.description,
+        t.notes,
         t.size,
         t.priority,
         t.status,
@@ -81,12 +79,12 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       (
         (
             t.status != "${TODO_STATUS.DONE}" AND
-            ${SqlString.escape(localStartOfDay)} >= t.startDate
-        ) OR
+           ${SqlString.escape(localStartOfDay)} >= t.startDate
+           ) OR
         (
           t.status = "${TODO_STATUS.DONE}" 
-          AND t.completedDateTime <= ${SqlString.escape(localEndOfDay)} 
           AND t.completedDateTime >= ${SqlString.escape(localStartOfDay)}
+          AND t.completedDateTime <= ${SqlString.escape(localEndOfDay)} 
         )
       )
       ORDER BY

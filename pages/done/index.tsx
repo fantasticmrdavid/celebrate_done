@@ -22,7 +22,10 @@ import {
 } from '@/app/utils'
 import { dateIsoToSql } from '@/pages/api/utils'
 import { DoneTodo } from '@/pages/api/todos/done'
-import {Quote} from "@/app/components/Quote/Quote";
+import { Quote } from '@/app/components/Quote/Quote'
+import quoteList from '@/app/data/quotes'
+import { CategoriesContext } from '@/app/contexts/Categories'
+import Image from 'next/image'
 
 export enum DateRangeType {
   DAY = 'DAY',
@@ -38,9 +41,16 @@ const titleStrings = {
   [DateRangeType.YEAR]: 'This Year',
 }
 
+const emptyTodoListGifList = [
+  'you_can _do_it_pink_dog_postcard.gif',
+  'you_can_do_it_cartoon_lizard.gif',
+  'you_can_do_it_cat_dog.gif',
+]
+
 export const DonePage = () => {
   const today = new Date()
   const { user, isFetchingUser } = useContext(UserContext)
+  const { categoryList } = useContext(CategoriesContext)
   const [currentDate, setCurrentDate] = useState<string>(
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
       2,
@@ -50,6 +60,10 @@ export const DonePage = () => {
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
     DateRangeType.DAY
   )
+
+  const quote = quoteList[(quoteList.length * Math.random()) | 0]
+  const emptyGif =
+    emptyTodoListGifList[(emptyTodoListGifList.length * Math.random()) | 0]
 
   const getDateRangeQuery = () => {
     if (dateRangeType === DateRangeType.DAY) {
@@ -81,18 +95,6 @@ export const DonePage = () => {
         `/api/todos/done?user_id=${user.uuid}&${getDateRangeQuery()}`
       ).then((res) => res.json())
   )
-  const {
-    isLoading: isQuoteLoading,
-    error: quoteError,
-    data: quote,
-    refetch: refetchQuote
-  } = useQuery(
-    ['getQuote'] as unknown as QueryKey,
-    async () =>
-      await fetch(
-        '/api/quotes'
-      ).then((res) => res.json())
-  )
   const ref = useRef<FireworksHandlers>(null)
 
   if (isLoading || !todoList)
@@ -114,7 +116,7 @@ export const DonePage = () => {
     <Space direction={'vertical'} align={'center'} style={{ width: '100%' }}>
       <div style={{ padding: '1em 0' }}>
         <Radio.Group
-          size={"small"}
+          size={'small'}
           value={dateRangeType}
           buttonStyle="solid"
           onChange={(e) => setDateRangeType(e.target.value)}
@@ -126,57 +128,112 @@ export const DonePage = () => {
         </Radio.Group>
       </div>
       <Space size={'middle'} className={styles.container}>
-        <div className={styles.bg}>
-          <Fireworks
-            ref={ref}
-            options={{ delay: { min: 100, max: 500 } }}
-            style={{
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-            }}
-          />
-        </div>
         <div className={styles.content}>
-          <div>
-            <DoneCount
-              count={todoList.length}
-              date={currentDate}
-              dateRangeType={dateRangeType}
-            />
-            {quote && (
-              <Space align={"center"} className={styles.quoteWrapper}>
-                <Quote author={quote.author} content={quote.quote}/>
-              </Space>
-            )}
-          </div>
-          <div>
-            <h1>
-              What I did {titleStrings[dateRangeType].toLocaleLowerCase()}:
-            </h1>
-            <ul
-              style={{
-                fontSize: '1rem',
-                lineHeight: 1.25,
-                padding: 0,
-                listStylePosition: 'inside',
-                listStyle: 'none',
-              }}
-            >
-              {todoList.map((t) => (
-                <li key={`todo_${t.id}`} className={styles.doneItem}>
-                  {t.name} {t.count > 1 && <strong>x{t.count}</strong>}
-                  {t.size !== TODO_SIZE.SMALL && (
-                    <Tag color={sizeTags[t.size].color}>
-                      {sizeTags[t.size].label}
-                    </Tag>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {todoList.length === 0 && (
+            <Space align={'center'} direction={'vertical'}>
+              {quote && (
+                <Space align={'center'} className={styles.quoteWrapper}>
+                  <Quote author={quote.author} content={quote.quote} />
+                </Space>
+              )}
+              <div
+                style={{
+                  position: 'relative',
+                  width: '300px',
+                  height: '200px',
+                  marginBottom: '1em',
+                }}
+              >
+                <Image
+                  src={`/gifs/${emptyGif}`}
+                  alt="Motivational gif"
+                  fill
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
+              <div>
+                <strong>
+                  There's still time to get started! Also don't forget to check
+                  off things you've already done{' '}
+                  {titleStrings[dateRangeType].toLowerCase()}!
+                </strong>
+              </div>
+            </Space>
+          )}
+          {todoList.length > 0 && (
+            <>
+              <div className={styles.bg}>
+                <Fireworks
+                  ref={ref}
+                  options={{ delay: { min: 100, max: 500 } }}
+                  style={{
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute',
+                  }}
+                />
+              </div>
+              <div>
+                <DoneCount
+                  count={todoList.length}
+                  date={currentDate}
+                  dateRangeType={dateRangeType}
+                />
+                {quote && (
+                  <Space align={'center'} className={styles.quoteWrapper}>
+                    <Quote author={quote.author} content={quote.quote} />
+                  </Space>
+                )}
+              </div>
+              <div>
+                <h1>
+                  What I did {titleStrings[dateRangeType].toLocaleLowerCase()}:
+                </h1>
+                {categoryList.map((c) => {
+                  const categoryTodoList = todoList.filter(
+                    (t) => t.category.name === c.name
+                  )
+                  const categoryTotal = categoryTodoList.reduce(
+                    (acc, curr) => (acc += curr.count),
+                    0
+                  )
+                  return categoryTodoList.length > 0 ? (
+                    <>
+                      <h4 style={{ fontWeight: 700 }}>
+                        {c.name}
+                        {dateRangeType !== DateRangeType.DAY &&
+                          ` (${categoryTotal})`}
+                      </h4>
+                      <ul
+                        key={`category_${c.name}`}
+                        style={{
+                          fontSize: '1rem',
+                          lineHeight: 1.25,
+                          padding: 0,
+                          listStylePosition: 'inside',
+                          listStyle: 'none',
+                        }}
+                      >
+                        {categoryTodoList.map((t) => (
+                          <li key={`todo_${t.id}`} className={styles.doneItem}>
+                            {t.name}{' '}
+                            {t.count > 1 && <strong>x{t.count}</strong>}
+                            {t.size !== TODO_SIZE.SMALL && (
+                              <Tag color={sizeTags[t.size].color}>
+                                {sizeTags[t.size].label}
+                              </Tag>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null
+                })}
+              </div>
+            </>
+          )}
         </div>
       </Space>
     </Space>

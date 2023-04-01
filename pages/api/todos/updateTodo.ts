@@ -38,13 +38,18 @@ export const updateTodos = async (
       break
     }
     case 'update': {
-      const { id, name, startDate, size, priority, category } = req.body
+      const { id, name, startDate, notes, size, priority, category } = req.body
       updateTodoQuery = `
         UPDATE todos t
         INNER JOIN todos_to_categories tc ON (t.id = tc.todo_id)
            SET
             t.name=${SqlString.escape(name)},
             t.startDate=${SqlString.escape(dateIsoToSql(startDate))},
+            t.notes=${
+              notes && notes.trim().length > 0
+                ? SqlString.escape(notes)
+                : 'NULL'
+            },
             t.size=${SqlString.escape(size)},
             t.priority=${SqlString.escape(priority)},
             tc.category_id=${SqlString.escape(category.uuid)}
