@@ -45,7 +45,7 @@ export const CategoryFormModal = ({
         description,
         user_id: user.uuid,
       } as Category),
-    onSuccess: (res) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
       notification.success({
         message: (
@@ -58,7 +58,7 @@ export const CategoryFormModal = ({
       setDescription('')
       if (onCancel) onCancel()
     },
-    onError: (error) => {
+    onError: () => {
       console.log('ERROR')
       notification.error({
         message: <>Error creating category. Check console for details.</>,

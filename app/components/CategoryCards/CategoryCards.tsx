@@ -68,7 +68,7 @@ export const CategoryCards = () => {
 
   useEffect(() => {
     refetchTodoList()
-  }, [currentDate])
+  }, [currentDate, refetchTodoList])
 
   const quote = quoteList[(quoteList.length * Math.random()) | 0]
 
