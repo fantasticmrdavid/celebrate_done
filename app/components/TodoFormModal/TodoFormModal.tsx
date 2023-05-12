@@ -24,7 +24,6 @@ import {
   Todo,
   TODO_PRIORITY,
   TODO_SIZE,
-  TODO_STATUS,
 } from '@/app/components/TodoItem/types'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
