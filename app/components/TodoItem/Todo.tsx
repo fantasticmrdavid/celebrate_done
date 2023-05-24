@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'antd'
 import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {
   Todo,
   TODO_PRIORITY,
@@ -23,6 +23,7 @@ import {
   ExclamationCircleOutlined,
   FileTextOutlined,
   LoadingOutlined,
+  RiseOutlined,
 } from '@ant-design/icons'
 import styles from './todo.module.scss'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -31,6 +32,8 @@ import ConfettiExplosion from 'react-confetti-explosion'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
+import {Category} from "@/app/components/CategoryFormModal/types";
+import {UserContext} from "@/app/contexts/User";
 
 type TodoProps = {
   todo: Todo
@@ -62,6 +65,7 @@ export const sizeTags = {
 
 export const TodoItem = (props: TodoProps) => {
   const queryClient = useQueryClient()
+  const { user } = useContext(UserContext)
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
     useState<boolean>(false)
   const [shouldAnimateDeleted, setShouldAnimateDeleted] =
@@ -91,6 +95,29 @@ export const TodoItem = (props: TodoProps) => {
     onMutate: async (updateTodoParams) => {
       const isDone = updateTodoParams.status === TODO_STATUS.DONE
       if (isDone) setIsExploding(true)
+      setTimeout(() => {
+        setIsExploding(false)
+      }, 3000)
+    },
+    onError: (e) => {
+      console.error('ERROR: ', e)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['getTodos'],
+      })
+    },
+  })
+
+  const addTodoProgress = useMutation({
+    mutationFn: () =>
+        axios.post('/api/todos/progress', {
+          name: todo.name,
+          category: todo.category,
+          user_id: user.uuid
+        }),
+    onMutate: async () => {
+      setIsExploding(true)
       setTimeout(() => {
         setIsExploding(false)
       }, 3000)
@@ -171,6 +198,14 @@ export const TodoItem = (props: TodoProps) => {
     },
     {
       key: '3',
+      label: (
+          <div onClick={() => addTodoProgress.mutate()}>
+            <RiseOutlined /> I worked on this today
+          </div>
+      ),
+    },
+    {
+      key: '4',
       label: (
         <div
           style={{ color: 'red' }}
