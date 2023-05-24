@@ -208,4 +208,8 @@ export default [
     author: 'Benjamin Franklin',
     quote: 'Well done is better than well said.',
   },
+  {
+    author: 'Georges Doriot',
+    quote: 'Without actions, the world would just be an idea.',
+  },
 ]
