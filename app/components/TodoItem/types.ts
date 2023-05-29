@@ -26,6 +26,7 @@ export type Todo = {
   priority: TODO_PRIORITY
   status: TODO_STATUS
   completedDateTime: string | undefined
+  sortOrder: number
   category: Category
 }
 

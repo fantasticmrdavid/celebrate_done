@@ -18,6 +18,7 @@ export type Get_Todos_Response = {
   priority: TODO_PRIORITY
   status: TODO_STATUS
   completedDateTime: string
+  sortOrder: number,
   category_id: number
   category_uuid: string
   category_name: string
@@ -28,7 +29,7 @@ export type Get_Todos_Response = {
 }
 
 export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
-  return results.map((r) => ({
+  return results.map((r, i) => ({
     id: r.id,
     created: r.created,
     startDate: r.startDate,
@@ -38,6 +39,7 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
     priority: TODO_PRIORITY[r.priority],
     status: TODO_STATUS[r.status],
     completedDateTime: r.completedDateTime,
+    sortOrder: r.sortOrder,
     category: {
       uuid: r.category_uuid,
       name: r.category_name,
@@ -64,6 +66,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         t.priority,
         t.status,
         t.completedDateTime,
+        t.sortOrder,
         c.id AS category_id,
         c.name AS category_name,
         c.uuid AS category_uuid,
@@ -90,6 +93,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       ORDER BY
         (t.status = "${TODO_STATUS.INCOMPLETE}") DESC,
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
+        (t.sortOrder) ASC,
         c.name, t.name ASC`
     const results = await dbConnect.query(query)
     await dbConnect.end()
