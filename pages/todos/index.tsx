@@ -1,11 +1,11 @@
 import React from 'react'
-import { CategoryCards } from '@/app/components/CategoryCards/CategoryCards'
+import { CategoryCardList } from '@/app/components/CategoryCardList/CategoryCardList'
 import styles from "./todosPage.module.scss"
 
 export const TodosPage = () => {
   return (
     <div className={styles.container}>
-      <CategoryCards />
+      <CategoryCardList />
     </div>
   )
 }

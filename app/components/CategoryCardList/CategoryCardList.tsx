@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { UserContext } from '@/app/contexts/User'
-import styles from './categoryCards.module.scss'
+import styles from './categoryCardList.module.scss'
 import { dateIsoToSql } from '@/pages/api/utils'
 import {
   getLocalEndOfDay,
@@ -43,7 +43,7 @@ import {CategoryCard} from "@/app/components/CategoryCard/CategoryCard";
 const { Panel } = Collapse
 const { Title } = Typography
 
-export const CategoryCards = () => {
+export const CategoryCardList = () => {
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
   const today = new Date()
