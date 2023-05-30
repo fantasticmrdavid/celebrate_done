@@ -98,6 +98,7 @@ export const CategoryCardList = () => {
     }).sort((a, b) => {
       if (a.priority === TODO_PRIORITY.URGENT && b.priority !== TODO_PRIORITY.URGENT) return -1
       if (a.priority !== TODO_PRIORITY.URGENT && b.priority === TODO_PRIORITY.URGENT) return 1
+      if (a.status === TODO_STATUS.DONE || b.status === TODO_STATUS.DONE) return 0
       return a.sortOrder < b.sortOrder ? -1 : 1
     })
     await queryClient.cancelQueries(["getTodos", currentDate])

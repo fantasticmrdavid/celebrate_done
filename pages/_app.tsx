@@ -19,7 +19,9 @@ import updateLocale from 'dayjs/plugin/updateLocale'
 import { COOKIE_NAME } from '@/app/constants/constants'
 
 import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import { TouchBackend  } from 'react-dnd-touch-backend'
+import {HTML5Backend} from "react-dnd-html5-backend";
+import {isMobile} from 'react-device-detect';
 
 dayjs.extend(updateLocale)
 dayjs.updateLocale('en', {
@@ -76,7 +78,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           <UserProvider uuid={uuid}>
             <CategoriesProvider>
               {head}
-                <DndProvider backend={HTML5Backend}>
+                <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
                   <Layout>
                     <HeaderNav />
                     <Content className={styles.content}>
