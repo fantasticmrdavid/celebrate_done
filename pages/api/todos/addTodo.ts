@@ -22,7 +22,8 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                 '${size}',
                 '${priority}',
                 '${TODO_STATUS.INCOMPLETE}',
-                null
+                null,
+                999
             )`
     try {
       const todoResult = await dbConnect
