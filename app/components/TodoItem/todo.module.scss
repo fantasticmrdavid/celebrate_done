@@ -11,6 +11,7 @@
   animation: fadeIn 1s ease 1;
   animation-fill-mode: forwards;
   padding: 0.25em 0.5em;
+  cursor: pointer;
 
   @media only screen and (min-width: 800px) {
     &:hover {

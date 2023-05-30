@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { QueryKey, useQuery } from '@tanstack/react-query'
-import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
+import {QueryKey, useQuery, useQueryClient} from '@tanstack/react-query'
+import {Todo, TODO_PRIORITY, TODO_STATUS} from '@/app/components/TodoItem/types'
 import {
   Button,
   Collapse,
@@ -38,11 +38,13 @@ import {
 import { Quote } from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
 import {TodoDropZone} from "@/app/components/TodoDropZone/TodoDropZone";
+import {CategoryCard} from "@/app/components/CategoryCard/CategoryCard";
 
 const { Panel } = Collapse
 const { Title } = Typography
 
 export const CategoryCards = () => {
+  const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
   const today = new Date()
   const [currentDate, setCurrentDate] = useState<string>(today.toISOString())
@@ -85,6 +87,25 @@ export const CategoryCards = () => {
     return dayjs(new Date(currentDate)).format('ddd, MMM D, YYYY')
   }
 
+  // NOTE: This is all for optimistic updates after sorting
+  const sortAllTodoList = async (tList: Todo[]) => {
+    const sortedTodoList = todoList.map(t => {
+      const updatedTodoIndex = tList.findIndex(tt => tt.id === t.id)
+      return {
+        ...t,
+        sortOrder: updatedTodoIndex !== -1 ? updatedTodoIndex : t.sortOrder
+      }
+    }).sort((a, b) => {
+      if (a.priority === TODO_PRIORITY.URGENT && b.priority !== TODO_PRIORITY.URGENT) return -1
+      if (a.priority !== TODO_PRIORITY.URGENT && b.priority === TODO_PRIORITY.URGENT) return 1
+      return a.sortOrder < b.sortOrder ? -1 : 1
+    })
+    await queryClient.cancelQueries(["getTodos", currentDate])
+    const previousTodoList = queryClient.getQueryData(["getTodos", currentDate])
+    queryClient.setQueryData(["getTodos", currentDate], sortedTodoList)
+    return {previousTodoList}
+  }
+
   return (
     <>
       <Space className={styles.header}>
@@ -120,86 +141,22 @@ export const CategoryCards = () => {
           const filteredTodoList = todoList.filter(
             (t: Todo) => t.category.uuid === c.uuid
           )
-          const doneCount = filteredTodoList.filter(
-            (t) => t.status === TODO_STATUS.DONE
-          )?.length
-          return (
-            <Collapse
-              activeKey={filteredTodoList.length > 0 ? [c.uuid] : []}
-              key={`category_${c.uuid}`}
-              collapsible="icon"
-              expandIconPosition={'end'}
-              defaultActiveKey={c.uuid}
-              size={'small'}
-            >
-              <Panel
-                key={c.uuid}
-                header={
-                  <Space direction={'vertical'} style={{ width: '100%' }}>
-                    <Title
-                      level={5}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        margin: 0,
-                      }}
-                    >
-                      <div className={styles.categoryCardTitle}>
-                        {c.name}
-                        <div
-                          className={styles.categoryCardDoneCount}
-                          style={{
-                            fontWeight: 500,
-                            fontSize: '0.8rem',
-                            marginLeft: '0.5em',
-                          }}
-                        >
-                          {doneCount > 0 && ` 🎉 x${doneCount}`}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', marginLeft: '1em' }}>
-                        <Tooltip title={'Edit Category'}>
-                          <Button
-                            icon={<EditOutlined />}
-                            onClick={() => {
-                              setModalCategory(c)
-                              setIsCategoryModalOpen(true)
-                            }}
-                          />
-                        </Tooltip>
-                        <Tooltip title={'Add Task'}>
-                          <Button
-                            icon={<PlusSquareOutlined />}
-                            onClick={() => {
-                              setModalCategory(c)
-                              setIsTodoModalOpen(true)
-                            }}
-                          />
-                        </Tooltip>
-                      </div>
-                    </Title>
-                    <Space
-                      style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}
-                    >
-                      {c.description}
-                    </Space>
-                  </Space>
-                }
-              >
-                {filteredTodoList.map((t: Todo, i) => (
-                    <div key={`todo_${t.id}`}>
-                      <TodoDropZone position={i} todoList={filteredTodoList} />
-                      <TodoItem
-                        todo={t}
-                        currentDate={currentDate}
-                      />
-                    </div>
-                ))}
-                <TodoDropZone position={filteredTodoList.length} todoList={filteredTodoList} />
-              </Panel>
-            </Collapse>
-          )
+
+          return <CategoryCard
+            key={`category_${c.uuid}`}
+            category={c}
+            todoList={filteredTodoList}
+            currentDate={currentDate}
+            onAddTaskClick={() => {
+              setModalCategory(c)
+              setIsTodoModalOpen(true)
+            }}
+            onEditCategoryClick={() => {
+              setModalCategory(c)
+              setIsCategoryModalOpen(true)
+            }}
+            onSort={sortAllTodoList}
+          />
         })}
         {isTodoModalOpen && (
           <TodoFormModal
