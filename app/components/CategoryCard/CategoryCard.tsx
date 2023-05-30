@@ -96,11 +96,12 @@ export const _CategoryCard = ({
               todoList={todoList}
               onSort={onSort}
               currentDate={currentDate}
-            />
-            <TodoItem
-              todo={t}
-              currentDate={currentDate}
-            />
+            >
+              <TodoItem
+                todo={t}
+                currentDate={currentDate}
+              />
+            </TodoDropZone>
           </div>
         ))}
         <TodoDropZone

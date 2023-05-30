@@ -1,12 +1,23 @@
 .container {
   position: relative;
   width: 100%;
+}
+
+.slotContainer {
+  position: relative;
+  width: 100%;
   height: 1px;
   opacity: 0.5;
+  transition: 0.2s
+}
+
+.isLast {
+  height: 0.5em;
 }
 
 .isDroppable {
-  height: 2em;
+  height: 3em;
   background: rgba(0,0,0,0.1);
-  border: 1px dashed grey;
+  border: 2px dashed grey;
+
 }

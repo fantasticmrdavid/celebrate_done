@@ -1,4 +1,4 @@
-import React from "react";
+import React, {ReactNode} from "react";
 import {useDrop} from "react-dnd";
 import {DRAGGABLE_TYPE} from "@/app/constants/constants";
 import styles from "./todoDropZone.module.scss"
@@ -10,6 +10,7 @@ import axios from "axios";
 import {notification} from "antd";
 
 type Props = {
+  children?: ReactNode
   position: number,
   todoList: Todo[],
   onSort: (todoList: Todo[]) => any,
@@ -20,7 +21,13 @@ type SortTodoListParams = {
   todoList: Todo[]
 }
 
-export const TodoDropZone = ({ position, todoList, onSort, currentDate }: Props) => {
+export const TodoDropZone = ({
+    children,
+    position,
+    todoList,
+    onSort,
+    currentDate
+}: Props) => {
   const queryClient = useQueryClient()
     const updateTodoSortOrder = (item: Todo) => {
       const sortedTodoList: Todo[] = arrayMoveImmutable(todoList, todoList.findIndex(t => t.id === item.id), position)
@@ -61,11 +68,15 @@ export const TodoDropZone = ({ position, todoList, onSort, currentDate }: Props)
     )
 
     const classes = classNames({
-        [styles.container]: true,
+        [styles.slotContainer]: true,
         [styles.isDroppable]: isOver,
+        [styles.isLast]: !children
     })
 
     return (
-        <div ref={drop} className={classes} />
+        <div ref={drop} className={styles.container}>
+          <div className={classes}/>
+          { children }
+        </div>
     )
 }
