@@ -34,6 +34,8 @@ import TodoFormModal, {
 } from '@/app/components/TodoFormModal/TodoFormModal'
 import {Category} from "@/app/components/CategoryFormModal/types";
 import {UserContext} from "@/app/contexts/User";
+import {useDrag} from "react-dnd";
+import {DRAGGABLE_TYPE} from "@/app/constants/constants";
 
 type TodoProps = {
   todo: Todo
@@ -64,6 +66,7 @@ export const sizeTags = {
 }
 
 export const TodoItem = (props: TodoProps) => {
+  const { todo } = props
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
@@ -75,7 +78,13 @@ export const TodoItem = (props: TodoProps) => {
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isExploding, setIsExploding] = useState<boolean>(false)
 
-  const { todo } = props
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: DRAGGABLE_TYPE.TODO,
+    item: todo,
+    collect: monitor => ({
+      isDragging: monitor.isDragging()
+    })
+  }))
   const isDone = todo.status === TODO_STATUS.DONE
 
   useEffect(() => {
@@ -247,7 +256,12 @@ export const TodoItem = (props: TodoProps) => {
 
   return (
     <div
-      style={{ display: 'flex', justifyContent: 'space-between' }}
+      ref={drag}
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        opacity: isDragging ? 0.5 : 1
+      }}
       className={containerClassNames}
     >
       <Space

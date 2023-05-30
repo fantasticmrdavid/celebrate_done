@@ -37,6 +37,7 @@ import {
 } from '@/app/utils'
 import { Quote } from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
+import {TodoDropZone} from "@/app/components/TodoDropZone/TodoDropZone";
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -186,13 +187,16 @@ export const CategoryCards = () => {
                   </Space>
                 }
               >
-                {filteredTodoList.map((t: Todo) => (
-                  <TodoItem
-                    key={`todo_${t.id}`}
-                    todo={t}
-                    currentDate={currentDate}
-                  />
+                {filteredTodoList.map((t: Todo, i) => (
+                    <div key={`todo_${t.id}`}>
+                      <TodoDropZone position={i} todoList={filteredTodoList} />
+                      <TodoItem
+                        todo={t}
+                        currentDate={currentDate}
+                      />
+                    </div>
                 ))}
+                <TodoDropZone position={filteredTodoList.length} todoList={filteredTodoList} />
               </Panel>
             </Collapse>
           )

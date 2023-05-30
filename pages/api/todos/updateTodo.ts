@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/types'
+import {Todo, TODO_PRIORITY, TODO_STATUS} from '@/app/components/TodoItem/types'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
 import { dateIsoToSql } from '@/pages/api/utils'
@@ -35,6 +35,16 @@ export const updateTodos = async (
                 : TODO_PRIORITY.URGENT
             )}
             WHERE id=${id}`
+      break
+    }
+    case 'updateSortOrder': {
+      const { todoList } = req.body
+      updateTodoQuery = `UPDATE todos
+           SET
+            sortOrder=(CASE id 
+                ${todoList.map((t: Todo, i: number) => `WHEN ${t.id} THEN ${SqlString.escape(i)} `).join(" ")}
+            END)
+            WHERE id IN (${todoList.map((t: Todo) => t.id).join(",")})`
       break
     }
     case 'update': {

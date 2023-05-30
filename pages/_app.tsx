@@ -18,6 +18,9 @@ import dayjs from 'dayjs'
 import updateLocale from 'dayjs/plugin/updateLocale'
 import { COOKIE_NAME } from '@/app/constants/constants'
 
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+
 dayjs.extend(updateLocale)
 dayjs.updateLocale('en', {
   weekStart: 1,
@@ -73,12 +76,14 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           <UserProvider uuid={uuid}>
             <CategoriesProvider>
               {head}
-              <Layout>
-                <HeaderNav />
-                <Content className={styles.content}>
-                  <Component {...pageProps} />
-                </Content>
-              </Layout>
+                <DndProvider backend={HTML5Backend}>
+                  <Layout>
+                    <HeaderNav />
+                    <Content className={styles.content}>
+                      <Component {...pageProps} />
+                    </Content>
+                  </Layout>
+                </DndProvider>
             </CategoriesProvider>
           </UserProvider>
         ) : (
