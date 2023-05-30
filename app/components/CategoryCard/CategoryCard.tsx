@@ -34,11 +34,10 @@ export const _CategoryCard = ({
 
   return (
     <Collapse
-      activeKey={todoList.length > 0 ? [category.uuid] : []}
+      defaultActiveKey={todoList.length > 0 ? [category.uuid] : []}
       key={`category_${category.uuid}`}
       collapsible="icon"
       expandIconPosition={'end'}
-      defaultActiveKey={category.uuid}
       size={'small'}
     >
       <Panel
