@@ -32,10 +32,10 @@ import ConfettiExplosion from 'react-confetti-explosion'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
-import {Category} from "@/app/components/CategoryFormModal/types";
 import {UserContext} from "@/app/contexts/User";
 import {useDrag} from "react-dnd";
 import {DRAGGABLE_TYPE} from "@/app/constants/constants";
+import {getEmptyImage} from "react-dnd-html5-backend";
 
 type TodoProps = {
   todo: Todo
@@ -78,7 +78,7 @@ export const TodoItem = (props: TodoProps) => {
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isExploding, setIsExploding] = useState<boolean>(false)
 
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: DRAGGABLE_TYPE.TODO,
     item: todo,
     collect: monitor => ({
@@ -91,6 +91,10 @@ export const TodoItem = (props: TodoProps) => {
     if (isDone) setShouldAnimateCompleted(false)
     setShouldAnimateFadeOut(false)
   }, [isDone])
+
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true })
+  }, [])
 
   const updateTodo = useMutation({
     mutationFn: (req: Update_Todo_Params) =>
@@ -260,7 +264,7 @@ export const TodoItem = (props: TodoProps) => {
       style={{
         display: 'flex',
         justifyContent: 'space-between',
-        opacity: isDragging ? 0.5 : 1
+        opacity: isDragging ? 0 : 1,
       }}
       className={containerClassNames}
     >

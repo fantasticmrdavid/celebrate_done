@@ -6,6 +6,7 @@ import {EditOutlined, PlusSquareOutlined} from "@ant-design/icons";
 import {TodoDropZone} from "@/app/components/TodoDropZone/TodoDropZone";
 import {TodoItem} from "@/app/components/TodoItem/Todo";
 import {Category} from "@/app/components/CategoryFormModal/types";
+import {DragLayer} from "@/app/components/CategoryCard/DragLayer";
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -110,6 +111,7 @@ export const _CategoryCard = ({
           onSort={onSort}
           currentDate={currentDate}
         />
+        <DragLayer />
       </Panel>
     </Collapse>
   )
