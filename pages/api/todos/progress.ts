@@ -29,7 +29,8 @@ export const addProgress = async (req: NextApiRequest, res: NextApiResponse) => 
                 '${TODO_SIZE.SMALL}',
                 '${TODO_PRIORITY.NORMAL}',
                 '${TODO_STATUS.DONE}',
-                ${SqlString.escape(createdDateTime)}
+                ${SqlString.escape(createdDateTime)},
+                999
             )`
         try {
             const todoResult = await dbConnect
