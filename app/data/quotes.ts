@@ -1,4 +1,4 @@
-export default [
+export const quoteList = [
   {
     author: 'Nido Qubein',
     quote:
@@ -213,3 +213,5 @@ export default [
     quote: 'Without actions, the world would just be an idea.',
   },
 ]
+
+export default quoteList

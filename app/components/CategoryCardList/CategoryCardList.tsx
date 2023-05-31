@@ -1,29 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react'
-import {QueryKey, useQuery, useQueryClient} from '@tanstack/react-query'
-import {Todo, TODO_PRIORITY, TODO_STATUS} from '@/app/components/TodoItem/types'
+import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Button,
-  Collapse,
-  DatePicker,
-  Space,
-  Spin,
-  Tooltip,
-  Typography,
-} from 'antd'
+  Todo,
+  TODO_PRIORITY,
+  TODO_STATUS,
+} from '@/app/components/TodoItem/types'
+import { Button, DatePicker, Space, Spin, Tooltip, Typography } from 'antd'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
 import dayjs from 'dayjs'
-import { TodoItem } from '@/app/components/TodoItem/Todo'
 import CategoryFormModal, {
   CategoryModal_Mode,
 } from '@/app/components/CategoryFormModal/CategoryFormModal'
 import { Category } from '@/app/components/CategoryFormModal/types'
-import {
-  EditOutlined,
-  FolderAddOutlined,
-  PlusSquareOutlined,
-} from '@ant-design/icons'
+import { FolderAddOutlined } from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { UserContext } from '@/app/contexts/User'
 import styles from './categoryCardList.module.scss'
@@ -37,10 +28,8 @@ import {
 } from '@/app/utils'
 import { Quote } from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
-import {TodoDropZone} from "@/app/components/TodoDropZone/TodoDropZone";
-import {CategoryCard} from "@/app/components/CategoryCard/CategoryCard";
+import { CategoryCard } from '@/app/components/CategoryCard/CategoryCard'
 
-const { Panel } = Collapse
 const { Title } = Typography
 
 export const CategoryCardList = () => {
@@ -89,22 +78,33 @@ export const CategoryCardList = () => {
 
   // NOTE: This is all for optimistic updates after sorting
   const sortAllTodoList = async (tList: Todo[]) => {
-    const sortedTodoList = todoList.map(t => {
-      const updatedTodoIndex = tList.findIndex(tt => tt.id === t.id)
-      return {
-        ...t,
-        sortOrder: updatedTodoIndex !== -1 ? updatedTodoIndex : t.sortOrder
-      }
-    }).sort((a, b) => {
-      if (a.priority === TODO_PRIORITY.URGENT && b.priority !== TODO_PRIORITY.URGENT) return -1
-      if (a.priority !== TODO_PRIORITY.URGENT && b.priority === TODO_PRIORITY.URGENT) return 1
-      if (a.status === TODO_STATUS.DONE || b.status === TODO_STATUS.DONE) return 0
-      return a.sortOrder < b.sortOrder ? -1 : 1
-    })
-    await queryClient.cancelQueries(["getTodos", currentDate])
-    const previousTodoList = queryClient.getQueryData(["getTodos", currentDate])
-    queryClient.setQueryData(["getTodos", currentDate], sortedTodoList)
-    return {previousTodoList}
+    const sortedTodoList = todoList
+      .map((t) => {
+        const updatedTodoIndex = tList.findIndex((tt) => tt.id === t.id)
+        return {
+          ...t,
+          sortOrder: updatedTodoIndex !== -1 ? updatedTodoIndex : t.sortOrder,
+        }
+      })
+      .sort((a, b) => {
+        if (
+          a.priority === TODO_PRIORITY.URGENT &&
+          b.priority !== TODO_PRIORITY.URGENT
+        )
+          return -1
+        if (
+          a.priority !== TODO_PRIORITY.URGENT &&
+          b.priority === TODO_PRIORITY.URGENT
+        )
+          return 1
+        if (a.status === TODO_STATUS.DONE || b.status === TODO_STATUS.DONE)
+          return 0
+        return a.sortOrder < b.sortOrder ? -1 : 1
+      })
+    await queryClient.cancelQueries(['getTodos', currentDate])
+    const previousTodoList = queryClient.getQueryData(['getTodos', currentDate])
+    queryClient.setQueryData(['getTodos', currentDate], sortedTodoList)
+    return { previousTodoList }
   }
 
   return (
@@ -143,21 +143,23 @@ export const CategoryCardList = () => {
             (t: Todo) => t.category.uuid === c.uuid
           )
 
-          return <CategoryCard
-            key={`category_${c.uuid}`}
-            category={c}
-            todoList={filteredTodoList}
-            currentDate={currentDate}
-            onAddTaskClick={() => {
-              setModalCategory(c)
-              setIsTodoModalOpen(true)
-            }}
-            onEditCategoryClick={() => {
-              setModalCategory(c)
-              setIsCategoryModalOpen(true)
-            }}
-            onSort={sortAllTodoList}
-          />
+          return (
+            <CategoryCard
+              key={`category_${c.uuid}`}
+              category={c}
+              todoList={filteredTodoList}
+              currentDate={currentDate}
+              onAddTaskClick={() => {
+                setModalCategory(c)
+                setIsTodoModalOpen(true)
+              }}
+              onEditCategoryClick={() => {
+                setModalCategory(c)
+                setIsCategoryModalOpen(true)
+              }}
+              onSort={sortAllTodoList}
+            />
+          )
         })}
         {isTodoModalOpen && (
           <TodoFormModal

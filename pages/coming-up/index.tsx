@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from 'react'
 import { Radio, Space, Spin, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { Todo, TODO_SIZE } from '@/app/components/TodoItem/types'
+import { Todo } from '@/app/components/TodoItem/types'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
 import { UserContext } from '@/app/contexts/User'
 
@@ -35,11 +35,9 @@ const titleStrings = {
 
 export const ComingUpPage = () => {
   const today = new Date()
-  const { user, isFetchingUser } = useContext(UserContext)
+  const { user } = useContext(UserContext)
   const { categoryList } = useContext(CategoriesContext)
-  const [currentDate, setCurrentDate] = useState<string>(
-    today.toISOString().slice(0, 10)
-  )
+  const [currentDate] = useState<string>(today.toISOString().slice(0, 10))
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
     DateRangeType.WEEK
   )

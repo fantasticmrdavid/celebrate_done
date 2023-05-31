@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, FC } from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import {Space, Spin} from 'antd'
+import { Spin } from 'antd'
 
 export type User = {
   uuid: string
@@ -49,13 +49,15 @@ export const UserProvider: FC<UserContextProps> = ({ uuid, children }) => {
 
   if (isLoading)
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: "100vh",
-        width: "100%"
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          width: '100%',
+        }}
+      >
         <Spin tip="Loading user data..." size="large" />
       </div>
     )

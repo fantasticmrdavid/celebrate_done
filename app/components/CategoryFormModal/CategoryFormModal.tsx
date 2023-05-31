@@ -18,7 +18,7 @@ export enum CategoryModal_Mode {
 
 type CategoryFormModalProps = {
   isOpen: boolean
-  onCancel?: () => any
+  onCancel?: () => void
   mode: CategoryModal_Mode
   category?: Category
 }
@@ -74,7 +74,7 @@ export const CategoryFormModal = ({
         description,
         sortOrder: (category as Category).sortOrder,
       } as Category),
-    onSuccess: (res) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
       queryClient.invalidateQueries(['getTodos'])
       notification.success({

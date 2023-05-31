@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'antd'
 import classNames from 'classnames'
-import React, {useContext, useEffect, useState} from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
   Todo,
   TODO_PRIORITY,
@@ -32,10 +32,10 @@ import ConfettiExplosion from 'react-confetti-explosion'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
-import {UserContext} from "@/app/contexts/User";
-import {useDrag} from "react-dnd";
-import {DRAGGABLE_TYPE} from "@/app/constants/constants";
-import {getEmptyImage} from "react-dnd-html5-backend";
+import { UserContext } from '@/app/contexts/User'
+import { useDrag } from 'react-dnd'
+import { DRAGGABLE_TYPE } from '@/app/constants/constants'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 
 type TodoProps = {
   todo: Todo
@@ -81,9 +81,9 @@ export const TodoItem = (props: TodoProps) => {
   const [{ isDragging }, drag, preview] = useDrag(() => ({
     type: DRAGGABLE_TYPE.TODO,
     item: todo,
-    collect: monitor => ({
-      isDragging: monitor.isDragging()
-    })
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
   }))
   const isDone = todo.status === TODO_STATUS.DONE
 
@@ -94,7 +94,7 @@ export const TodoItem = (props: TodoProps) => {
 
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true })
-  }, [])
+  }, [preview])
 
   const updateTodo = useMutation({
     mutationFn: (req: Update_Todo_Params) =>
@@ -124,11 +124,11 @@ export const TodoItem = (props: TodoProps) => {
 
   const addTodoProgress = useMutation({
     mutationFn: () =>
-        axios.post('/api/todos/progress', {
-          name: todo.name,
-          category: todo.category,
-          user_id: user.uuid
-        }),
+      axios.post('/api/todos/progress', {
+        name: todo.name,
+        category: todo.category,
+        user_id: user.uuid,
+      }),
     onMutate: async () => {
       setIsExploding(true)
       setTimeout(() => {
@@ -212,9 +212,9 @@ export const TodoItem = (props: TodoProps) => {
     {
       key: '3',
       label: (
-          <div onClick={() => addTodoProgress.mutate()}>
-            <RiseOutlined /> I worked on this today
-          </div>
+        <div onClick={() => addTodoProgress.mutate()}>
+          <RiseOutlined /> I worked on this today
+        </div>
       ),
     },
     {

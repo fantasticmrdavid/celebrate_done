@@ -1,19 +1,19 @@
-import React, {ReactNode} from "react";
-import {useDrop} from "react-dnd";
-import {DRAGGABLE_TYPE} from "@/app/constants/constants";
-import styles from "./todoDropZone.module.scss"
-import classNames from "classnames";
-import {Todo} from "@/app/components/TodoItem/types";
-import {arrayMoveImmutable} from 'array-move';
-import {useMutation, useQueryClient} from "@tanstack/react-query";
-import axios from "axios";
-import {notification} from "antd";
+import React, { ReactNode } from 'react'
+import { useDrop } from 'react-dnd'
+import { DRAGGABLE_TYPE } from '@/app/constants/constants'
+import styles from './todoDropZone.module.scss'
+import classNames from 'classnames'
+import { Todo } from '@/app/components/TodoItem/types'
+import { arrayMoveImmutable } from 'array-move'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
+import { notification } from 'antd'
 
 type Props = {
   children?: ReactNode
-  position: number,
-  todoList: Todo[],
-  onSort: (todoList: Todo[]) => any,
+  position: number
+  todoList: Todo[]
+  onSort: (todoList: Todo[]) => Promise<{ previousTodoList: unknown }>
   currentDate: string
 }
 
@@ -22,19 +22,23 @@ type SortTodoListParams = {
 }
 
 export const TodoDropZone = ({
-    children,
-    position,
-    todoList,
-    onSort,
-    currentDate
+  children,
+  position,
+  todoList,
+  onSort,
+  currentDate,
 }: Props) => {
   const queryClient = useQueryClient()
-    const updateTodoSortOrder = (item: Todo) => {
-      const sortedTodoList: Todo[] = arrayMoveImmutable(todoList, todoList.findIndex(t => t.id === item.id), position)
-      sortTodoList.mutate({
-        todoList: sortedTodoList
-      })
-    }
+  const updateTodoSortOrder = (item: Todo) => {
+    const sortedTodoList: Todo[] = arrayMoveImmutable(
+      todoList,
+      todoList.findIndex((t) => t.id === item.id),
+      position
+    )
+    sortTodoList.mutate({
+      todoList: sortedTodoList,
+    })
+  }
 
   const sortTodoList = useMutation({
     mutationFn: (req: SortTodoListParams) =>
@@ -56,27 +60,28 @@ export const TodoDropZone = ({
     },
   })
 
-    const [{ isOver }, drop] = useDrop(
-        () => ({
-            accept: DRAGGABLE_TYPE.TODO,
-            drop: (item) => updateTodoSortOrder(item as Todo),
-            collect: (monitor) => ({
-                isOver: monitor.isOver(),
-                dropResult: monitor.getDropResult()
-            })
-        }), [ position ]
-    )
+  const [{ isOver }, drop] = useDrop(
+    () => ({
+      accept: DRAGGABLE_TYPE.TODO,
+      drop: (item) => updateTodoSortOrder(item as Todo),
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+        dropResult: monitor.getDropResult(),
+      }),
+    }),
+    [position]
+  )
 
-    const classes = classNames({
-        [styles.slotContainer]: true,
-        [styles.isDroppable]: isOver,
-        [styles.isLast]: !children
-    })
+  const classes = classNames({
+    [styles.slotContainer]: true,
+    [styles.isDroppable]: isOver,
+    [styles.isLast]: !children,
+  })
 
-    return (
-        <div ref={drop} className={styles.container}>
-          <div className={classes}/>
-          { children }
-        </div>
-    )
+  return (
+    <div ref={drop} className={styles.container}>
+      <div className={classes} />
+      {children}
+    </div>
+  )
 }

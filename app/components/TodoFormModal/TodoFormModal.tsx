@@ -36,7 +36,7 @@ import { ValidationMessage } from '@/app/components/ValidationMessage/Validation
 
 type TodoFormModalProps = {
   isOpen: boolean
-  onCancel?: () => any
+  onCancel?: () => void
   category?: Category
   mode: TodoModal_Mode
   todo?: Todo

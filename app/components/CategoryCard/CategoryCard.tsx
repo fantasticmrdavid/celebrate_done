@@ -1,23 +1,23 @@
-import React, {memo} from "react"
-import {Todo, TODO_STATUS} from "@/app/components/TodoItem/types";
-import {Button, Collapse, Space, Tooltip, Typography} from "antd";
-import styles from "./categoryCard.module.scss";
-import {EditOutlined, PlusSquareOutlined} from "@ant-design/icons";
-import {TodoDropZone} from "@/app/components/TodoDropZone/TodoDropZone";
-import {TodoItem} from "@/app/components/TodoItem/Todo";
-import {Category} from "@/app/components/CategoryFormModal/types";
-import {DragLayer} from "@/app/components/CategoryCard/DragLayer";
+import React, { memo } from 'react'
+import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
+import { Button, Collapse, Space, Tooltip, Typography } from 'antd'
+import styles from './categoryCard.module.scss'
+import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
+import { TodoDropZone } from '@/app/components/TodoDropZone/TodoDropZone'
+import { TodoItem } from '@/app/components/TodoItem/Todo'
+import { Category } from '@/app/components/CategoryFormModal/types'
+import { DragLayer } from '@/app/components/CategoryCard/DragLayer'
 
 const { Panel } = Collapse
 const { Title } = Typography
 
 type Props = {
-  category: Category,
-  todoList: Todo[],
-  currentDate: string,
+  category: Category
+  todoList: Todo[]
+  currentDate: string
   onAddTaskClick: () => void
   onEditCategoryClick: () => void
-  onSort: (tList: Todo[]) => any
+  onSort: (tList: Todo[]) => Promise<{ previousTodoList: unknown }>
 }
 
 export const _CategoryCard = ({
@@ -26,7 +26,7 @@ export const _CategoryCard = ({
   currentDate,
   onAddTaskClick,
   onEditCategoryClick,
-  onSort
+  onSort,
 }: Props) => {
   const doneCount = todoList.filter(
     (t) => t.status === TODO_STATUS.DONE
@@ -81,9 +81,7 @@ export const _CategoryCard = ({
                 </Tooltip>
               </div>
             </Title>
-            <Space
-              style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}
-            >
+            <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
               {category.description}
             </Space>
           </Space>
@@ -97,10 +95,7 @@ export const _CategoryCard = ({
               onSort={onSort}
               currentDate={currentDate}
             >
-              <TodoItem
-                todo={t}
-                currentDate={currentDate}
-              />
+              <TodoItem todo={t} currentDate={currentDate} />
             </TodoDropZone>
           </div>
         ))}

@@ -49,9 +49,9 @@ const emptyTodoListGifList = [
 
 export const DonePage = () => {
   const today = new Date()
-  const { user, isFetchingUser } = useContext(UserContext)
+  const { user } = useContext(UserContext)
   const { categoryList } = useContext(CategoriesContext)
-  const [currentDate, setCurrentDate] = useState<string>(
+  const [currentDate] = useState<string>(
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
       2,
       '0'
