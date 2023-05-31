@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "resolutions": {
+    "@types/react": "^18.2.7"
+  },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
     "@fireworks-js/react": "^2.10.2",
