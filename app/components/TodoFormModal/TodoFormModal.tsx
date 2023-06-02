@@ -77,7 +77,7 @@ const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const { user } = useContext(UserContext)
-  const { isOpen, onCancel, category: propsCategory, todo, mode } = props
+  const { isOpen, onCancel, category: propsCategory, todo, mode} = props
   const [name, setName] = useState<string>(todo ? todo.name : '')
   const [startDate, setStartDate] = useState<string>(
     todo

@@ -18,6 +18,7 @@ type Props = {
   onAddTaskClick: () => void
   onEditCategoryClick: () => void
   onSort: (tList: Todo[]) => Promise<{ previousTodoList: unknown }>
+  onAdd: (t: Todo) => Promise<{ previousTodoList: unknown }>
 }
 
 export const _CategoryCard = ({
@@ -27,6 +28,7 @@ export const _CategoryCard = ({
   onAddTaskClick,
   onEditCategoryClick,
   onSort,
+  onAdd
 }: Props) => {
   const doneCount = todoList.filter(
     (t) => t.status === TODO_STATUS.DONE
@@ -43,7 +45,10 @@ export const _CategoryCard = ({
       <Panel
         key={category.uuid}
         header={
-          <Space direction={'vertical'} style={{ width: '100%' }}>
+          <Space
+            direction={'vertical'}
+            style={{ width: '100%' }}
+          >
             <Title
               level={5}
               style={{
@@ -95,7 +100,7 @@ export const _CategoryCard = ({
               onSort={onSort}
               currentDate={currentDate}
             >
-              <TodoItem todo={t} currentDate={currentDate} />
+              <TodoItem todo={t} currentDate={currentDate} onAddProgress={onAdd} />
             </TodoDropZone>
           </div>
         ))}

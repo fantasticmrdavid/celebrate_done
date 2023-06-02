@@ -1,20 +1,7 @@
-import {
-  Checkbox,
-  Dropdown,
-  MenuProps,
-  notification,
-  Space,
-  Tag,
-  Tooltip,
-} from 'antd'
+import {Checkbox, Dropdown, MenuProps, notification, Space, Tag, Tooltip,} from 'antd'
 import classNames from 'classnames'
-import React, { useContext, useEffect, useState } from 'react'
-import {
-  Todo,
-  TODO_PRIORITY,
-  TODO_SIZE,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/types'
+import React, {useContext, useEffect, useState} from 'react'
+import {Todo, TODO_PRIORITY, TODO_SIZE, TODO_STATUS,} from '@/app/components/TodoItem/types'
 import {
   CaretDownOutlined,
   DeleteOutlined,
@@ -26,20 +13,19 @@ import {
   RiseOutlined,
 } from '@ant-design/icons'
 import styles from './todo.module.scss'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 import axios from 'axios'
 import ConfettiExplosion from 'react-confetti-explosion'
-import TodoFormModal, {
-  TodoModal_Mode,
-} from '@/app/components/TodoFormModal/TodoFormModal'
-import { UserContext } from '@/app/contexts/User'
-import { useDrag } from 'react-dnd'
-import { DRAGGABLE_TYPE } from '@/app/constants/constants'
-import { getEmptyImage } from 'react-dnd-html5-backend'
+import TodoFormModal, {TodoModal_Mode,} from '@/app/components/TodoFormModal/TodoFormModal'
+import {UserContext} from '@/app/contexts/User'
+import {useDrag} from 'react-dnd'
+import {DRAGGABLE_TYPE} from '@/app/constants/constants'
+import {getEmptyImage} from 'react-dnd-html5-backend'
 
 type TodoProps = {
   todo: Todo
   currentDate: string
+  onAddProgress: (t: Todo) => Promise<{ previousTodoList: unknown }>
 }
 
 type Update_Todo_Params = {
@@ -66,7 +52,7 @@ export const sizeTags = {
 }
 
 export const TodoItem = (props: TodoProps) => {
-  const { todo } = props
+  const { todo, currentDate, onAddProgress } = props
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
@@ -117,7 +103,7 @@ export const TodoItem = (props: TodoProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['getTodos'],
+        queryKey: ['getTodos', currentDate],
       })
     },
   })
@@ -134,6 +120,20 @@ export const TodoItem = (props: TodoProps) => {
       setTimeout(() => {
         setIsExploding(false)
       }, 3000)
+
+      onAddProgress({
+        id: 9999,
+        created: new Date().toISOString(),
+        startDate: new Date().toISOString(),
+        completedDateTime: new Date().toISOString(),
+        name: `Chipped away at ${todo.name.trim()}`,
+        notes: `I made progress on ${todo.name.trim()} today`,
+        category: todo.category,
+        size: TODO_SIZE.SMALL,
+        priority: TODO_PRIORITY.NORMAL,
+        sortOrder: 999,
+        status: TODO_STATUS.DONE
+      })
     },
     onError: (e) => {
       console.error('ERROR: ', e)

@@ -32,6 +32,24 @@ import { CategoryCard } from '@/app/components/CategoryCard/CategoryCard'
 
 const { Title } = Typography
 
+const sortTodoList = (tList: Todo[]) => {
+  return tList.sort((a, b) => {
+    if (a.status === TODO_STATUS.DONE || b.status === TODO_STATUS.DONE)
+      return 0
+    if (
+      a.priority === TODO_PRIORITY.URGENT &&
+      b.priority !== TODO_PRIORITY.URGENT
+    )
+      return -1
+    if (
+      a.priority !== TODO_PRIORITY.URGENT &&
+      b.priority === TODO_PRIORITY.URGENT
+    )
+      return 1
+    return a.sortOrder < b.sortOrder ? -1 : 1
+  })
+}
+
 export const CategoryCardList = () => {
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
@@ -78,32 +96,29 @@ export const CategoryCardList = () => {
 
   // NOTE: This is all for optimistic updates after sorting
   const sortAllTodoList = async (tList: Todo[]) => {
-    const sortedTodoList = todoList
+    const sortedTodoList = sortTodoList(todoList
       .map((t) => {
         const updatedTodoIndex = tList.findIndex((tt) => tt.id === t.id)
         return {
           ...t,
           sortOrder: updatedTodoIndex !== -1 ? updatedTodoIndex : t.sortOrder,
         }
-      })
-      .sort((a, b) => {
-        if (
-          a.priority === TODO_PRIORITY.URGENT &&
-          b.priority !== TODO_PRIORITY.URGENT
-        )
-          return -1
-        if (
-          a.priority !== TODO_PRIORITY.URGENT &&
-          b.priority === TODO_PRIORITY.URGENT
-        )
-          return 1
-        if (a.status === TODO_STATUS.DONE || b.status === TODO_STATUS.DONE)
-          return 0
-        return a.sortOrder < b.sortOrder ? -1 : 1
-      })
+      }))
+
     await queryClient.cancelQueries(['getTodos', currentDate])
     const previousTodoList = queryClient.getQueryData(['getTodos', currentDate])
     queryClient.setQueryData(['getTodos', currentDate], sortedTodoList)
+    return { previousTodoList }
+  }
+
+  const addToTodoList = async (t: Todo) => {
+    const newTodoList = sortTodoList([
+      ...todoList,
+      t
+    ])
+    await queryClient.cancelQueries(['getTodos', currentDate])
+    const previousTodoList = queryClient.getQueryData(['getTodos', currentDate])
+    queryClient.setQueryData(['getTodos', currentDate], newTodoList)
     return { previousTodoList }
   }
 
@@ -158,6 +173,7 @@ export const CategoryCardList = () => {
                 setIsCategoryModalOpen(true)
               }}
               onSort={sortAllTodoList}
+              onAdd={addToTodoList}
             />
           )
         })}
