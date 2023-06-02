@@ -14,12 +14,12 @@ type Get_Categories_Response = {
 }
 
 export function mapCategoryResponse(results: Get_Categories_Response[]): Category[] {
-  return results.map(r => ({
+  return results.map((r, i) => ({
     uuid: r.uuid,
     name: r.name,
     description: r.description,
     maxPerDay: r.maxPerDay,
-    sortOrder: r.sortOrder,
+    sortOrder: i,
     user_id: r.user_uuid
   }))
 }
@@ -39,7 +39,7 @@ export const getCategories = async (
         user_uuid
       FROM categories
       WHERE user_uuid = ${SqlString.escape(user_id)}
-      ORDER BY sortOrder, name`
+      ORDER BY sortOrder, name ASC`
     const results = await dbConnect.query(query)
     await dbConnect.end()
     return res.status(200).json(mapCategoryResponse(results as Get_Categories_Response[]))

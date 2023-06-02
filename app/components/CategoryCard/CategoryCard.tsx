@@ -1,17 +1,21 @@
 import React, { memo } from 'react'
 import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
-import { Button, Collapse, Space, Tooltip, Typography } from 'antd'
+import {Button, Collapse, notification, Space, Tooltip, Typography} from 'antd'
 import styles from './categoryCard.module.scss'
-import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
+import {DownOutlined, EditOutlined, PlusSquareOutlined, UpOutlined} from '@ant-design/icons'
 import { TodoDropZone } from '@/app/components/TodoDropZone/TodoDropZone'
 import { TodoItem } from '@/app/components/TodoItem/Todo'
 import { Category } from '@/app/components/CategoryFormModal/types'
 import { DragLayer } from '@/app/components/CategoryCard/DragLayer'
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import axios from 'axios'
 
 const { Panel } = Collapse
 const { Title } = Typography
 
 type Props = {
+  isFirst: boolean
+  isLast: boolean
   category: Category
   todoList: Todo[]
   currentDate: string
@@ -22,7 +26,13 @@ type Props = {
   onComplete: (t: Todo, status: TODO_STATUS) => Promise<{ previousTodoList: unknown }>
 }
 
+type SortParams = {
+  category: Category
+}
+
 export const _CategoryCard = ({
+  isFirst,
+  isLast,
   todoList,
   category,
   currentDate,
@@ -32,6 +42,21 @@ export const _CategoryCard = ({
   onAdd,
   onComplete
 }: Props) => {
+  const queryClient = useQueryClient()
+  const sortCategory = useMutation({
+    mutationFn: (req: SortParams) =>
+      axios.patch('/api/categories', req.category),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['getCategories'])
+    },
+    onError: (error) => {
+      console.log('ERROR: ', error)
+      notification.error({
+        message: <>Error updating category. Check console for details.</>,
+      })
+    },
+  })
+
   const doneCount = todoList.filter(
     (t) => t.status === TODO_STATUS.DONE
   )?.length
@@ -74,6 +99,36 @@ export const _CategoryCard = ({
                 </div>
               </div>
               <div style={{ display: 'flex', marginLeft: '1em' }}>
+                {
+                  !isFirst && (
+                    <Tooltip title={'Move up'}>
+                      <Button
+                        icon={<UpOutlined />}
+                        onClick={() => sortCategory.mutate({
+                          category: {
+                            ...category,
+                            sortOrder: category.sortOrder - 1
+                          }
+                        })}
+                      />
+                    </Tooltip>
+                  )
+                }
+                {
+                  !isLast && (
+                    <Tooltip title={'Move down'}>
+                      <Button
+                        icon={<DownOutlined />}
+                        onClick={() => sortCategory.mutate({
+                          category: {
+                            ...category,
+                            sortOrder: category.sortOrder + 1
+                          }
+                        })}
+                      />
+                    </Tooltip>
+                  )
+                }
                 <Tooltip title={'Edit Category'}>
                   <Button
                     icon={<EditOutlined />}
