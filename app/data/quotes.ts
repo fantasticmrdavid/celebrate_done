@@ -212,6 +212,10 @@ export const quoteList = [
     author: 'Georges Doriot',
     quote: 'Without actions, the world would just be an idea.',
   },
+  {
+    author: 'Dr. Seuss',
+    quote: 'Sometimes you will never know the value of a moment, until it becomes a memory.'
+  }
 ]
 
 export default quoteList
