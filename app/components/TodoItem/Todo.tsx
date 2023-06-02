@@ -25,7 +25,7 @@ import {getEmptyImage} from 'react-dnd-html5-backend'
 type TodoProps = {
   todo: Todo
   currentDate: string
-  onAddProgress: (t: Todo) => Promise<{ previousTodoList: unknown }>
+  onAddProgress?: (t: Todo) => Promise<{ previousTodoList: unknown }>
 }
 
 type Update_Todo_Params = {
@@ -121,19 +121,21 @@ export const TodoItem = (props: TodoProps) => {
         setIsExploding(false)
       }, 3000)
 
-      onAddProgress({
-        id: 9999,
-        created: new Date().toISOString(),
-        startDate: new Date().toISOString(),
-        completedDateTime: new Date().toISOString(),
-        name: `Chipped away at ${todo.name.trim()}`,
-        notes: `I made progress on ${todo.name.trim()} today`,
-        category: todo.category,
-        size: TODO_SIZE.SMALL,
-        priority: TODO_PRIORITY.NORMAL,
-        sortOrder: 999,
-        status: TODO_STATUS.DONE
-      })
+      if (onAddProgress) {
+        onAddProgress({
+          id: 9999,
+          created: new Date().toISOString(),
+          startDate: new Date().toISOString(),
+          completedDateTime: new Date().toISOString(),
+          name: `Chipped away at ${todo.name.trim()}`,
+          notes: `I made progress on ${todo.name.trim()} today`,
+          category: todo.category,
+          size: TODO_SIZE.SMALL,
+          priority: TODO_PRIORITY.NORMAL,
+          sortOrder: 999,
+          status: TODO_STATUS.DONE
+        })
+      }
     },
     onError: (e) => {
       console.error('ERROR: ', e)
