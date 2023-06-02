@@ -94,7 +94,7 @@ export const CategoryCardList = () => {
     return dayjs(new Date(currentDate)).format('ddd, MMM D, YYYY')
   }
 
-  // NOTE: This is all for optimistic updates after sorting
+  // NOTE: OPTIMISTIC UPDATING
   const sortAllTodoList = async (tList: Todo[]) => {
     const sortedTodoList = sortTodoList(todoList
       .map((t) => {
@@ -119,6 +119,18 @@ export const CategoryCardList = () => {
     await queryClient.cancelQueries(['getTodos', currentDate])
     const previousTodoList = queryClient.getQueryData(['getTodos', currentDate])
     queryClient.setQueryData(['getTodos', currentDate], newTodoList)
+    return { previousTodoList }
+  }
+
+  const toggleCompleteTodo = async (todo: Todo, status: TODO_STATUS) => {
+    await queryClient.cancelQueries(['getTodos', currentDate])
+    const previousTodoList = queryClient.getQueryData(['getTodos', currentDate])
+    queryClient.setQueryData(['getTodos', currentDate], sortTodoList(
+      todoList.map(t => t.id === todo.id ? {
+        ...todo,
+        status
+      } : t))
+    )
     return { previousTodoList }
   }
 
@@ -174,6 +186,7 @@ export const CategoryCardList = () => {
               }}
               onSort={sortAllTodoList}
               onAdd={addToTodoList}
+              onComplete={toggleCompleteTodo}
             />
           )
         })}

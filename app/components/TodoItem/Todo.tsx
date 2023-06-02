@@ -26,6 +26,7 @@ type TodoProps = {
   todo: Todo
   currentDate: string
   onAddProgress?: (t: Todo) => Promise<{ previousTodoList: unknown }>
+  onComplete?: (t: Todo, status: TODO_STATUS) => Promise<{ previousTodoList: unknown }>
 }
 
 type Update_Todo_Params = {
@@ -52,7 +53,12 @@ export const sizeTags = {
 }
 
 export const TodoItem = (props: TodoProps) => {
-  const { todo, currentDate, onAddProgress } = props
+  const {
+    todo,
+    currentDate,
+    onAddProgress,
+    onComplete
+  } = props
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
@@ -92,11 +98,16 @@ export const TodoItem = (props: TodoProps) => {
         priority: req.priority,
       }),
     onMutate: async (updateTodoParams) => {
-      const isDone = updateTodoParams.status === TODO_STATUS.DONE
+      const { status, action} = updateTodoParams
+      const isDone = status === TODO_STATUS.DONE
       if (isDone) setIsExploding(true)
       setTimeout(() => {
         setIsExploding(false)
       }, 3000)
+
+      if (action === "complete" && onComplete) {
+        onComplete(todo, status || TODO_STATUS.INCOMPLETE)
+      }
     },
     onError: (e) => {
       console.error('ERROR: ', e)
