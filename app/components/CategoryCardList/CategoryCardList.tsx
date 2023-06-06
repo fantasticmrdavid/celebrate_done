@@ -165,15 +165,20 @@ export const CategoryCardList = () => {
         </Space>
       )}
       <Space size={'small'} className={styles.categoryCardContainer}>
-        {categoryList.map((c) => {
+        {categoryList.map((c, i) => {
           const filteredTodoList = todoList.filter(
             (t: Todo) => t.category.uuid === c.uuid
           )
 
           return (
             <CategoryCard
+              isFirst={i === 0}
+              isLast={i === categoryList.length - 1}
               key={`category_${c.uuid}`}
-              category={c}
+              category={{
+                ...c,
+                sortOrder: i
+              }}
               todoList={filteredTodoList}
               currentDate={currentDate}
               onAddTaskClick={() => {

@@ -23,7 +23,7 @@ export const getUser = async (req: NextApiRequest, res: NextApiResponse) => {
         surname
         FROM users WHERE uuid=${SqlString.escape(id)} LIMIT 1`
       )
-      .rollback((e: any) => console.error(e))
+      .rollback((e: Error) => console.error(e))
       .commit()
     await dbConnect.end()
     return res.status(200).json(result[0][0])
