@@ -38,7 +38,7 @@ export const addProgress = async (
       const todoResult = await dbConnect
         .transaction()
         .query(insertTodoQuery)
-        .query((r: any) => {
+        .query((r: { affectedRows: number, insertId: number }) => {
           if (r.affectedRows === 1) {
             return [
               `INSERT into todos_to_categories
@@ -53,7 +53,7 @@ export const addProgress = async (
             return null
           }
         })
-        .rollback((e: any) => console.error(e))
+        .rollback((e: Error) => console.error(e))
         .commit()
       const result = todoResult
       await dbConnect.end()

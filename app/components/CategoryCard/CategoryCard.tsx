@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, {memo, useContext} from 'react'
 import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
 import {Button, Collapse, notification, Space, Tooltip, Typography} from 'antd'
 import styles from './categoryCard.module.scss'
@@ -9,6 +9,8 @@ import { Category } from '@/app/components/CategoryFormModal/types'
 import { DragLayer } from '@/app/components/CategoryCard/DragLayer'
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import axios from 'axios'
+import {CategoriesContext} from "@/app/contexts/Categories";
+import {arrayMoveImmutable} from "array-move";
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -27,7 +29,7 @@ type Props = {
 }
 
 type SortParams = {
-  category: Category
+  newPosition: number
 }
 
 export const _CategoryCard = ({
@@ -43,9 +45,27 @@ export const _CategoryCard = ({
   onComplete
 }: Props) => {
   const queryClient = useQueryClient()
+  const { categoryList } = useContext(CategoriesContext)
+
+  const getSortedCategories = (newPosition: number) => {
+    const currentCategoryIndex = categoryList.findIndex(c => c.uuid === category.uuid)
+    return arrayMoveImmutable(
+      categoryList,
+      currentCategoryIndex,
+      newPosition
+    )
+  }
+
   const sortCategory = useMutation({
-    mutationFn: (req: SortParams) =>
-      axios.patch('/api/categories', req.category),
+    mutationFn: (req: SortParams) => {
+      return axios.patch('/api/categories/sort', { categoryList: getSortedCategories(req.newPosition) })
+    },
+    onMutate: async (req: SortParams) => {
+      await queryClient.cancelQueries(['getCategories'])
+      const previousCategoriesList = queryClient.getQueryData(['getCategories'])
+      queryClient.setQueryData(['getCategories'], getSortedCategories(req.newPosition))
+      return { previousCategoriesList }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
     },
@@ -105,10 +125,7 @@ export const _CategoryCard = ({
                       <Button
                         icon={<UpOutlined />}
                         onClick={() => sortCategory.mutate({
-                          category: {
-                            ...category,
-                            sortOrder: category.sortOrder - 1
-                          }
+                            newPosition: category.sortOrder - 1
                         })}
                       />
                     </Tooltip>
@@ -120,10 +137,7 @@ export const _CategoryCard = ({
                       <Button
                         icon={<DownOutlined />}
                         onClick={() => sortCategory.mutate({
-                          category: {
-                            ...category,
-                            sortOrder: category.sortOrder + 1
-                          }
+                          newPosition: category.sortOrder + 1
                         })}
                       />
                     </Tooltip>

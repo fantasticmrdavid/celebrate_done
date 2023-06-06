@@ -74,7 +74,7 @@ export const updateTodos = async (
     const updateTodoResult = await dbConnect
       .transaction()
       .query(updateTodoQuery)
-      .rollback((e: any) => console.error(e))
+      .rollback((e: Error) => console.error(e))
       .commit()
     const result = updateTodoResult
     await dbConnect.end()

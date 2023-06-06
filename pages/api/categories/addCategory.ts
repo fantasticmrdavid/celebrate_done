@@ -23,7 +23,7 @@ export const addCategory = async (
       const result = await dbConnect
         .transaction()
         .query(insertCategoryQuery)
-        .rollback((e: any) => console.error(e))
+        .rollback((e: Error) => console.error(e))
         .commit()
       await dbConnect.end()
       return res.status(200).json(result)

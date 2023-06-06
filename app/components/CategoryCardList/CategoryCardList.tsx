@@ -175,7 +175,10 @@ export const CategoryCardList = () => {
               isFirst={i === 0}
               isLast={i === categoryList.length - 1}
               key={`category_${c.uuid}`}
-              category={c}
+              category={{
+                ...c,
+                sortOrder: i
+              }}
               todoList={filteredTodoList}
               currentDate={currentDate}
               onAddTaskClick={() => {

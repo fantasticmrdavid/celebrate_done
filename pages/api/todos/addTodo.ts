@@ -29,7 +29,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
       const todoResult = await dbConnect
         .transaction()
         .query(insertTodoQuery)
-        .query((r: any) => {
+        .query((r: { affectedRows: number, insertId: number }) => {
           if (r.affectedRows === 1) {
             return [
               `INSERT into todos_to_categories
@@ -44,7 +44,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
             return null
           }
         })
-        .rollback((e: any) => console.error(e))
+        .rollback((e: Error) => console.error(e))
         .commit()
       const result = todoResult
       await dbConnect.end()
