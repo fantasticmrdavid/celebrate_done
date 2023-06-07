@@ -20,7 +20,7 @@ export const UserSelector = ({ onSelect }: Props) => {
   if (isLoading)
     return (
       <div className={'container'}>
-        <Spin tip="Loading users" size="large" />
+        <Spin size="large"> Loading users</Spin>
       </div>
     )
   if (error) return <div className={'container'}>ERROR LOADING USERS...</div>

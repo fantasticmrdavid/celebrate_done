@@ -1,6 +1,6 @@
-import {Checkbox, Dropdown, MenuProps, notification, Space, Tag, Tooltip,} from 'antd'
+import {Checkbox, Dropdown, MenuProps, notification, Tag, Tooltip,} from 'antd'
 import classNames from 'classnames'
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import {Todo, TODO_PRIORITY, TODO_SIZE, TODO_STATUS,} from '@/app/components/TodoItem/types'
 import {
   CaretDownOutlined,
@@ -15,16 +15,18 @@ import {
 import styles from './todo.module.scss'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import axios from 'axios'
-import ConfettiExplosion from 'react-confetti-explosion'
 import TodoFormModal, {TodoModal_Mode,} from '@/app/components/TodoFormModal/TodoFormModal'
 import {UserContext} from '@/app/contexts/User'
-import {useDrag} from 'react-dnd'
+import {useDrag, useDrop, XYCoord} from 'react-dnd'
 import {DRAGGABLE_TYPE} from '@/app/constants/constants'
-import {getEmptyImage} from 'react-dnd-html5-backend'
+import {Identifier} from "dnd-core";
 
 type TodoProps = {
   todo: Todo
+  index: number
   currentDate: string
+  onDrag: (dragIndex: number, hoverIndex: number) => void
+  onSort?: () => void
   onAddProgress?: (t: Todo) => Promise<{ previousTodoList: unknown }>
   onComplete?: (t: Todo, status: TODO_STATUS) => Promise<{ previousTodoList: unknown }>
 }
@@ -52,13 +54,23 @@ export const sizeTags = {
   },
 }
 
+type DragItem = {
+  index: number
+  id: number
+  type: string
+}
+
 export const TodoItem = (props: TodoProps) => {
   const {
     todo,
     currentDate,
+    index,
+    onDrag,
+    onSort,
     onAddProgress,
     onComplete
   } = props
+  const ref = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
@@ -68,25 +80,82 @@ export const TodoItem = (props: TodoProps) => {
   const [shouldAnimateFadeOut, setShouldAnimateFadeOut] =
     useState<boolean>(false)
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
-  const [isExploding, setIsExploding] = useState<boolean>(false)
 
-  const [{ isDragging }, drag, preview] = useDrag(() => ({
+  const [{ handlerId }, drop] = useDrop<
+    DragItem,
+    void,
+    { handlerId: Identifier | null }
+  >(
+    () => ({
+      accept: DRAGGABLE_TYPE.TODO,
+      drop: () => { if (onSort) onSort()},
+      collect: (monitor) => ({
+        handlerId: monitor.getHandlerId()
+      }),
+      hover: (item: DragItem, monitor) => {
+        if (!ref.current) {
+          return
+        }
+        const dragIndex = item.index
+        const hoverIndex = index
+
+        // Don't replace items with themselves
+        if (dragIndex === hoverIndex) {
+          return
+        }
+
+        // Determine rectangle on screen
+        const hoverBoundingRect = ref.current?.getBoundingClientRect()
+
+        // Get vertical middle
+        const hoverMiddleY =
+          (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+
+        // Determine mouse position
+        const clientOffset = monitor.getClientOffset()
+
+        // Get pixels to the top
+        const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
+
+        // Only perform the move when the mouse has crossed half of the items height
+        // When dragging downwards, only move when the cursor is below 50%
+        // When dragging upwards, only move when the cursor is above 50%
+
+        // Dragging downwards
+        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+          return
+        }
+
+        // Dragging upwards
+        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+          return
+        }
+
+        // Time to actually perform the action
+        onDrag(dragIndex, hoverIndex)
+
+        // Note: we're mutating the monitor item here!
+        // Generally it's better to avoid mutations,
+        // but it's good here for the sake of performance
+        // to avoid expensive index searches.
+        item.index = hoverIndex
+      },
+    }),
+  )
+
+  const [{ isDragging }, drag] = useDrag({
     type: DRAGGABLE_TYPE.TODO,
-    item: todo,
+    item: () => ({ ...todo, index }),
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-  }))
+  })
   const isDone = todo.status === TODO_STATUS.DONE
 
   useEffect(() => {
     if (isDone) setShouldAnimateCompleted(false)
     setShouldAnimateFadeOut(false)
   }, [isDone])
-
-  useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true })
-  }, [preview])
 
   const updateTodo = useMutation({
     mutationFn: (req: Update_Todo_Params) =>
@@ -99,12 +168,6 @@ export const TodoItem = (props: TodoProps) => {
       }),
     onMutate: async (updateTodoParams) => {
       const { status, action} = updateTodoParams
-      const isDone = status === TODO_STATUS.DONE
-      if (isDone) setIsExploding(true)
-      setTimeout(() => {
-        setIsExploding(false)
-      }, 3000)
-
       if (action === "complete" && onComplete) {
         onComplete(todo, status || TODO_STATUS.INCOMPLETE)
       }
@@ -112,7 +175,7 @@ export const TodoItem = (props: TodoProps) => {
     onError: (e) => {
       console.error('ERROR: ', e)
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ['getTodos', currentDate],
       })
@@ -127,11 +190,6 @@ export const TodoItem = (props: TodoProps) => {
         user_id: user.uuid,
       }),
     onMutate: async () => {
-      setIsExploding(true)
-      setTimeout(() => {
-        setIsExploding(false)
-      }, 3000)
-
       if (onAddProgress) {
         onAddProgress({
           id: 9999,
@@ -248,9 +306,11 @@ export const TodoItem = (props: TodoProps) => {
   ]
   const containerClassNames = classNames({
     [styles.container]: true,
+    [styles.shouldFadeIn]: !isDragging,
     [styles.isCompleted]: shouldAnimateCompleted,
     [styles.isDeleted]: shouldAnimateDeleted,
     [styles.isUrgent]:
+      !isDragging &&
       todo.priority === TODO_PRIORITY.URGENT &&
       todo.status !== TODO_STATUS.DONE,
   })
@@ -271,9 +331,12 @@ export const TodoItem = (props: TodoProps) => {
     </>
   )
 
+  drag(drop(ref))
+
   return (
     <div
-      ref={drag}
+      ref={ref}
+      data-handler-id={handlerId}
       style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -281,18 +344,6 @@ export const TodoItem = (props: TodoProps) => {
       }}
       className={containerClassNames}
     >
-      <Space
-        style={{
-          position: 'absolute',
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'space-around',
-        }}
-      >
-        {isExploding && (
-          <ConfettiExplosion duration={3000} particleCount={100} width={1600} />
-        )}
-      </Space>
       <div className={labelClassNames}>
         <Checkbox
           checked={isDone}

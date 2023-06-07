@@ -58,7 +58,7 @@ export const UserProvider: FC<UserContextProps> = ({ uuid, children }) => {
           width: '100%',
         }}
       >
-        <Spin tip="Loading user data..." size="large" />
+        <div><Spin size="large" /> Loading user data...</div>
       </div>
     )
 

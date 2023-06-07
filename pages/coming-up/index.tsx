@@ -81,7 +81,7 @@ export const ComingUpPage = () => {
           alignItems: 'center',
         }}
       >
-        <Spin tip="Loading..." size="large" />
+        <Spin size="large" /> Loading
       </div>
     )
 
