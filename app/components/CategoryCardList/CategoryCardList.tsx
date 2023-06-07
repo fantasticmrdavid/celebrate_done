@@ -1,34 +1,21 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  Todo,
-  TODO_PRIORITY,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/types'
-import { Button, DatePicker, Space, Spin, Tooltip, Typography } from 'antd'
-import TodoFormModal, {
-  TodoModal_Mode,
-} from '@/app/components/TodoFormModal/TodoFormModal'
+import React, {useContext, useEffect, useState} from 'react'
+import {QueryKey, useQuery, useQueryClient} from '@tanstack/react-query'
+import {Todo, TODO_PRIORITY, TODO_STATUS,} from '@/app/components/TodoItem/types'
+import {Button, DatePicker, Space, Spin, Tooltip, Typography} from 'antd'
+import TodoFormModal, {TodoModal_Mode,} from '@/app/components/TodoFormModal/TodoFormModal'
 import dayjs from 'dayjs'
-import CategoryFormModal, {
-  CategoryModal_Mode,
-} from '@/app/components/CategoryFormModal/CategoryFormModal'
-import { Category } from '@/app/components/CategoryFormModal/types'
-import { FolderAddOutlined } from '@ant-design/icons'
-import { CategoriesContext } from '@/app/contexts/Categories'
-import { UserContext } from '@/app/contexts/User'
+import CategoryFormModal, {CategoryModal_Mode,} from '@/app/components/CategoryFormModal/CategoryFormModal'
+import {Category} from '@/app/components/CategoryFormModal/types'
+import {FolderAddOutlined} from '@ant-design/icons'
+import {CategoriesContext} from '@/app/contexts/Categories'
+import {UserContext} from '@/app/contexts/User'
 import styles from './categoryCardList.module.scss'
-import { dateIsoToSql } from '@/pages/api/utils'
-import {
-  getLocalEndOfDay,
-  getLocalStartOfDay,
-  isToday,
-  isTomorrow,
-  isYesterday,
-} from '@/app/utils'
-import { Quote } from '@/app/components/Quote/Quote'
+import {dateIsoToSql} from '@/pages/api/utils'
+import {getLocalEndOfDay, getLocalStartOfDay, isToday, isTomorrow, isYesterday,} from '@/app/utils'
+import {Quote} from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
-import { CategoryCard } from '@/app/components/CategoryCard/CategoryCard'
+import {CategoryCard} from '@/app/components/CategoryCard/CategoryCard'
+import ConfettiExplosion from "react-confetti-explosion";
 
 const { Title } = Typography
 
@@ -59,6 +46,8 @@ export const CategoryCardList = () => {
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false)
   const [modalCategory, setModalCategory] = useState<Category | undefined>()
+  const [isExploding, setIsExploding] = useState<boolean>(false)
+
   const { categoryList } = useContext(CategoriesContext)
 
   const {
@@ -82,7 +71,7 @@ export const CategoryCardList = () => {
 
   const quote = quoteList[(quoteList.length * Math.random()) | 0]
 
-  if (isLoading || !todoList) return <Spin tip="Loading Todos" size="large" />
+  if (isLoading || !todoList) return <div><Spin size="large" /> Loading Todos</div>
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
@@ -95,22 +84,6 @@ export const CategoryCardList = () => {
   }
 
   // NOTE: OPTIMISTIC UPDATING
-  const sortAllTodoList = async (tList: Todo[]) => {
-    const sortedTodoList = sortTodoList(todoList
-      .map((t) => {
-        const updatedTodoIndex = tList.findIndex((tt) => tt.id === t.id)
-        return {
-          ...t,
-          sortOrder: updatedTodoIndex !== -1 ? updatedTodoIndex : t.sortOrder,
-        }
-      }))
-
-    await queryClient.cancelQueries(['getTodos', currentDate])
-    const previousTodoList = queryClient.getQueryData(['getTodos', currentDate])
-    queryClient.setQueryData(['getTodos', currentDate], sortedTodoList)
-    return { previousTodoList }
-  }
-
   const addToTodoList = async (t: Todo) => {
     const newTodoList = sortTodoList([
       ...todoList,
@@ -131,6 +104,12 @@ export const CategoryCardList = () => {
         status
       } : t))
     )
+    if (status === TODO_STATUS.DONE) {
+      setIsExploding(true)
+      setTimeout(() => {
+        setIsExploding(false)
+      }, 3000)
+    }
     return { previousTodoList }
   }
 
@@ -164,6 +143,21 @@ export const CategoryCardList = () => {
           <Quote author={quote.author} content={quote.quote} />
         </Space>
       )}
+      <Space
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '50%',
+          top: '0px',
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center'
+        }}
+      >
+        {isExploding && (
+          <ConfettiExplosion duration={3000} particleCount={100} width={1600} />
+        )}
+      </Space>
       <Space size={'small'} className={styles.categoryCardContainer}>
         {categoryList.map((c, i) => {
           const filteredTodoList = todoList.filter(
@@ -189,7 +183,6 @@ export const CategoryCardList = () => {
                 setModalCategory(c)
                 setIsCategoryModalOpen(true)
               }}
-              onSort={sortAllTodoList}
               onAdd={addToTodoList}
               onComplete={toggleCompleteTodo}
             />

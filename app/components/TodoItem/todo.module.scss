@@ -8,8 +8,6 @@
 }
 
 .container {
-  animation: fadeIn 1s ease 1;
-  animation-fill-mode: forwards;
   padding: 0.25em 0.5em;
   cursor: pointer;
 
@@ -21,6 +19,11 @@
       }
     }
   }
+}
+
+.shouldFadeIn {
+  animation: fadeIn 1s ease 1;
+  animation-fill-mode: forwards;
 }
 
 .isUrgent {

@@ -1,16 +1,15 @@
-import React, {memo, useContext} from 'react'
+import React, {memo, useCallback, useContext, useEffect, useState} from 'react'
 import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
 import {Button, Collapse, notification, Space, Tooltip, Typography} from 'antd'
 import styles from './categoryCard.module.scss'
 import {DownOutlined, EditOutlined, PlusSquareOutlined, UpOutlined} from '@ant-design/icons'
-import { TodoDropZone } from '@/app/components/TodoDropZone/TodoDropZone'
 import { TodoItem } from '@/app/components/TodoItem/Todo'
 import { Category } from '@/app/components/CategoryFormModal/types'
-import { DragLayer } from '@/app/components/CategoryCard/DragLayer'
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import axios from 'axios'
 import {CategoriesContext} from "@/app/contexts/Categories";
 import {arrayMoveImmutable} from "array-move";
+import update from 'immutability-helper'
 
 const { Panel } = Collapse
 const { Title } = Typography
@@ -23,7 +22,6 @@ type Props = {
   currentDate: string
   onAddTaskClick: () => void
   onEditCategoryClick: () => void
-  onSort: (tList: Todo[]) => Promise<{ previousTodoList: unknown }>
   onAdd: (t: Todo) => Promise<{ previousTodoList: unknown }>
   onComplete: (t: Todo, status: TODO_STATUS) => Promise<{ previousTodoList: unknown }>
 }
@@ -40,12 +38,17 @@ export const _CategoryCard = ({
   currentDate,
   onAddTaskClick,
   onEditCategoryClick,
-  onSort,
   onAdd,
   onComplete
 }: Props) => {
   const queryClient = useQueryClient()
   const { categoryList } = useContext(CategoriesContext)
+
+  const [ localTodoList, setLocalTodoList ] = useState<Todo[]>(todoList)
+
+  useEffect(() => {
+    setLocalTodoList(todoList)
+  }, [todoList])
 
   const getSortedCategories = (newPosition: number) => {
     const currentCategoryIndex = categoryList.findIndex(c => c.uuid === category.uuid)
@@ -55,6 +58,38 @@ export const _CategoryCard = ({
       newPosition
     )
   }
+
+  const updateSortedTodoList = useCallback((srcIndex: number, destIndex: number) => {
+    setLocalTodoList(((prevState) => update(prevState, {
+      $splice: [
+        [srcIndex, 1],
+        [destIndex, 0, prevState[srcIndex]]
+      ]
+    })))
+  }, [])
+
+  const sortTodoList = useMutation({
+    mutationFn: () =>
+      axios.patch('/api/todos', {
+        todoList: localTodoList,
+        action: 'updateSortOrder',
+      }),
+    onMutate: async () => {
+      await queryClient.cancelQueries(['getTodoList', currentDate])
+      const previousTodoList = queryClient.getQueryData(['getTodoList', currentDate])
+      queryClient.setQueryData(['getTodoList', currentDate], localTodoList)
+      return { previousTodoList }
+    },
+    onError: (error) => {
+      console.log('ERROR: ', error)
+      notification.error({
+        message: <>Error sorting todo list. Check console for details.</>,
+      })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['getTodos', currentDate])
+    },
+  })
 
   const sortCategory = useMutation({
     mutationFn: (req: SortParams) => {
@@ -66,7 +101,7 @@ export const _CategoryCard = ({
       queryClient.setQueryData(['getCategories'], getSortedCategories(req.newPosition))
       return { previousCategoriesList }
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries(['getCategories'])
     },
     onError: (error) => {
@@ -163,30 +198,18 @@ export const _CategoryCard = ({
           </Space>
         }
       >
-        {todoList.map((t: Todo, i) => (
-          <div key={`todo_${t.id}`}>
-            <TodoDropZone
-              position={i}
-              todoList={todoList}
-              onSort={onSort}
-              currentDate={currentDate}
-            >
-              <TodoItem
-                todo={t}
-                currentDate={currentDate}
-                onAddProgress={onAdd}
-                onComplete={onComplete}
-              />
-            </TodoDropZone>
-          </div>
+        {localTodoList.map((t: Todo, i) => (
+          <TodoItem
+            key={`todo_${t.id}`}
+            todo={t}
+            index={i}
+            currentDate={currentDate}
+            onDrag={updateSortedTodoList}
+            onSort={() => sortTodoList.mutate()}
+            onAddProgress={onAdd}
+            onComplete={onComplete}
+          />
         ))}
-        <TodoDropZone
-          position={todoList.length}
-          todoList={todoList}
-          onSort={onSort}
-          currentDate={currentDate}
-        />
-        <DragLayer />
       </Panel>
     </Collapse>
   )

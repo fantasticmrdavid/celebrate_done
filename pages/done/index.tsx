@@ -106,7 +106,7 @@ export const DonePage = () => {
           alignItems: 'center',
         }}
       >
-        <Spin tip="Loading..." size="large" />
+        <Spin size="large" /> Loading
       </div>
     )
 

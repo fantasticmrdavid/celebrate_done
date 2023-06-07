@@ -41,9 +41,10 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
 
   if (isLoading || !data) {
     return (
-      <Spin tip="Loading categories" size="large">
-        <div className="content" />
-      </Spin>
+      <div>
+        <Spin size="large" />
+        <div className="content">Loading categories</div>
+      </div>
     )
   }
 
