@@ -147,8 +147,7 @@ export const CategoryCardList = () => {
         style={{
           position: 'absolute',
           width: '100%',
-          height: '50%',
-          top: '0px',
+          top: '10%',
           display: 'flex',
           justifyContent: 'space-around',
           alignItems: 'center'
