@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {QueryKey, useQuery, useQueryClient} from '@tanstack/react-query'
 import {Todo, TODO_PRIORITY, TODO_STATUS,} from '@/app/components/TodoItem/types'
-import {Button, DatePicker, Space, Spin, Tooltip, Typography} from 'antd'
+import {Button, DatePicker, Space, Tooltip, Typography} from 'antd'
 import TodoFormModal, {TodoModal_Mode,} from '@/app/components/TodoFormModal/TodoFormModal'
 import dayjs from 'dayjs'
 import CategoryFormModal, {CategoryModal_Mode,} from '@/app/components/CategoryFormModal/CategoryFormModal'
@@ -16,6 +16,8 @@ import {Quote} from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
 import {CategoryCard} from '@/app/components/CategoryCard/CategoryCard'
 import ConfettiExplosion from "react-confetti-explosion";
+import {CategoryCardSkeleton} from "@/app/components/CategoryCard/CategoryCardSkeleton";
+import {isMobile} from 'react-device-detect';
 
 const { Title } = Typography
 
@@ -71,10 +73,6 @@ export const CategoryCardList = () => {
 
   const quote = quoteList[(quoteList.length * Math.random()) | 0]
 
-  if (isLoading || !todoList) return <div><Spin size="large" /> Loading Todos</div>
-
-  if (error) return <div>ERROR FETCHING TODOS...</div>
-
   const getDateTitle = () => {
     if (isToday(currentDate)) return 'Today'
     if (isYesterday(currentDate)) return 'Yesterday'
@@ -82,6 +80,37 @@ export const CategoryCardList = () => {
 
     return dayjs(new Date(currentDate)).format('ddd, MMM D, YYYY')
   }
+
+  if (isLoading || !todoList) return (
+    <>
+      <Space className={styles.header}>
+        <Space className={styles.headerDate}>
+          <Title style={{ margin: 0 }}>{getDateTitle()}</Title>
+        </Space>
+      </Space>
+      {quote && (
+        <Space align={'center'}>
+          <Quote author={quote.author} content={quote.quote} />
+        </Space>
+      )}
+      <Space size={'small'} className={styles.categoryCardContainer}>
+        <CategoryCardSkeleton />
+        <CategoryCardSkeleton />
+        <CategoryCardSkeleton />
+      </Space>
+      {
+        !isMobile && (
+          <Space size={'small'} className={styles.categoryCardContainer} style={{ marginTop: "2em" }}>
+            <CategoryCardSkeleton />
+            <CategoryCardSkeleton />
+            <CategoryCardSkeleton />
+          </Space>
+        )
+      }
+    </>
+  )
+
+  if (error) return <div>ERROR FETCHING TODOS...</div>
 
   // NOTE: OPTIMISTIC UPDATING
   const addToTodoList = async (t: Todo) => {
@@ -112,6 +141,36 @@ export const CategoryCardList = () => {
     }
     return { previousTodoList }
   }
+
+  const categoryCards = categoryList.map((c, i) => {
+      const filteredTodoList = todoList.filter(
+        (t: Todo) => t.category.uuid === c.uuid
+      )
+
+      return (
+        <CategoryCard
+          isFirst={i === 0}
+          isLast={i === categoryList.length - 1}
+          key={`category_${c.uuid}`}
+          category={{
+            ...c,
+            sortOrder: i
+          }}
+          todoList={filteredTodoList}
+          currentDate={currentDate}
+          onAddTaskClick={() => {
+            setModalCategory(c)
+            setIsTodoModalOpen(true)
+          }}
+          onEditCategoryClick={() => {
+            setModalCategory(c)
+            setIsCategoryModalOpen(true)
+          }}
+          onAdd={addToTodoList}
+          onComplete={toggleCompleteTodo}
+        />
+      )
+    })
 
   return (
     <>
@@ -158,35 +217,7 @@ export const CategoryCardList = () => {
         )}
       </Space>
       <Space size={'small'} className={styles.categoryCardContainer}>
-        {categoryList.map((c, i) => {
-          const filteredTodoList = todoList.filter(
-            (t: Todo) => t.category.uuid === c.uuid
-          )
-
-          return (
-            <CategoryCard
-              isFirst={i === 0}
-              isLast={i === categoryList.length - 1}
-              key={`category_${c.uuid}`}
-              category={{
-                ...c,
-                sortOrder: i
-              }}
-              todoList={filteredTodoList}
-              currentDate={currentDate}
-              onAddTaskClick={() => {
-                setModalCategory(c)
-                setIsTodoModalOpen(true)
-              }}
-              onEditCategoryClick={() => {
-                setModalCategory(c)
-                setIsCategoryModalOpen(true)
-              }}
-              onAdd={addToTodoList}
-              onComplete={toggleCompleteTodo}
-            />
-          )
-        })}
+        { categoryCards }
         {isTodoModalOpen && (
           <TodoFormModal
             isOpen={true}
