@@ -6,12 +6,11 @@ import { v4 as uuidv4 } from 'uuid'
 import { dateIsoToSql } from '@/pages/api/utils'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
-  try {
-    const { name, notes, priority, size, category, startDate, user_id } =
-      req.body
-    const createdDateTime = dateIsoToSql(new Date().toISOString())
-    const new_uuid = uuidv4()
-    const insertTodoQuery = `INSERT into todos
+	try {
+		const { name, notes, priority, size, category, startDate, user_id } = req.body
+		const createdDateTime = dateIsoToSql(new Date().toISOString())
+		const new_uuid = uuidv4()
+		const insertTodoQuery = `INSERT into todos
             VALUES (
                 null,
                 ${SqlString.escape(new_uuid)},
@@ -25,35 +24,31 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                 null,
                 999
             )`
-    try {
-      const todoResult = await dbConnect
-        .transaction()
-        .query(insertTodoQuery)
-        .query((r: { affectedRows: number, insertId: number }) => {
-          if (r.affectedRows === 1) {
-            return [
-              `INSERT into todos_to_categories
+		const todoResult = await dbConnect
+			.transaction()
+			.query(insertTodoQuery)
+			.query((r: { affectedRows: number; insertId: number }) => {
+				if (r.affectedRows === 1) {
+					return [
+						`INSERT into todos_to_categories
                 VALUES(
                   null,
                   ${r.insertId},
                   ${SqlString.escape(category.uuid)},
                   ${SqlString.escape(user_id)}
                 )`,
-            ]
-          } else {
-            return null
-          }
-        })
-        .rollback((e: Error) => console.error(e))
-        .commit()
-      const result = todoResult
-      await dbConnect.end()
-      return res.status(200).json(result)
-    } catch (e) {
-      throw e
-    }
-  } catch (error) {
-    console.log('SQL ERROR: ', error)
-    return res.status(500).json({ error })
-  }
+					]
+				} else {
+					return null
+				}
+			})
+			.rollback((e: Error) => console.error(e))
+			.commit()
+		const result = todoResult
+		await dbConnect.end()
+		return res.status(200).json(result)
+	} catch (error) {
+		console.log('SQL ERROR: ', error)
+		return res.status(500).json({ error })
+	}
 }

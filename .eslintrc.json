@@ -8,7 +8,6 @@
     "import/prefer-default-export": 0,
     "linebreak-style": 0,
     "jsx-a11y/no-static-element-interactions": 0,
-    "max-len": ["error", { "code": 120, "ignoreComments": true }],
     "no-extra-boolean-cast": 0,
     "no-undef": 0,
     "no-underscore-dangle": 0,
@@ -22,6 +21,7 @@
   },
   "plugins": ["@typescript-eslint"],
   "extends": [
+    "eslint:recommended",
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended",
     "prettier"
