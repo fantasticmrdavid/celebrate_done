@@ -32,6 +32,7 @@
   align-items: stretch;
   @media only screen and (min-width: 800px) {
     max-width: 1200px;
+    width: 100%;
     grid-template-columns: 1fr 1fr 1fr;
     justify-content: flex-start;
     flex-direction: row;

@@ -19,89 +19,98 @@ import updateLocale from 'dayjs/plugin/updateLocale'
 import { COOKIE_NAME } from '@/app/constants/constants'
 
 import { DndProvider } from 'react-dnd'
-import {HTML5Backend} from "react-dnd-html5-backend";
+import { HTML5Backend } from 'react-dnd-html5-backend'
+
+import '@fontsource/raleway'
+import '@fontsource/raleway/700.css'
 
 dayjs.extend(updateLocale)
 dayjs.updateLocale('en', {
-  weekStart: 1,
+	weekStart: 1,
 })
 
 const { Content } = Layout
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  const [queryClient] = useState(() => new QueryClient())
-  const [uuid, setUuid] = useState<string>()
+	const [queryClient] = useState(() => new QueryClient())
+	const [uuid, setUuid] = useState<string>()
 
-  const cookieRaw = getCookie(COOKIE_NAME) || ''
+	const cookieRaw = getCookie(COOKIE_NAME) || ''
 
-  useEffect(() => {
-    if (!cookieRaw) {
-      setUuid(undefined)
-    } else {
-      const cookie = JSON.parse(cookieRaw as string)
-      setUuid(cookie.uuid as string)
-    }
-  }, [cookieRaw])
+	useEffect(() => {
+		if (!cookieRaw) {
+			setUuid(undefined)
+		} else {
+			const cookie = JSON.parse(cookieRaw as string)
+			setUuid(cookie.uuid as string)
+		}
+	}, [cookieRaw])
 
-  const head = (
-    <Head>
-      <title>celebrate.DONE 🎉</title>
-      <meta name={'viewport'} content="width=device-width, initial-scale=1" />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="32x32"
-        href="/favicon-32x32.png"
-      />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="16x16"
-        href="/favicon-16x16.png"
-      />
-      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="192x192"
-        href="/android-chrome-192x192.png"
-      />
-    </Head>
-  )
+	const head = (
+		<Head>
+			<title>celebrate.DONE 🎉</title>
+			<meta name={'viewport'} content="width=device-width, initial-scale=1" />
+			<link
+				rel="icon"
+				type="image/png"
+				sizes="32x32"
+				href="/favicon-32x32.png"
+			/>
+			<link
+				rel="icon"
+				type="image/png"
+				sizes="16x16"
+				href="/favicon-16x16.png"
+			/>
+			<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+			<link
+				rel="icon"
+				type="image/png"
+				sizes="192x192"
+				href="/android-chrome-192x192.png"
+			/>
+		</Head>
+	)
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ConfigProvider>
-        {uuid ? (
-          <UserProvider uuid={uuid}>
-            <CategoriesProvider>
-              {head}
-                <DndProvider backend={HTML5Backend}>
-                  <Layout>
-                    <HeaderNav />
-                    <Content className={styles.content}>
-                      <Component {...pageProps} />
-                    </Content>
-                  </Layout>
-                </DndProvider>
-            </CategoriesProvider>
-          </UserProvider>
-        ) : (
-          <>
-            {head}
-            <Layout>
-              <Content className={styles.centeredContent}>
-                <UserSelector
-                  onSelect={(uuid) => {
-                    setCookie(COOKIE_NAME, { uuid })
-                    setUuid(uuid)
-                  }}
-                />
-              </Content>
-            </Layout>
-          </>
-        )}
-      </ConfigProvider>
-    </QueryClientProvider>
-  )
+	return (
+		<QueryClientProvider client={queryClient}>
+			<ConfigProvider
+				theme={{
+					token: {
+						fontFamily: 'Raleway',
+					},
+				}}
+			>
+				{uuid ? (
+					<UserProvider uuid={uuid}>
+						<CategoriesProvider>
+							{head}
+							<DndProvider backend={HTML5Backend}>
+								<Layout>
+									<HeaderNav />
+									<Content className={styles.content}>
+										<Component {...pageProps} />
+									</Content>
+								</Layout>
+							</DndProvider>
+						</CategoriesProvider>
+					</UserProvider>
+				) : (
+					<>
+						{head}
+						<Layout>
+							<Content className={styles.centeredContent}>
+								<UserSelector
+									onSelect={(uuid) => {
+										setCookie(COOKIE_NAME, { uuid })
+										setUuid(uuid)
+									}}
+								/>
+							</Content>
+						</Layout>
+					</>
+				)}
+			</ConfigProvider>
+		</QueryClientProvider>
+	)
 }
