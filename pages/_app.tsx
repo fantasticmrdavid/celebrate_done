@@ -77,7 +77,10 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 			<ConfigProvider
 				theme={{
 					token: {
-						fontFamily: 'Raleway',
+						fontFamily:
+							"Raleway, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,\n" +
+							"  'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',\n" +
+							"  'Noto Color Emoji'",
 					},
 				}}
 			>
