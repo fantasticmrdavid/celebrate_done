@@ -1,12 +1,25 @@
 .container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   flex-direction: column;
   background-color: #001529;
   @media only screen and (min-width: 800px) {
     flex-direction: row;
     padding: 1em 3.5em;
+  }
+}
+
+.contentWrapper {
+  flex:1;
+  width: 100vw;
+  max-width: 1200px;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  @media only screen and (min-width: 800px) {
+    flex-direction: row;
   }
 }
 
