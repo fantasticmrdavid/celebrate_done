@@ -1,5 +1,13 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100vh;
+}
+
 .content {
   padding: 1em;
+  flex: 1;
   @media only screen and (min-width: 800px) {
     padding: 1em 3.5em;
   }

@@ -91,11 +91,13 @@ export default function MyApp({ Component, pageProps }: AppProps) {
               {head}
               <DndProvider backend={HTML5Backend}>
                 <Layout>
-                  <HeaderNav />
-                  <Content className={styles.content}>
-                    <Component {...pageProps} />
-                  </Content>
-                  <Footer />
+                  <div className={styles.layout}>
+                    <HeaderNav />
+                    <Content className={styles.content}>
+                      <Component {...pageProps} />
+                    </Content>
+                    <Footer />
+                  </div>
                 </Layout>
               </DndProvider>
             </CategoriesProvider>
