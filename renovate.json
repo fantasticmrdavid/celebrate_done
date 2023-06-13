@@ -12,7 +12,8 @@
         "patch",
         "minor",
         "major"
-      ]
+      ],
+      "minimumReleaseAge": "3 days"
     },
     {
       "groupName": "all non-major dependencies",
@@ -23,7 +24,8 @@
       "matchUpdateTypes": [
         "minor",
         "patch"
-      ]
+      ],
+      "minimumReleaseAge": "3 days"
     }
   ]
 }
