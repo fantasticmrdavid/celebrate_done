@@ -161,7 +161,10 @@ export const _CategoryCard = ({
       <Panel
         key={category.uuid}
         header={
-          <Space direction={'vertical'} style={{ width: '100%' }}>
+          <Space
+            direction={'vertical'}
+            style={{ width: '100%', padding: '0 0.5em' }}
+          >
             <Title
               level={5}
               style={{
