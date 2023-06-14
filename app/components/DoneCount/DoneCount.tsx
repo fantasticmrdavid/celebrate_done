@@ -16,7 +16,7 @@ import { DateRangeType } from '@/pages/done'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { UserContext } from '@/app/contexts/User'
 import { DoneTodoCount } from '@/pages/api/todos/doneCount'
-import { Spin } from 'antd'
+import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
 
 type Props = {
   count: number
@@ -54,7 +54,7 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
   const isReady = doneCount && !isLoading
   return (
     <div className={styles.container}>
-      {!isReady && <Spin size={'large'} />}
+      {!isReady && <DoneCountSkeleton />}
       {isReady && (
         <>
           <div style={{ fontSize: '10rem' }}>
