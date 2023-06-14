@@ -16,10 +16,10 @@ import {
 } from 'antd'
 import styles from './categoryCard.module.scss'
 import {
-  DownOutlined,
+  ArrowUpOutlined,
   EditOutlined,
   PlusSquareOutlined,
-  UpOutlined,
+  ArrowDownOutlined,
 } from '@ant-design/icons'
 import { TodoItem } from '@/app/components/TodoItem/Todo'
 import { Category } from '@/app/components/CategoryFormModal/types'
@@ -189,7 +189,7 @@ export const _CategoryCard = ({
                 {!isFirst && (
                   <Tooltip title={'Move up'}>
                     <Button
-                      icon={<UpOutlined />}
+                      icon={<ArrowUpOutlined />}
                       onClick={() =>
                         sortCategory.mutate({
                           newPosition: category.sortOrder - 1,
@@ -201,7 +201,7 @@ export const _CategoryCard = ({
                 {!isLast && (
                   <Tooltip title={'Move down'}>
                     <Button
-                      icon={<DownOutlined />}
+                      icon={<ArrowDownOutlined />}
                       onClick={() =>
                         sortCategory.mutate({
                           newPosition: category.sortOrder + 1,
