@@ -5,7 +5,7 @@ import {
   TODO_PRIORITY,
   TODO_STATUS,
 } from '@/app/components/TodoItem/types'
-import { Button, DatePicker, Space, Tooltip, Typography } from 'antd'
+import { Button, DatePicker, Modal, Space, Tooltip, Typography } from 'antd'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
@@ -65,6 +65,10 @@ export const CategoryCardList = () => {
 
   const { categoryList } = useContext(CategoriesContext)
 
+  const [shouldPromptUserToRefresh, setshouldPromptUserToRefresh] =
+    useState(false)
+  const lastActivity = localStorage.getItem('isFirstActivityToday')
+
   const {
     isLoading,
     error,
@@ -83,6 +87,16 @@ export const CategoryCardList = () => {
   useEffect(() => {
     refetchTodoList()
   }, [currentDate, refetchTodoList])
+
+  useEffect(() => {
+    if (
+      lastActivity !== null &&
+      !isToday(lastActivity) &&
+      !isToday(currentDate)
+    ) {
+      setshouldPromptUserToRefresh(true)
+    }
+  }, [lastActivity, currentDate])
 
   const quote = quoteList[(quoteList.length * Math.random()) | 0]
 
@@ -262,6 +276,26 @@ export const CategoryCardList = () => {
             category={modalCategory}
           />
         )}
+        <Modal
+          title="It's a new day!"
+          open={shouldPromptUserToRefresh}
+          onOk={() => {
+            localStorage.setItem('isFirstActivityToday', today.toISOString())
+            setshouldPromptUserToRefresh(false)
+            setCurrentDate(today.toISOString())
+          }}
+          onCancel={() => {
+            localStorage.setItem('isFirstActivityToday', today.toISOString())
+            setshouldPromptUserToRefresh(false)
+          }}
+          okText={'Yeah'}
+          cancelText={'Nah'}
+        >
+          <p>
+            A brand new day lies ahead! Should we set the date to the current
+            day?
+          </p>
+        </Modal>
       </Space>
     </>
   )

@@ -29,7 +29,6 @@ import { CategoriesContext } from '@/app/contexts/Categories'
 import { arrayMoveImmutable } from 'array-move'
 import update from 'immutability-helper'
 
-const { Panel } = Collapse
 const { Title } = Typography
 
 type Props = {
@@ -157,96 +156,96 @@ export const _CategoryCard = ({
       expandIconPosition={'end'}
       size={'small'}
       onChange={(uuidList) => setIsExpanded(uuidList.includes(category.uuid))}
-    >
-      <Panel
-        key={category.uuid}
-        header={
-          <Space
-            direction={'vertical'}
-            style={{ width: '100%', padding: '0 0.5em' }}
-          >
-            <Title
-              level={5}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                margin: 0,
-              }}
+      items={[
+        {
+          key: category.uuid,
+          label: (
+            <Space
+              direction={'vertical'}
+              style={{ width: '100%', paddingLeft: '0.5em' }}
             >
-              <div className={styles.categoryCardTitle}>
-                {category.name}
-                {!isExpanded && ` (${todoList.length})`}
-                <div
-                  className={styles.categoryCardDoneCount}
-                  style={{
-                    fontWeight: 500,
-                    fontSize: '0.8rem',
-                    marginLeft: '0.5em',
-                  }}
-                >
-                  {doneCount > 0 && ` 🎉 x${doneCount}`}
+              <Title
+                level={5}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  margin: 0,
+                }}
+              >
+                <div className={styles.categoryCardTitle}>
+                  {category.name}
+                  {!isExpanded && ` (${todoList.length})`}
+                  <div
+                    className={styles.categoryCardDoneCount}
+                    style={{
+                      fontWeight: 500,
+                      fontSize: '0.8rem',
+                      marginLeft: '0.5em',
+                    }}
+                  >
+                    {doneCount > 0 && ` 🎉 x${doneCount}`}
+                  </div>
                 </div>
-              </div>
-              <div style={{ display: 'flex', marginLeft: '1em' }}>
-                {!isFirst && (
-                  <Tooltip title={'Move up'}>
+                <div style={{ display: 'flex', marginLeft: '1em' }}>
+                  {!isFirst && (
+                    <Tooltip title={'Move up'}>
+                      <Button
+                        icon={<ArrowUpOutlined />}
+                        onClick={() =>
+                          sortCategory.mutate({
+                            newPosition: category.sortOrder - 1,
+                          })
+                        }
+                      />
+                    </Tooltip>
+                  )}
+                  {!isLast && (
+                    <Tooltip title={'Move down'}>
+                      <Button
+                        icon={<ArrowDownOutlined />}
+                        onClick={() =>
+                          sortCategory.mutate({
+                            newPosition: category.sortOrder + 1,
+                          })
+                        }
+                      />
+                    </Tooltip>
+                  )}
+                  <Tooltip title={'Edit Category'}>
                     <Button
-                      icon={<ArrowUpOutlined />}
-                      onClick={() =>
-                        sortCategory.mutate({
-                          newPosition: category.sortOrder - 1,
-                        })
-                      }
+                      icon={<EditOutlined />}
+                      onClick={onEditCategoryClick}
                     />
                   </Tooltip>
-                )}
-                {!isLast && (
-                  <Tooltip title={'Move down'}>
+                  <Tooltip title={'Add Task'}>
                     <Button
-                      icon={<ArrowDownOutlined />}
-                      onClick={() =>
-                        sortCategory.mutate({
-                          newPosition: category.sortOrder + 1,
-                        })
-                      }
+                      icon={<PlusSquareOutlined />}
+                      onClick={onAddTaskClick}
                     />
                   </Tooltip>
-                )}
-                <Tooltip title={'Edit Category'}>
-                  <Button
-                    icon={<EditOutlined />}
-                    onClick={onEditCategoryClick}
-                  />
-                </Tooltip>
-                <Tooltip title={'Add Task'}>
-                  <Button
-                    icon={<PlusSquareOutlined />}
-                    onClick={onAddTaskClick}
-                  />
-                </Tooltip>
-              </div>
-            </Title>
-            <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
-              {category.description}
+                </div>
+              </Title>
+              <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
+                {category.description}
+              </Space>
             </Space>
-          </Space>
-        }
-      >
-        {localTodoList.map((t: Todo, i) => (
-          <TodoItem
-            key={`todo_${t.id}`}
-            todo={t}
-            index={i}
-            currentDate={currentDate}
-            onDrag={updateSortedTodoList}
-            onSort={() => sortTodoList.mutate()}
-            onAddProgress={onAdd}
-            onComplete={onComplete}
-          />
-        ))}
-      </Panel>
-    </Collapse>
+          ),
+          children: localTodoList.map((t: Todo, i) => (
+            <TodoItem
+              key={`todo_${t.id}`}
+              todo={t}
+              index={i}
+              currentDate={currentDate}
+              onDrag={updateSortedTodoList}
+              onSort={() => sortTodoList.mutate()}
+              onAddProgress={onAdd}
+              onComplete={onComplete}
+            />
+          )),
+        },
+      ]}
+    />
   )
 }
 

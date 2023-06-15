@@ -1,6 +1,6 @@
 import React from 'react'
 import { CategoryCardList } from '@/app/components/CategoryCardList/CategoryCardList'
-import styles from "./todosPage.module.scss"
+import styles from './todosPage.module.scss'
 
 export const TodosPage = () => {
   return (
