@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react'
-import { Radio, Space, Spin, Tag } from 'antd'
+import { Radio, Skeleton, Space, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Todo } from '@/app/components/TodoItem/types'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
@@ -72,18 +72,7 @@ export const ComingUpPage = () => {
   )
   const ref = useRef<FireworksHandlers>(null)
 
-  if (isLoading || !todoList)
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Spin size="large" /> Loading
-      </div>
-    )
+  const isReady = !isLoading && todoList
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
@@ -95,6 +84,7 @@ export const ComingUpPage = () => {
           value={dateRangeType}
           buttonStyle="solid"
           onChange={(e) => setDateRangeType(e.target.value)}
+          disabled={!isReady}
         >
           <Radio.Button value={DateRangeType.WEEK}>This Week</Radio.Button>
           <Radio.Button value={DateRangeType.MONTH}>This Month</Radio.Button>
@@ -127,38 +117,44 @@ export const ComingUpPage = () => {
                 </Space>
               )}
             </div>
-            {categoryList.map((c) => {
-              const categoryTodoList = todoList.filter(
-                (t) => t.category.name === c.name
-              )
-              return categoryTodoList.length > 0 ? (
-                <div key={`category_${c.name}`}>
-                  <h4 style={{ fontWeight: 700 }}>{c.name}</h4>
-                  <ul
-                    style={{
-                      fontSize: '1rem',
-                      lineHeight: 1.25,
-                      padding: 0,
-                      listStylePosition: 'inside',
-                    }}
-                  >
-                    {categoryTodoList.map((t) => (
-                      <li key={`todo_${t.id}`} className={styles.doneItem}>
-                        <>
-                          {dayjs(t.startDate).format('MMM DD')} - {t.name}
-                          <Tag
-                            color={sizeTags[t.size].color}
-                            style={{ marginLeft: '0.5em' }}
-                          >
-                            {sizeTags[t.size].label}
-                          </Tag>
-                        </>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null
-            })}
+            {!isReady && (
+              <>
+                <Skeleton active />
+              </>
+            )}
+            {isReady &&
+              categoryList.map((c) => {
+                const categoryTodoList = todoList.filter(
+                  (t) => t.category.name === c.name
+                )
+                return categoryTodoList.length > 0 ? (
+                  <div key={`category_${c.name}`}>
+                    <h4 style={{ fontWeight: 700 }}>{c.name}</h4>
+                    <ul
+                      style={{
+                        fontSize: '1rem',
+                        lineHeight: 1.25,
+                        padding: 0,
+                        listStylePosition: 'inside',
+                      }}
+                    >
+                      {categoryTodoList.map((t) => (
+                        <li key={`todo_${t.id}`} className={styles.doneItem}>
+                          <>
+                            {dayjs(t.startDate).format('MMM DD')} - {t.name}
+                            <Tag
+                              color={sizeTags[t.size].color}
+                              style={{ marginLeft: '0.5em' }}
+                            >
+                              {sizeTags[t.size].label}
+                            </Tag>
+                          </>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null
+              })}
           </div>
         </div>
       </Space>
