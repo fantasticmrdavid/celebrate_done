@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Todo,
@@ -65,7 +65,7 @@ export const CategoryCardList = () => {
 
   const { categoryList } = useContext(CategoriesContext)
 
-  const [shouldPromptUserToRefresh, setshouldPromptUserToRefresh] =
+  const [shouldPromptUserToRefresh, setShouldPromptUserToRefresh] =
     useState(false)
   const lastActivity = localStorage.getItem('isFirstActivityToday')
 
@@ -94,19 +94,32 @@ export const CategoryCardList = () => {
       !isToday(lastActivity) &&
       !isToday(currentDate)
     ) {
-      setshouldPromptUserToRefresh(true)
+      setShouldPromptUserToRefresh(true)
+    } else {
+      localStorage.setItem('isFirstActivityToday', new Date().toISOString())
     }
   }, [lastActivity, currentDate])
 
   const quote = quoteList[(quoteList.length * Math.random()) | 0]
 
-  const getDateTitle = () => {
+  const getDateTitle = useCallback(() => {
     if (isToday(currentDate)) return 'Today'
     if (isYesterday(currentDate)) return 'Yesterday'
     if (isTomorrow(currentDate)) return 'Tomorrow'
 
     return dayjs(new Date(currentDate)).format('ddd, MMM D, YYYY')
-  }
+  }, [currentDate])
+
+  const openCategoryModal = useCallback((c: Category) => {
+    setModalCategory(c)
+    setIsTodoModalOpen(true)
+  }, [])
+
+  const getCategoryTodoList = useCallback(
+    (c: Category) =>
+      (todoList || []).filter((t: Todo) => t.category.uuid === c.uuid),
+    [todoList]
+  )
 
   if (isLoading || !todoList)
     return (
@@ -181,9 +194,7 @@ export const CategoryCardList = () => {
   }
 
   const categoryCards = categoryList.map((c, i) => {
-    const filteredTodoList = todoList.filter(
-      (t: Todo) => t.category.uuid === c.uuid
-    )
+    const filteredTodoList = getCategoryTodoList(c)
 
     return (
       <CategoryCard
@@ -193,14 +204,8 @@ export const CategoryCardList = () => {
         category={c}
         todoList={filteredTodoList}
         currentDate={currentDate}
-        onAddTaskClick={() => {
-          setModalCategory(c)
-          setIsTodoModalOpen(true)
-        }}
-        onEditCategoryClick={() => {
-          setModalCategory(c)
-          setIsCategoryModalOpen(true)
-        }}
+        onAddTaskClick={() => openCategoryModal(c)}
+        onEditCategoryClick={() => openCategoryModal(c)}
         onAdd={addToTodoList}
         onComplete={toggleCompleteTodo}
       />
@@ -281,12 +286,12 @@ export const CategoryCardList = () => {
           open={shouldPromptUserToRefresh}
           onOk={() => {
             localStorage.setItem('isFirstActivityToday', today.toISOString())
-            setshouldPromptUserToRefresh(false)
+            setShouldPromptUserToRefresh(false)
             setCurrentDate(today.toISOString())
           }}
           onCancel={() => {
             localStorage.setItem('isFirstActivityToday', today.toISOString())
-            setshouldPromptUserToRefresh(false)
+            setShouldPromptUserToRefresh(false)
           }}
           okText={'Yeah'}
           cancelText={'Nah'}

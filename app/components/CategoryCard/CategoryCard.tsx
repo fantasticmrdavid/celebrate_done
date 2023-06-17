@@ -238,7 +238,7 @@ export const _CategoryCard = ({
               index={i}
               currentDate={currentDate}
               onDrag={updateSortedTodoList}
-              onSort={() => sortTodoList.mutate()}
+              onSort={sortTodoList.mutate}
               onAddProgress={onAdd}
               onComplete={onComplete}
             />
