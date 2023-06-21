@@ -103,8 +103,14 @@ export const _CategoryCard = ({
       const previousTodoList = queryClient.getQueryData([
         'getTodos',
         currentDate,
-      ])
-      queryClient.setQueryData(['getTodos', currentDate], localTodoList)
+      ]) as Todo[]
+      queryClient.setQueryData(
+        ['getTodos', currentDate],
+        [
+          ...previousTodoList.filter((t) => t.category.uuid !== category.uuid),
+          ...localTodoList,
+        ]
+      )
       return { previousTodoList }
     },
     onError: (error) => {
