@@ -1,4 +1,5 @@
 export type Category = {
+  color: string
   uuid: string
   name: string
   description: string

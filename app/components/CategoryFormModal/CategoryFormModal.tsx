@@ -34,6 +34,9 @@ export const CategoryFormModal = ({
   const [description, setDescription] = useState<string>(
     category ? category.description : ''
   )
+  const [color, setColor] = useState<string>(
+    category?.color ? category.color : '#d9d9d9'
+  )
   const [validation, setValidation] = useState<CategoryValidation>({})
 
   const queryClient = useQueryClient()
@@ -43,6 +46,7 @@ export const CategoryFormModal = ({
       axios.post('/api/categories', {
         name,
         description,
+        color,
         user_id: user.uuid,
       } as Category),
     onSuccess: () => {
@@ -72,6 +76,7 @@ export const CategoryFormModal = ({
         uuid: (category as Category).uuid,
         name,
         description,
+        color,
         sortOrder: (category as Category).sortOrder,
       } as Category),
     onSuccess: () => {
@@ -129,7 +134,7 @@ export const CategoryFormModal = ({
         disabled: isLoading,
       }}
     >
-      <Space style={{ padding: '1em' }} direction={'vertical'}>
+      <Space style={{ padding: '1em', width: '100%' }} direction={'vertical'}>
         <Form.Item label={'Name'}>
           <Input
             value={name}
@@ -143,6 +148,14 @@ export const CategoryFormModal = ({
             value={description}
             placeholder={'Enter a description for the category'}
             onChange={(e) => setDescription(e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item label={'Colour'}>
+          <Input
+            type={'color'}
+            value={color}
+            placeholder={'Select a colour for the category'}
+            onChange={(e) => setColor(e.target.value)}
           />
         </Form.Item>
       </Space>

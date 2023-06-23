@@ -52,9 +52,10 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
     uuid: c.uuid,
     name: c.name,
     description: c.description,
+    color: c.color,
     maxPerDay: c.maxPerDay,
     sortOrder: c.sortOrder,
-    user_id: c.user_id
+    user_id: c.user_id,
   }))
 
   return (

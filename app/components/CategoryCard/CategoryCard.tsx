@@ -156,6 +156,7 @@ export const _CategoryCard = ({
 
   return (
     <Collapse
+      style={{ backgroundColor: category.color || undefined }}
       defaultActiveKey={[category.uuid]}
       key={`category_${category.uuid}`}
       collapsible="icon"
