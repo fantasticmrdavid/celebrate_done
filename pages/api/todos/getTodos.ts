@@ -18,11 +18,12 @@ export type Get_Todos_Response = {
   priority: TODO_PRIORITY
   status: TODO_STATUS
   completedDateTime: string
-  sortOrder: number,
+  sortOrder: number
   category_id: number
   category_uuid: string
   category_name: string
   category_description: string
+  category_color: string
   category_maxPerDay: number
   category_sortOrder: number
   category_user_uuid: string
@@ -44,6 +45,7 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
       uuid: r.category_uuid,
       name: r.category_name,
       description: r.category_description,
+      color: r.category_color,
       maxPerDay: r.category_maxPerDay,
       sortOrder: r.category_sortOrder,
       user_id: r.category_user_uuid,
@@ -71,6 +73,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         c.name AS category_name,
         c.uuid AS category_uuid,
         c.description AS category_description,
+        c.color AS category_color,
         c.maxPerDay AS category_maxPerDay,
         c.sortOrder AS category_sortOrder,
         c.user_uuid AS category_user_uuid
