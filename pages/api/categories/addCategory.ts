@@ -18,7 +18,7 @@ export const addCategory = async (
                 ${SqlString.escape(description)},
                 ${maxPerDay ? maxPerDay : null},
                 0,
-                ${SqlString.escape(color)},
+                ${SqlString.escape(color)}
             )`
     const result = await dbConnect
       .transaction()
