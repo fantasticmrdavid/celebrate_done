@@ -36,6 +36,18 @@ export const getLocalEndOfMonth = (date: string) => {
     : dayjs(new Date()).endOf('month').toISOString()
 }
 
+export const getLocalPastSevenDays = (date: string) => {
+  return date
+    ? dayjs(new Date(date)).subtract(7, 'day').toISOString()
+    : dayjs(new Date()).subtract(7, 'day').toISOString()
+}
+
+export const getLocalPastNinetyDays = (date: string) => {
+  return date
+    ? dayjs(new Date(date)).subtract(90, 'day').toISOString()
+    : dayjs(new Date()).subtract(90, 'day').toISOString()
+}
+
 export const getLocalStartOfYear = (date: string) => {
   return date
     ? dayjs(new Date(date)).startOf('year').toISOString()

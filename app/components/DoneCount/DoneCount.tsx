@@ -4,12 +4,10 @@ import styles from './doneCount.module.scss'
 import { dateIsoToSql } from '@/pages/api/utils'
 import {
   getLocalEndOfDay,
-  getLocalEndOfMonth,
-  getLocalEndOfWeek,
   getLocalEndOfYear,
+  getLocalPastNinetyDays,
+  getLocalPastSevenDays,
   getLocalStartOfDay,
-  getLocalStartOfMonth,
-  getLocalStartOfWeek,
   getLocalStartOfYear,
 } from '@/app/utils'
 import { DateRangeType } from '@/pages/done'
@@ -31,13 +29,13 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
       return `dateRangeStart=${dateIsoToSql(getLocalStartOfDay(date))}
         &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(date))}`
     }
-    if (dateRangeType === DateRangeType.WEEK) {
-      return `dateRangeStart=${dateIsoToSql(getLocalStartOfWeek(date))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfWeek(date))}`
+    if (dateRangeType === DateRangeType.SEVEN_DAYS) {
+      return `dateRangeStart=${dateIsoToSql(getLocalPastSevenDays(date))}
+        &dateRangeEnd=${dateIsoToSql(getLocalStartOfDay(date))}`
     }
-    if (dateRangeType === DateRangeType.MONTH) {
-      return `dateRangeStart=${dateIsoToSql(getLocalStartOfMonth(date))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfMonth(date))}`
+    if (dateRangeType === DateRangeType.NINETY_DAYS) {
+      return `dateRangeStart=${dateIsoToSql(getLocalPastNinetyDays(date))}
+        &dateRangeEnd=${dateIsoToSql(getLocalStartOfDay(date))}`
     }
     if (dateRangeType === DateRangeType.YEAR) {
       return `dateRangeStart=${dateIsoToSql(getLocalStartOfYear(date))}

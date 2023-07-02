@@ -12,12 +12,10 @@ import type { FireworksHandlers } from '@fireworks-js/react'
 import styles from './donePage.module.scss'
 import {
   getLocalEndOfDay,
-  getLocalEndOfMonth,
-  getLocalEndOfWeek,
   getLocalEndOfYear,
+  getLocalPastNinetyDays,
+  getLocalPastSevenDays,
   getLocalStartOfDay,
-  getLocalStartOfMonth,
-  getLocalStartOfWeek,
   getLocalStartOfYear,
 } from '@/app/utils'
 import { dateIsoToSql } from '@/pages/api/utils'
@@ -30,15 +28,15 @@ import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
 
 export enum DateRangeType {
   DAY = 'DAY',
-  WEEK = 'WEEK',
-  MONTH = 'MONTH',
+  SEVEN_DAYS = 'SEVEN_DAYS',
+  NINETY_DAYS = 'NINETY_DAYS',
   YEAR = 'YEAR',
 }
 
 const titleStrings = {
   [DateRangeType.DAY]: 'Today',
-  [DateRangeType.WEEK]: 'This Week',
-  [DateRangeType.MONTH]: 'This Month',
+  [DateRangeType.SEVEN_DAYS]: 'Last 7 days',
+  [DateRangeType.NINETY_DAYS]: 'Last 90 days',
   [DateRangeType.YEAR]: 'This Year',
 }
 
@@ -71,13 +69,15 @@ export const DonePage = () => {
       return `dateRangeStart=${dateIsoToSql(getLocalStartOfDay(currentDate))}
         &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(currentDate))}`
     }
-    if (dateRangeType === DateRangeType.WEEK) {
-      return `dateRangeStart=${dateIsoToSql(getLocalStartOfWeek(currentDate))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfWeek(currentDate))}`
+    if (dateRangeType === DateRangeType.SEVEN_DAYS) {
+      return `dateRangeStart=${dateIsoToSql(getLocalPastSevenDays(currentDate))}
+        &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(currentDate))}`
     }
-    if (dateRangeType === DateRangeType.MONTH) {
-      return `dateRangeStart=${dateIsoToSql(getLocalStartOfMonth(currentDate))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfMonth(currentDate))}`
+    if (dateRangeType === DateRangeType.NINETY_DAYS) {
+      return `dateRangeStart=${dateIsoToSql(
+        getLocalPastNinetyDays(currentDate)
+      )}
+        &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(currentDate))}`
     }
     if (dateRangeType === DateRangeType.YEAR) {
       return `dateRangeStart=${dateIsoToSql(getLocalStartOfYear(currentDate))}
@@ -113,8 +113,12 @@ export const DonePage = () => {
           disabled={!isReady}
         >
           <Radio.Button value={DateRangeType.DAY}>Today</Radio.Button>
-          <Radio.Button value={DateRangeType.WEEK}>This Week</Radio.Button>
-          <Radio.Button value={DateRangeType.MONTH}>This Month</Radio.Button>
+          <Radio.Button value={DateRangeType.SEVEN_DAYS}>
+            Last 7 Days
+          </Radio.Button>
+          <Radio.Button value={DateRangeType.NINETY_DAYS}>
+            Last 90 days
+          </Radio.Button>
           <Radio.Button value={DateRangeType.YEAR}>This Year</Radio.Button>
         </Radio.Group>
       </div>
