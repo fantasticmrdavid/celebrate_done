@@ -31,11 +31,11 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
     }
     if (dateRangeType === DateRangeType.SEVEN_DAYS) {
       return `dateRangeStart=${dateIsoToSql(getLocalPastSevenDays(date))}
-        &dateRangeEnd=${dateIsoToSql(getLocalStartOfDay(date))}`
+        &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(date))}`
     }
     if (dateRangeType === DateRangeType.NINETY_DAYS) {
       return `dateRangeStart=${dateIsoToSql(getLocalPastNinetyDays(date))}
-        &dateRangeEnd=${dateIsoToSql(getLocalStartOfDay(date))}`
+        &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(date))}`
     }
     if (dateRangeType === DateRangeType.YEAR) {
       return `dateRangeStart=${dateIsoToSql(getLocalStartOfYear(date))}
