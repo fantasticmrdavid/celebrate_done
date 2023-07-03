@@ -112,7 +112,7 @@ export const CategoryCardList = () => {
 
   const openCategoryModal = useCallback((c: Category) => {
     setModalCategory(c)
-    setIsTodoModalOpen(true)
+    setIsCategoryModalOpen(true)
   }, [])
 
   const getCategoryTodoList = useCallback(
