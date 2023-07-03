@@ -115,6 +115,11 @@ export const CategoryCardList = () => {
     setIsCategoryModalOpen(true)
   }, [])
 
+  const openTodoModal = useCallback((c: Category) => {
+    setModalCategory(c)
+    setIsTodoModalOpen(true)
+  }, [])
+
   const getCategoryTodoList = useCallback(
     (c: Category) =>
       (todoList || []).filter((t: Todo) => t.category.uuid === c.uuid),
@@ -204,7 +209,7 @@ export const CategoryCardList = () => {
         category={c}
         todoList={filteredTodoList}
         currentDate={currentDate}
-        onAddTaskClick={() => openCategoryModal(c)}
+        onAddTaskClick={() => openTodoModal(c)}
         onEditCategoryClick={() => openCategoryModal(c)}
         onAdd={addToTodoList}
         onComplete={toggleCompleteTodo}
