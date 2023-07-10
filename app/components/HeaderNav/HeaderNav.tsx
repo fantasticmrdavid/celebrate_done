@@ -10,10 +10,6 @@ import { deleteCookie } from 'cookies-next'
 
 const menuItemList: MenuProps['items'] = [
   {
-    label: <Link href={'/today'}>Today</Link>,
-    key: 'today',
-  },
-  {
     label: <Link href={'/'}>To Do</Link>,
     key: 'todo',
   },
