@@ -32,6 +32,7 @@ import { CategoryCard } from '@/app/components/CategoryCard/CategoryCard'
 import ConfettiExplosion from 'react-confetti-explosion'
 import { CategoryCardSkeleton } from '@/app/components/CategoryCard/CategoryCardSkeleton'
 import { isMobile } from 'react-device-detect'
+import { EmptyCategoriesMessage } from '@/app/components/CategoryCardList/EmptyCategoriesMessage'
 
 const { Title } = Typography
 
@@ -80,8 +81,8 @@ export const CategoryCardList = () => {
       await fetch(
         `/api/todos?user_id=${user?.uuid || ''}
         &localStartOfDay=${dateIsoToSql(getLocalStartOfDay(currentDate))}
-        &localEndOfDay=${dateIsoToSql(getLocalEndOfDay(currentDate))}`
-      ).then((res) => res.json())
+        &localEndOfDay=${dateIsoToSql(getLocalEndOfDay(currentDate))}`,
+      ).then((res) => res.json()),
   )
 
   useEffect(() => {
@@ -123,7 +124,7 @@ export const CategoryCardList = () => {
   const getCategoryTodoList = useCallback(
     (c: Category) =>
       (todoList || []).filter((t: Todo) => t.category.uuid === c.uuid),
-    [todoList]
+    [todoList],
   )
 
   if (isLoading || !todoList)
@@ -185,9 +186,9 @@ export const CategoryCardList = () => {
                 ...todo,
                 status,
               }
-            : t
-        )
-      )
+            : t,
+        ),
+      ),
     )
     if (status === TODO_STATUS.DONE) {
       setIsExploding(true)
@@ -230,7 +231,10 @@ export const CategoryCardList = () => {
             }}
           />
         </Space>
-        <Tooltip title={'Add Category'}>
+        <Tooltip
+          title={'Add Category'}
+          open={categoryList.length === 0 ? true : undefined}
+        >
           <Button
             onClick={() => {
               setModalCategory(undefined)
@@ -261,6 +265,7 @@ export const CategoryCardList = () => {
           <ConfettiExplosion duration={3000} particleCount={100} width={1600} />
         )}
       </Space>
+      {categoryList.length === 0 && !isLoading && <EmptyCategoriesMessage />}
       <Space size={'small'} className={styles.categoryCardContainer}>
         {categoryCards}
         {isTodoModalOpen && (

@@ -28,6 +28,7 @@ import axios from 'axios'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { arrayMoveImmutable } from 'array-move'
 import update from 'immutability-helper'
+import { EmptyCategoryMessage } from './EmptyCategoryMessage'
 
 const { Title } = Typography
 
@@ -224,7 +225,14 @@ export const UnMemoizedCategoryCard = ({
                       onClick={onEditCategoryClick}
                     />
                   </Tooltip>
-                  <Tooltip title={'Add Task'}>
+                  <Tooltip
+                    title={'Add Task'}
+                    open={
+                      localTodoList.length === 0 && categoryList.length === 1
+                        ? true
+                        : undefined
+                    }
+                  >
                     <Button
                       icon={<PlusSquareOutlined />}
                       onClick={onAddTaskClick}
@@ -232,23 +240,30 @@ export const UnMemoizedCategoryCard = ({
                   </Tooltip>
                 </div>
               </Title>
-              <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
-                {category.description}
-              </Space>
+              {category.description.length > 0 && (
+                <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
+                  {category.description}
+                </Space>
+              )}
             </Space>
           ),
-          children: localTodoList.map((t: Todo, i) => (
-            <TodoItem
-              key={`todo_${t.id}`}
-              todo={t}
-              index={i}
-              currentDate={currentDate}
-              onDrag={updateSortedTodoList}
-              onSort={sortTodoList.mutate}
-              onAddProgress={onAdd}
-              onComplete={onComplete}
-            />
-          )),
+          children:
+            localTodoList.length > 0 ? (
+              localTodoList.map((t: Todo, i) => (
+                <TodoItem
+                  key={`todo_${t.id}`}
+                  todo={t}
+                  index={i}
+                  currentDate={currentDate}
+                  onDrag={updateSortedTodoList}
+                  onSort={sortTodoList.mutate}
+                  onAddProgress={onAdd}
+                  onComplete={onComplete}
+                />
+              ))
+            ) : (
+              <EmptyCategoryMessage />
+            ),
         },
       ]}
     />
