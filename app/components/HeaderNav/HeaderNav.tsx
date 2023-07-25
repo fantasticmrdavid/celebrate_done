@@ -7,6 +7,7 @@ import { UserContext } from '@/app/contexts/User'
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { COOKIE_NAME } from '@/app/constants/constants'
 import { deleteCookie } from 'cookies-next'
+import { useQueryClient } from '@tanstack/react-query'
 
 const menuItemList: MenuProps['items'] = [
   {
@@ -43,6 +44,7 @@ const menuKeysToRoutes = [
 ]
 
 export const HeaderNav = () => {
+  const queryClient = useQueryClient()
   const [isUserMenuCollapsed, setIsUserMenuCollapsed] = useState<boolean>(true)
   const { user, isFetchingUser } = useContext(UserContext)
   const router = useRouter()
@@ -69,6 +71,7 @@ export const HeaderNav = () => {
                     label: (
                       <div
                         onClick={() => {
+                          queryClient.clear()
                           deleteCookie(COOKIE_NAME)
                           router.push('./')
                         }}
