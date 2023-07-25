@@ -42,7 +42,7 @@ type Props = {
   onAdd: (t: Todo) => Promise<{ previousTodoList: unknown }>
   onComplete: (
     t: Todo,
-    status: TODO_STATUS
+    status: TODO_STATUS,
   ) => Promise<{ previousTodoList: unknown }>
 }
 
@@ -50,7 +50,7 @@ type SortParams = {
   newPosition: number
 }
 
-export const _CategoryCard = ({
+export const UnMemoizedCategoryCard = ({
   isFirst,
   isLast,
   todoList,
@@ -73,7 +73,7 @@ export const _CategoryCard = ({
 
   const getSortedCategories = (newPosition: number) => {
     const currentCategoryIndex = categoryList.findIndex(
-      (c) => c.uuid === category.uuid
+      (c) => c.uuid === category.uuid,
     )
     return arrayMoveImmutable(categoryList, currentCategoryIndex, newPosition)
   }
@@ -86,10 +86,10 @@ export const _CategoryCard = ({
             [srcIndex, 1],
             [destIndex, 0, prevState[srcIndex]],
           ],
-        })
+        }),
       )
     },
-    []
+    [],
   )
 
   const sortTodoList = useMutation({
@@ -109,7 +109,7 @@ export const _CategoryCard = ({
         [
           ...previousTodoList.filter((t) => t.category.uuid !== category.uuid),
           ...localTodoList,
-        ]
+        ],
       )
       return { previousTodoList }
     },
@@ -135,7 +135,7 @@ export const _CategoryCard = ({
       const previousCategoriesList = queryClient.getQueryData(['getCategories'])
       queryClient.setQueryData(
         ['getCategories'],
-        getSortedCategories(req.newPosition)
+        getSortedCategories(req.newPosition),
       )
       return { previousCategoriesList }
     },
@@ -150,9 +150,8 @@ export const _CategoryCard = ({
     },
   })
 
-  const doneCount = todoList.filter(
-    (t) => t.status === TODO_STATUS.DONE
-  )?.length
+  const doneCount = todoList.filter((t) => t.status === TODO_STATUS.DONE)
+    ?.length
 
   return (
     <Collapse
@@ -256,4 +255,4 @@ export const _CategoryCard = ({
   )
 }
 
-export const CategoryCard = memo(_CategoryCard)
+export const CategoryCard = memo(UnMemoizedCategoryCard)

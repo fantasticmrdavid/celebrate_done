@@ -37,7 +37,7 @@ type TodoProps = {
   onAddProgress?: (t: Todo) => Promise<{ previousTodoList: unknown }>
   onComplete?: (
     t: Todo,
-    status: TODO_STATUS
+    status: TODO_STATUS,
   ) => Promise<{ previousTodoList: unknown }>
 }
 
@@ -70,7 +70,7 @@ type DragItem = {
   type: string
 }
 
-export const _TodoItem = (props: TodoProps) => {
+export const UnmemoizedTodoItem = (props: TodoProps) => {
   const {
     todo,
     currentDate,
@@ -234,7 +234,7 @@ export const _TodoItem = (props: TodoProps) => {
         queryClient.getQueryData(['getTodos', currentDate]) || []
       queryClient.setQueryData(
         ['getTodos', currentDate],
-        previousTodoList.filter((t) => t.id !== todo.id)
+        previousTodoList.filter((t) => t.id !== todo.id),
       )
       return { previousTodoList }
     },
@@ -409,4 +409,4 @@ export const _TodoItem = (props: TodoProps) => {
   )
 }
 
-export const TodoItem = memo(_TodoItem)
+export const TodoItem = memo(UnmemoizedTodoItem)
