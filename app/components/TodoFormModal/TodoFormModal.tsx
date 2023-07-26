@@ -77,32 +77,34 @@ const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const { user } = useContext(UserContext)
-  const { isOpen, onCancel, category: propsCategory, todo, mode} = props
+  const { isOpen, onCancel, category: propsCategory, todo, mode } = props
   const [name, setName] = useState<string>(todo ? todo.name : '')
   const [startDate, setStartDate] = useState<string>(
     todo
       ? dayjs(new Date(todo.startDate)).startOf('day').toISOString()
-      : dayjs(new Date()).startOf('day').toISOString()
+      : dayjs(new Date()).startOf('day').toISOString(),
   )
   const [notes, setNotes] = useState<string>(todo ? todo.notes : '')
   const [size, setSize] = useState<TODO_SIZE>(
-    todo ? todo.size : TODO_SIZE.SMALL
+    todo ? todo.size : TODO_SIZE.SMALL,
   )
   const [priority, setPriority] = useState<TODO_PRIORITY>(
-    todo ? todo.priority : TODO_PRIORITY.NORMAL
+    todo ? todo.priority : TODO_PRIORITY.NORMAL,
   )
   const [category, setCategory] = useState<Category | undefined>(
-    todo ? todo.category : propsCategory
+    todo ? todo.category : propsCategory,
   )
   const [validation, setValidation] = useState<TodoValidation>({})
 
   const { data: suggestionList } = useQuery<Get_Suggestions_Response[]>(
     ['getTodoSuggestions'] as unknown as QueryKey,
     async () =>
-      await fetch('/api/todos/getSuggestions').then((res) => res.json()),
+      await fetch(`/api/todos/getSuggestions?user_id=${user?.uuid || ''}`).then(
+        (res) => res.json(),
+      ),
     {
       initialData: [],
-    }
+    },
   )
 
   const queryClient = useQueryClient()

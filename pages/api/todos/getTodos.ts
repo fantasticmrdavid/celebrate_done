@@ -55,7 +55,7 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
 
 export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
   const { user_id, localStartOfDay, localEndOfDay } = req.query
-  if (!user_id) return {}
+  if (!user_id || user_id.length === 0) return {}
 
   try {
     const query = `SELECT
