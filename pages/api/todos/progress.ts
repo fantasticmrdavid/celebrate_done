@@ -12,7 +12,7 @@ import dayjs from 'dayjs'
 
 export const addProgress = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => {
   try {
     const { name, category, user_id } = req.body
@@ -24,7 +24,7 @@ export const addProgress = async (
                 ${SqlString.escape(new_uuid)},
                 ${SqlString.escape(createdDateTime)},
                 ${SqlString.escape(
-                  dateIsoToSql(dayjs(new Date()).startOf('day').toISOString())
+                  dateIsoToSql(dayjs(new Date()).startOf('day').toISOString()),
                 )},
                 ${SqlString.escape(`Chipped away at ${name.trim()}`)},
                 ${SqlString.escape(`I made progress on ${name.trim()} today`)},
@@ -45,7 +45,8 @@ export const addProgress = async (
                   null,
                   ${r.insertId},
                   ${SqlString.escape(category.uuid)},
-                  ${SqlString.escape(user_id)}
+                  ${SqlString.escape(user_id)},
+                  ${SqlString.escape(new_uuid)}
                 )`,
           ]
         } else {
@@ -64,7 +65,7 @@ export const addProgress = async (
 }
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   switch (req.method) {
     case 'POST':
