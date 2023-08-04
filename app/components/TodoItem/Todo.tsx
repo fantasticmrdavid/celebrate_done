@@ -15,6 +15,7 @@ import {
   ExclamationCircleOutlined,
   FileTextOutlined,
   LoadingOutlined,
+  RedoOutlined,
   RiseOutlined,
 } from '@ant-design/icons'
 import styles from './todo.module.scss'
@@ -27,6 +28,7 @@ import { UserContext } from '@/app/contexts/User'
 import { useDrag, useDrop, XYCoord } from 'react-dnd'
 import { DRAGGABLE_TYPE } from '@/app/constants/constants'
 import { Identifier } from 'dnd-core'
+import { v4 as uuidv4 } from 'uuid'
 
 type TodoProps = {
   todo: Todo
@@ -203,6 +205,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       if (onAddProgress) {
         onAddProgress({
           id: 9999,
+          uuid: uuidv4(),
           created: new Date().toISOString(),
           startDate: new Date().toISOString(),
           completedDateTime: new Date().toISOString(),
@@ -212,6 +215,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
           size: TODO_SIZE.SMALL,
           priority: TODO_PRIORITY.NORMAL,
           sortOrder: 999,
+          isRecurring: false,
           status: TODO_STATUS.DONE,
         })
       }
@@ -227,7 +231,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   })
 
   const deleteTodo = useMutation({
-    mutationFn: () => axios.delete(`/api/todos/${todo.id}`),
+    mutationFn: () => axios.delete(`/api/todos/${todo.uuid}`),
     onMutate: async () => {
       await queryClient.cancelQueries(['getTodos', currentDate])
       const previousTodoList: Todo[] =
@@ -346,6 +350,11 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       {todo.notes && (
         <Tooltip title={todo.notes}>
           <FileTextOutlined />
+        </Tooltip>
+      )}
+      {todo.isRecurring && (
+        <Tooltip title={`Repeats ${todo.repeats?.toLowerCase()}`}>
+          <RedoOutlined />
         </Tooltip>
       )}
     </>

@@ -7,8 +7,17 @@ import { dateIsoToSql } from '@/pages/api/utils'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const { name, notes, priority, size, category, startDate, user_id } =
-      req.body
+    const {
+      name,
+      notes,
+      priority,
+      size,
+      category,
+      startDate,
+      user_id,
+      isRecurring,
+      repeats,
+    } = req.body
     const createdDateTime = dateIsoToSql(new Date().toISOString())
     const new_uuid = uuidv4()
     const insertTodoQuery = `INSERT into todos
@@ -25,6 +34,17 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                 null,
                 999
             )`
+    const repeatQuery = isRecurring
+      ? `
+		INSERT INTO schedules
+		VALUES (
+			null,
+			${SqlString.escape(new_uuid)},
+			1,
+			${SqlString.escape(repeats)}
+		)`
+      : null
+
     const todoResult = await dbConnect
       .transaction()
       .query(insertTodoQuery)
@@ -40,6 +60,13 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                   ${SqlString.escape(new_uuid)}
                 )`,
           ]
+        } else {
+          return null
+        }
+      })
+      .query((r: { affectedRows: number }) => {
+        if (r.affectedRows === 1) {
+          return [repeatQuery]
         } else {
           return null
         }

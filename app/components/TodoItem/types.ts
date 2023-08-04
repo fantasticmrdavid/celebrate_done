@@ -16,8 +16,17 @@ export enum TODO_STATUS {
   DONE = 'DONE',
 }
 
+export enum TODO_REPEAT_FREQUENCY {
+  DAILY = 'DAILY',
+  WEEKLY = 'WEEKLY',
+  FORTNIGHTLY = 'FORTNIGHTLY',
+  MONTHLY = 'MONTHLY',
+  ANNUALLY = 'ANNUALLY',
+}
+
 export type Todo = {
   id: number
+  uuid: string
   created: string
   startDate: string
   name: string
@@ -28,6 +37,8 @@ export type Todo = {
   completedDateTime: string | undefined
   sortOrder: number
   category: Category
+  isRecurring: boolean
+  repeats?: TODO_REPEAT_FREQUENCY
 }
 
 export type New_Todo = {
@@ -36,5 +47,7 @@ export type New_Todo = {
   startDate: string
   name: string
   size: TODO_SIZE
+  isRecurring: boolean
+  repeats?: TODO_REPEAT_FREQUENCY
   priority: TODO_PRIORITY
 }

@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
+import SqlString from 'sqlstring'
 
 type Data = {
   name: string
@@ -14,12 +15,15 @@ export const deleteTodo = async (req: NextApiRequest, res: NextApiResponse) => {
       .json({ message: 'Error: Invalid or no ID defined for deletion.' })
 
   try {
-    const deleteTodoResult= await dbConnect
+    const deleteTodoResult = await dbConnect
       .transaction()
-      .query(`DELETE t, tc
+      .query(
+        `DELETE t, tc
         FROM todos t
-        JOIN todos_to_categories tc ON tc.todo_id = t.id
-        WHERE t.id=${parseInt(id as string)}`)
+        JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
+        WHERE t.uuid=${SqlString.escape(id)}`,
+      )
+      .query(`DELETE FROM schedules WHERE todo_id=${SqlString.escape(id)}`)
       .rollback((e: Error) => console.error(e))
       .commit()
     await dbConnect.end()
@@ -32,7 +36,7 @@ export const deleteTodo = async (req: NextApiRequest, res: NextApiResponse) => {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<Data>,
 ) {
   switch (req.method) {
     case 'DELETE':

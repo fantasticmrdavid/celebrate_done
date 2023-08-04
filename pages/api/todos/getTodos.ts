@@ -3,6 +3,7 @@ import { dbConnect } from '@/config/dbConnect'
 import {
   Todo,
   TODO_PRIORITY,
+  TODO_REPEAT_FREQUENCY,
   TODO_SIZE,
   TODO_STATUS,
 } from '@/app/components/TodoItem/types'
@@ -10,6 +11,7 @@ import SqlString from 'sqlstring'
 
 export type Get_Todos_Response = {
   id: number
+  uuid: string
   created: string
   startDate: string
   name: string
@@ -19,6 +21,8 @@ export type Get_Todos_Response = {
   status: TODO_STATUS
   completedDateTime: string
   sortOrder: number
+  schedules_count: number
+  schedules_unit: TODO_REPEAT_FREQUENCY
   category_id: number
   category_uuid: string
   category_name: string
@@ -32,6 +36,7 @@ export type Get_Todos_Response = {
 export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
   return results.map((r, i) => ({
     id: r.id,
+    uuid: r.uuid,
     created: r.created,
     startDate: r.startDate,
     name: r.name,
@@ -41,6 +46,8 @@ export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
     status: TODO_STATUS[r.status],
     completedDateTime: r.completedDateTime,
     sortOrder: i,
+    isRecurring: !!r.schedules_unit,
+    repeats: r.schedules_unit,
     category: {
       uuid: r.category_uuid,
       name: r.category_name,
@@ -60,6 +67,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const query = `SELECT
         t.id,
+        t.uuid,
         t.created,
         t.startDate,
         t.name,
@@ -76,10 +84,13 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         c.color AS category_color,
         c.maxPerDay AS category_maxPerDay,
         c.sortOrder AS category_sortOrder,
-        c.user_uuid AS category_user_uuid
+        c.user_uuid AS category_user_uuid,
+        s.count AS schedules_count,
+        s.unit AS schedules_unit
       FROM todos t
       LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
       LEFT JOIN categories c ON tc.category_id = c.uuid
+      LEFT JOIN schedules s ON t.uuid = s.todo_id
       WHERE
       c.user_uuid = ${SqlString.escape(user_id)} AND
       (
