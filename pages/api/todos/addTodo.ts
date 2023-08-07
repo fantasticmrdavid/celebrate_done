@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/TodoItem/types'
+import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
 import { v4 as uuidv4 } from 'uuid'
@@ -7,8 +7,17 @@ import { dateIsoToSql } from '@/pages/api/utils'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const { name, notes, priority, size, category, startDate, user_id } =
-      req.body
+    const {
+      name,
+      notes,
+      priority,
+      size,
+      category,
+      startDate,
+      user_id,
+      isRecurring,
+      repeats,
+    } = req.body
     const createdDateTime = dateIsoToSql(new Date().toISOString())
     const new_uuid = uuidv4()
     const insertTodoQuery = `INSERT into todos
@@ -25,6 +34,19 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                 null,
                 999
             )`
+    const repeatQuery = isRecurring
+      ? `
+		INSERT INTO schedules
+		VALUES (
+			null,
+			${SqlString.escape(user_id)},
+			${SqlString.escape(new_uuid)},
+			${SqlString.escape(name.trim())},
+			1,
+			${SqlString.escape(repeats)}
+		)`
+      : null
+
     const todoResult = await dbConnect
       .transaction()
       .query(insertTodoQuery)
@@ -44,6 +66,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
           return null
         }
       })
+      .query(repeatQuery)
       .rollback((e: Error) => console.error(e))
       .commit()
     const result = todoResult

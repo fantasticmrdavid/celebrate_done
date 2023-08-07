@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-import { TODO_STATUS } from '@/app/components/TodoItem/types'
+import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import SqlString from 'sqlstring'
 
 export type DoneTodoCount = {
@@ -9,13 +9,13 @@ export type DoneTodoCount = {
 
 export const getDoneTodosCount = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => {
   const { user_id, dateRangeStart, dateRangeEnd } = req.query
   try {
     const query = `SELECT COUNT(t.id) AS count
       FROM todos t
-      LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
+      LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
       WHERE 
       tc.user_id = ${SqlString.escape(user_id)} AND
       (
@@ -34,7 +34,7 @@ export const getDoneTodosCount = async (
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   switch (req.method) {
     case 'GET':

@@ -19,12 +19,12 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { New_Todo, Todo } from '@/app/components/TodoItem/types'
 import {
-  New_Todo,
-  Todo,
   TODO_PRIORITY,
+  TODO_REPEAT_FREQUENCY,
   TODO_SIZE,
-} from '@/app/components/TodoItem/types'
+} from '@/app/components/TodoItem/utils'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
@@ -94,6 +94,14 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const [category, setCategory] = useState<Category | undefined>(
     todo ? todo.category : propsCategory,
   )
+
+  const [isRecurring, setIsRecurring] = useState(
+    todo ? todo.isRecurring : false,
+  )
+  const [repeats, setRepeats] = useState(
+    todo && todo.isRecurring ? todo.repeats : TODO_REPEAT_FREQUENCY.DAILY,
+  )
+
   const [validation, setValidation] = useState<TodoValidation>({})
 
   const { data: suggestionList } = useQuery<Get_Suggestions_Response[]>(
@@ -121,10 +129,13 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         size,
         priority,
         category,
+        isRecurring,
+        repeats,
         user_id: user.uuid,
       } as New_Todo),
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
+      queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
         message: (
           <>
@@ -147,16 +158,21 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     mutationFn: () =>
       axios.patch('/api/todos', {
         id: (todo as Todo).id,
+        user_id: user.uuid,
+        uuid: (todo as Todo).uuid,
         name,
         startDate,
         notes,
         size,
         priority,
         category,
+        isRecurring,
+        repeats,
         action: 'update',
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
+      queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
         message: (
           <>
@@ -214,7 +230,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         disabled: isLoading,
       }}
     >
-      <Space style={{ padding: '1em' }} direction={'vertical'}>
+      <Space style={{ padding: '1em', width: '100%' }} direction={'vertical'}>
         <Form.Item label={'Name'}>
           <AutoComplete
             options={suggestionList.map((s) => ({ value: s.name }))}
@@ -280,6 +296,50 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             }
           />
         </Form.Item>
+        <Form.Item label={'Recurring Task'}>
+          <Radio.Group
+            value={isRecurring}
+            options={[
+              {
+                label: 'Yes',
+                value: true,
+              },
+              {
+                label: 'No',
+                value: false,
+              },
+            ]}
+            buttonStyle={'solid'}
+            optionType={'button'}
+            onChange={(e) => setIsRecurring(e.target.value)}
+          />
+        </Form.Item>
+        {isRecurring && (
+          <Form.Item label={'Repeat'}>
+            <div
+              style={{
+                display: 'grid',
+                gap: '0.5em',
+                alignItems: 'center',
+                gridTemplateColumns: 'auto auto 1fr',
+              }}
+            >
+              <Select
+                defaultValue={repeats}
+                onChange={(value) => setRepeats(value)}
+                allowClear={false}
+                popupMatchSelectWidth={false}
+              >
+                {Object.values(TODO_REPEAT_FREQUENCY).map((r) => (
+                  <Option key={`recurringDateType_${r}`} value={r}>
+                    {r}
+                  </Option>
+                ))}
+              </Select>{' '}
+              after completion
+            </div>
+          </Form.Item>
+        )}
         <Form.Item label={'Notes'}>
           <Input.TextArea
             placeholder={'Add any notes (optional)'}

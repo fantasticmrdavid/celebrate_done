@@ -1,23 +1,14 @@
+import {
+  TODO_STATUS,
+  TODO_SIZE,
+  TODO_PRIORITY,
+  TODO_REPEAT_FREQUENCY,
+} from './utils'
 import { Category } from '@/app/components/CategoryFormModal/types'
-
-export enum TODO_SIZE {
-  SMALL = 'SMALL',
-  MEDIUM = 'MEDIUM',
-  LARGE = 'LARGE',
-}
-
-export enum TODO_PRIORITY {
-  NORMAL = 'NORMAL',
-  URGENT = 'URGENT',
-}
-
-export enum TODO_STATUS {
-  INCOMPLETE = 'INCOMPLETE',
-  DONE = 'DONE',
-}
 
 export type Todo = {
   id: number
+  uuid: string
   created: string
   startDate: string
   name: string
@@ -28,6 +19,8 @@ export type Todo = {
   completedDateTime: string | undefined
   sortOrder: number
   category: Category
+  isRecurring: boolean
+  repeats?: TODO_REPEAT_FREQUENCY
 }
 
 export type New_Todo = {
@@ -36,5 +29,7 @@ export type New_Todo = {
   startDate: string
   name: string
   size: TODO_SIZE
+  isRecurring: boolean
+  repeats?: TODO_REPEAT_FREQUENCY
   priority: TODO_PRIORITY
 }

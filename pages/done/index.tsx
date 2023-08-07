@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from 'react'
 import { Radio, Skeleton, Space, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { TODO_SIZE } from '@/app/components/TodoItem/types'
+import { TODO_SIZE } from '@/app/components/TodoItem/utils'
 import { DoneCount } from '@/app/components/DoneCount/DoneCount'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
 import { UserContext } from '@/app/contexts/User'
@@ -53,11 +53,11 @@ export const DonePage = () => {
   const [currentDate] = useState<string>(
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
       2,
-      '0'
-    )}-${String(today.getDate()).padStart(2, '0')}`
+      '0',
+    )}-${String(today.getDate()).padStart(2, '0')}`,
   )
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
-    DateRangeType.DAY
+    DateRangeType.DAY,
   )
 
   const quote = quoteList[(quoteList.length * Math.random()) | 0]
@@ -75,7 +75,7 @@ export const DonePage = () => {
     }
     if (dateRangeType === DateRangeType.NINETY_DAYS) {
       return `dateRangeStart=${dateIsoToSql(
-        getLocalPastNinetyDays(currentDate)
+        getLocalPastNinetyDays(currentDate),
       )}
         &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(currentDate))}`
     }
@@ -93,8 +93,8 @@ export const DonePage = () => {
     ['getDoneTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/done?user_id=${user.uuid}&${getDateRangeQuery()}`
-      ).then((res) => res.json())
+        `/api/todos/done?user_id=${user.uuid}&${getDateRangeQuery()}`,
+      ).then((res) => res.json()),
   )
   const ref = useRef<FireworksHandlers>(null)
 
@@ -200,11 +200,11 @@ export const DonePage = () => {
                 </h1>
                 {categoryList.map((c) => {
                   const categoryTodoList = todoList.filter(
-                    (t) => t.category.name === c.name
+                    (t) => t.category.name === c.name,
                   )
                   const categoryTotal = categoryTodoList.reduce(
                     (acc, curr) => (acc += curr.count),
-                    0
+                    0,
                   )
                   return categoryTodoList.length > 0 ? (
                     <>

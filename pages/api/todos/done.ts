@@ -4,7 +4,8 @@ import {
   TODO_PRIORITY,
   TODO_SIZE,
   TODO_STATUS,
-} from '@/app/components/TodoItem/types'
+} from '@/app/components/TodoItem/utils'
+
 import SqlString from 'sqlstring'
 
 export type Get_Done_Todos_Response = {
@@ -30,7 +31,7 @@ export type DoneTodo = {
 }
 
 export function mapDoneTodosResponse(
-  results: Get_Done_Todos_Response[]
+  results: Get_Done_Todos_Response[],
 ): DoneTodo[] {
   return results.map((r) => ({
     id: r.id,
@@ -47,7 +48,7 @@ export function mapDoneTodosResponse(
 
 export const getDoneTodos = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => {
   const { user_id, dateRangeStart, dateRangeEnd } = req.query
   try {
@@ -60,7 +61,7 @@ export const getDoneTodos = async (
         MAX(c.sortOrder) AS category_sortOrder,
         COUNT(*) AS count
       FROM todos t
-      LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
+      LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
       LEFT JOIN categories c ON tc.category_id = c.uuid
       WHERE 
       tc.user_id = ${SqlString.escape(user_id)} AND
@@ -88,7 +89,7 @@ export const getDoneTodos = async (
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   switch (req.method) {
     case 'GET':
