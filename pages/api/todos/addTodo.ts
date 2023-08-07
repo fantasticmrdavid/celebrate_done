@@ -66,7 +66,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
           return null
         }
       })
-      .query(repeatQuery)
+      .query(() => (repeatQuery ? [repeatQuery] : null))
       .rollback((e: Error) => console.error(e))
       .commit()
     const result = todoResult
