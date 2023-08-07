@@ -1,12 +1,12 @@
 import { Checkbox, Dropdown, MenuProps, notification, Tag, Tooltip } from 'antd'
 import classNames from 'classnames'
 import React, { memo, useContext, useEffect, useRef, useState } from 'react'
+import { Todo } from '@/app/components/TodoItem/types'
 import {
-  Todo,
   TODO_PRIORITY,
   TODO_SIZE,
   TODO_STATUS,
-} from '@/app/components/TodoItem/types'
+} from '@/app/components/TodoItem/utils'
 import {
   CaretDownOutlined,
   DeleteOutlined,
@@ -191,6 +191,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       queryClient.invalidateQueries({
         queryKey: ['getTodos', currentDate],
       })
+      queryClient.invalidateQueries(['generateScheduledTodos'])
     },
   })
 

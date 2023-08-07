@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/types'
+import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/utils'
 import SqlString from 'sqlstring'
 import {
   Get_Todos_Response,
@@ -9,7 +9,7 @@ import {
 
 export const getFutureTodos = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => {
   const { user_id, dateRangeStart, dateRangeEnd } = req.query
   if (!user_id) return {}
@@ -33,7 +33,7 @@ export const getFutureTodos = async (
         c.sortOrder AS category_sortOrder,
         c.user_uuid AS category_user_uuid
       FROM todos t
-      LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
+      LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
       LEFT JOIN categories c ON tc.category_id = c.uuid
       WHERE
       c.user_uuid = ${SqlString.escape(user_id)} AND
@@ -58,7 +58,7 @@ export const getFutureTodos = async (
 }
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   switch (req.method) {
     case 'GET':

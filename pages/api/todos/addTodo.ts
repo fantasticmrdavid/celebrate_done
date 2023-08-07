@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/TodoItem/types'
+import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
 import { v4 as uuidv4 } from 'uuid'
@@ -39,7 +39,9 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
 		INSERT INTO schedules
 		VALUES (
 			null,
+			${SqlString.escape(user_id)},
 			${SqlString.escape(new_uuid)},
+			${SqlString.escape(name.trim())},
 			1,
 			${SqlString.escape(repeats)}
 		)`
@@ -64,13 +66,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
           return null
         }
       })
-      .query((r: { affectedRows: number }) => {
-        if (r.affectedRows === 1) {
-          return [repeatQuery]
-        } else {
-          return null
-        }
-      })
+      .query(repeatQuery)
       .rollback((e: Error) => console.error(e))
       .commit()
     const result = todoResult

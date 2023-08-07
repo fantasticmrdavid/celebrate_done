@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
+import { Todo } from '@/app/components/TodoItem/types'
 import {
-  Todo,
   TODO_PRIORITY,
   TODO_REPEAT_FREQUENCY,
   TODO_SIZE,
   TODO_STATUS,
-} from '@/app/components/TodoItem/types'
+} from '@/app/components/TodoItem/utils'
 import SqlString from 'sqlstring'
 
 export type Get_Todos_Response = {
@@ -88,7 +88,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         s.count AS schedules_count,
         s.unit AS schedules_unit
       FROM todos t
-      LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
+      LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
       LEFT JOIN categories c ON tc.category_id = c.uuid
       LEFT JOIN schedules s ON t.uuid = s.todo_id
       WHERE

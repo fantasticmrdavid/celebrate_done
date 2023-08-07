@@ -19,13 +19,12 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { New_Todo, Todo } from '@/app/components/TodoItem/types'
 import {
-  New_Todo,
-  Todo,
   TODO_PRIORITY,
   TODO_REPEAT_FREQUENCY,
   TODO_SIZE,
-} from '@/app/components/TodoItem/types'
+} from '@/app/components/TodoItem/utils'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
@@ -136,6 +135,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       } as New_Todo),
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
+      queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
         message: (
           <>
@@ -158,6 +158,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     mutationFn: () =>
       axios.patch('/api/todos', {
         id: (todo as Todo).id,
+        user_id: user.uuid,
         uuid: (todo as Todo).uuid,
         name,
         startDate,
@@ -171,6 +172,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
+      queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
         message: (
           <>

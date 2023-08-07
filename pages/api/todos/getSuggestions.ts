@@ -16,7 +16,7 @@ export const getSuggestions = async (
   try {
     const query = `SELECT DISTINCT t.name
         FROM todos t
-        LEFT JOIN todos_to_categories tc ON tc.todo_id = t.id
+        LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
         WHERE tc.user_id = ${SqlString.escape(user_id)}`
     const results = await dbConnect.query(query)
     await dbConnect.end()

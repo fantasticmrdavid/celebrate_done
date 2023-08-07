@@ -1,10 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { QueryKey, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  Todo,
-  TODO_PRIORITY,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/types'
+import { Todo } from '@/app/components/TodoItem/types'
+import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/utils'
 import { Button, DatePicker, Modal, Space, Tooltip, Typography } from 'antd'
 import TodoFormModal, {
   TodoModal_Mode,

@@ -5,7 +5,8 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { Todo, TODO_STATUS } from '@/app/components/TodoItem/types'
+import { Todo } from '@/app/components/TodoItem/types'
+import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import {
   Button,
   Collapse,

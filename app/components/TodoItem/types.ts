@@ -1,28 +1,10 @@
+import {
+  TODO_STATUS,
+  TODO_SIZE,
+  TODO_PRIORITY,
+  TODO_REPEAT_FREQUENCY,
+} from './utils'
 import { Category } from '@/app/components/CategoryFormModal/types'
-
-export enum TODO_SIZE {
-  SMALL = 'SMALL',
-  MEDIUM = 'MEDIUM',
-  LARGE = 'LARGE',
-}
-
-export enum TODO_PRIORITY {
-  NORMAL = 'NORMAL',
-  URGENT = 'URGENT',
-}
-
-export enum TODO_STATUS {
-  INCOMPLETE = 'INCOMPLETE',
-  DONE = 'DONE',
-}
-
-export enum TODO_REPEAT_FREQUENCY {
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  FORTNIGHTLY = 'FORTNIGHTLY',
-  MONTHLY = 'MONTHLY',
-  ANNUALLY = 'ANNUALLY',
-}
 
 export type Todo = {
   id: number

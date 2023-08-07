@@ -3,7 +3,7 @@ import {
   TODO_PRIORITY,
   TODO_SIZE,
   TODO_STATUS,
-} from '@/app/components/TodoItem/types'
+} from '@/app/components/TodoItem/utils'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
 import { v4 as uuidv4 } from 'uuid'

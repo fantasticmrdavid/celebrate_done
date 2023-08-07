@@ -1,9 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import {
-  Todo,
-  TODO_PRIORITY,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/types'
+import { Todo } from '@/app/components/TodoItem/types'
+import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/utils'
 import { dbConnect } from '@/config/dbConnect'
 import SqlString from 'sqlstring'
 import { dateIsoToSql } from '@/pages/api/utils'
@@ -12,7 +9,7 @@ export const updateTodos = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { uuid, isRecurring, repeats, action } = req.body
+  const { user_id, uuid, name, isRecurring, repeats, action } = req.body
   let updateTodoQuery: string
 
   switch (action) {
@@ -57,11 +54,11 @@ export const updateTodos = async (
       break
     }
     case 'update': {
-      const { id, uuid, name, startDate, notes, size, priority, category } =
+      const { uuid, name, startDate, notes, size, priority, category } =
         req.body
       updateTodoQuery = `
         UPDATE todos t
-        INNER JOIN todos_to_categories tc ON (t.id = tc.todo_id)
+        INNER JOIN todos_to_categories tc ON (t.uuid = tc.todo_uuid)
            SET
             t.name=${SqlString.escape(name)},
             t.startDate=${SqlString.escape(dateIsoToSql(startDate))},
@@ -74,7 +71,9 @@ export const updateTodos = async (
             t.priority=${SqlString.escape(priority)},
             tc.category_id=${SqlString.escape(category.uuid)},
             tc.todo_uuid=${SqlString.escape(uuid)}
-            WHERE t.id=${id} AND tc.todo_id=${id}`
+            WHERE t.uuid=${SqlString.escape(
+              uuid,
+            )} AND tc.todo_uuid=${SqlString.escape(uuid)}`
       break
     }
     default:
@@ -92,7 +91,6 @@ export const updateTodos = async (
       )
       .query((r: never[]) => {
         const scheduleExists = r.length > 0
-        console.log('TEST: ', r, r.length)
         if (action !== 'update') return null
         if (!isRecurring && scheduleExists)
           return [
@@ -107,9 +105,13 @@ export const updateTodos = async (
 
         if (isRecurring && !scheduleExists)
           return [
-            `INSERT into schedules VALUES(null, ${SqlString.escape(
-              uuid,
-            )}, 1, ${SqlString.escape(repeats)})`,
+            `INSERT into schedules VALUES(
+              null,
+              ${SqlString.escape(user_id)},
+              ${SqlString.escape(uuid)},
+              ${SqlString.escape(name.trim())},
+              1,
+              ${SqlString.escape(repeats)})`,
           ]
 
         return null
