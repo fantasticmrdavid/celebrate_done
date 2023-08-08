@@ -157,7 +157,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const saveTodo = useMutation({
     mutationFn: () =>
       axios.patch('/api/todos', {
-        id: (todo as Todo).id,
         user_id: user.uuid,
         uuid: (todo as Todo).uuid,
         name,

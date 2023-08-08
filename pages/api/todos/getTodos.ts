@@ -10,7 +10,6 @@ import {
 import SqlString from 'sqlstring'
 
 export type Get_Todos_Response = {
-  id: number
   uuid: string
   created: string
   startDate: string
@@ -35,7 +34,6 @@ export type Get_Todos_Response = {
 
 export function mapTodosResponse(results: Get_Todos_Response[]): Todo[] {
   return results.map((r, i) => ({
-    id: r.id,
     uuid: r.uuid,
     created: r.created,
     startDate: r.startDate,

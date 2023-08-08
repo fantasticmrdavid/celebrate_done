@@ -252,7 +252,7 @@ export const UnMemoizedCategoryCard = ({
             localTodoList.length > 0 ? (
               localTodoList.map((t: Todo, i) => (
                 <TodoItem
-                  key={`todo_${t.id}`}
+                  key={`todo_${t.uuid}`}
                   todo={t}
                   index={i}
                   currentDate={currentDate}

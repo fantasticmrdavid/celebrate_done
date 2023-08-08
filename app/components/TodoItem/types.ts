@@ -7,7 +7,6 @@ import {
 import { Category } from '@/app/components/CategoryFormModal/types'
 
 export type Todo = {
-  id: number
   uuid: string
   created: string
   startDate: string

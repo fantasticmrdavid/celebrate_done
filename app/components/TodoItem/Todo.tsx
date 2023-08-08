@@ -53,7 +53,7 @@ type TodoProps = {
 
 type Update_Todo_Params = {
   action: string
-  id: number
+  uuid: string
   status?: TODO_STATUS
   completedDateTime?: string | undefined
   priority?: TODO_PRIORITY
@@ -182,7 +182,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     mutationFn: (req: Update_Todo_Params) =>
       axios.patch('/api/todos', {
         action: req.action,
-        id: req.id,
+        uuid: req.uuid,
         status: req.status,
         completedDateTime: req.completedDateTime,
         priority: req.priority,
@@ -214,7 +214,6 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     onMutate: async () => {
       if (onAddProgress) {
         onAddProgress({
-          id: 9999,
           uuid: uuidv4(),
           created: new Date().toISOString(),
           startDate: new Date().toISOString(),
@@ -248,7 +247,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
         queryClient.getQueryData(['getTodos', currentDate]) || []
       queryClient.setQueryData(
         ['getTodos', currentDate],
-        previousTodoList.filter((t) => t.id !== todo.id),
+        previousTodoList.filter((t) => t.uuid !== todo.uuid),
       )
       return { previousTodoList }
     },
@@ -272,7 +271,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     const shouldMarkCompleted = todo.status !== TODO_STATUS.DONE
     updateTodo.mutate({
       action: 'complete',
-      id: todo.id,
+      uuid: todo.uuid,
       status: shouldMarkCompleted ? TODO_STATUS.DONE : TODO_STATUS.INCOMPLETE,
       completedDateTime: shouldMarkCompleted
         ? new Date().toISOString()
@@ -283,7 +282,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   const togglePriority = () => {
     updateTodo.mutate({
       action: 'togglePriority',
-      id: todo.id,
+      uuid: todo.uuid,
       priority: todo.priority,
     })
   }

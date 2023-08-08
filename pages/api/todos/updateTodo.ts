@@ -14,7 +14,7 @@ export const updateTodos = async (
 
   switch (action) {
     case 'complete': {
-      const { id, status, completedDateTime } = req.body
+      const { uuid, status, completedDateTime } = req.body
       const completedDateTimeValue =
         status === TODO_STATUS.DONE
           ? `"${completedDateTime.slice(0, 19).replace('T', ' ')}"`
@@ -23,11 +23,11 @@ export const updateTodos = async (
            SET
             completedDateTime=${completedDateTimeValue},
             status="${status}"
-            WHERE id=${id}`
+            WHERE uuid=${SqlString.escape(uuid)}`
       break
     }
     case 'togglePriority': {
-      const { id, priority } = req.body
+      const { uuid, priority } = req.body
       updateTodoQuery = `UPDATE todos
            SET
             priority=${SqlString.escape(
@@ -35,22 +35,26 @@ export const updateTodos = async (
                 ? TODO_PRIORITY.NORMAL
                 : TODO_PRIORITY.URGENT,
             )}
-            WHERE id=${id}`
+            WHERE uuid=${SqlString.escape(uuid)}`
       break
     }
     case 'updateSortOrder': {
       const { todoList } = req.body
       updateTodoQuery = `UPDATE todos
            SET
-            sortOrder=(CASE id 
+            sortOrder=(CASE uuid 
                 ${todoList
                   .map(
                     (t: Todo, i: number) =>
-                      `WHEN ${t.id} THEN ${SqlString.escape(i)} `,
+                      `WHEN ${SqlString.escape(t.uuid)} THEN ${SqlString.escape(
+                        i,
+                      )} `,
                   )
                   .join(' ')}
             END)
-            WHERE id IN (${todoList.map((t: Todo) => t.id).join(',')})`
+            WHERE uuid IN (${todoList
+              .map((t: Todo) => SqlString.escape(t.uuid))
+              .join(',')})`
       break
     }
     case 'update': {
@@ -98,9 +102,11 @@ export const updateTodos = async (
           ]
         if (isRecurring && scheduleExists)
           return [
-            `UPDATE schedules SET unit=${SqlString.escape(
-              repeats,
-            )} WHERE todo_id=${SqlString.escape(uuid)} LIMIT 1`,
+            `UPDATE schedules 
+              SET 
+                unit=${SqlString.escape(repeats)},
+                name=${SqlString.escape(name)}
+            WHERE todo_id=${SqlString.escape(uuid)} LIMIT 1`,
           ]
 
         if (isRecurring && !scheduleExists)

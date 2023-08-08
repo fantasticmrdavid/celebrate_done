@@ -39,7 +39,7 @@ export const ComingUpPage = () => {
   const { categoryList } = useContext(CategoriesContext)
   const [currentDate] = useState<string>(today.toISOString().slice(0, 10))
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
-    DateRangeType.WEEK
+    DateRangeType.WEEK,
   )
 
   const quote = quoteList[(quoteList.length * Math.random()) | 0]
@@ -67,8 +67,8 @@ export const ComingUpPage = () => {
     ['getFutureTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/future?user_id=${user.uuid}&${getDateRangeQuery()}`
-      ).then((res) => res.json())
+        `/api/todos/future?user_id=${user.uuid}&${getDateRangeQuery()}`,
+      ).then((res) => res.json()),
   )
   const ref = useRef<FireworksHandlers>(null)
 
@@ -125,7 +125,7 @@ export const ComingUpPage = () => {
             {isReady &&
               categoryList.map((c) => {
                 const categoryTodoList = todoList.filter(
-                  (t) => t.category.name === c.name
+                  (t) => t.category.name === c.name,
                 )
                 return categoryTodoList.length > 0 ? (
                   <div key={`category_${c.name}`}>
@@ -139,7 +139,7 @@ export const ComingUpPage = () => {
                       }}
                     >
                       {categoryTodoList.map((t) => (
-                        <li key={`todo_${t.id}`} className={styles.doneItem}>
+                        <li key={`todo_${t.uuid}`} className={styles.doneItem}>
                           <>
                             {dayjs(t.startDate).format('MMM DD')} - {t.name}
                             <Tag

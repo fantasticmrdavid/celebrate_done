@@ -178,7 +178,7 @@ export const CategoryCardList = () => {
       ['getTodos', currentDate],
       sortTodoList(
         todoList.map((t) =>
-          t.id === todo.id
+          t.uuid === todo.uuid
             ? {
                 ...todo,
                 status,
