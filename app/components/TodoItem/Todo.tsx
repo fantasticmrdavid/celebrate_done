@@ -1,4 +1,12 @@
-import { Checkbox, Dropdown, MenuProps, notification, Tag, Tooltip } from 'antd'
+import {
+  Checkbox,
+  Dropdown,
+  MenuProps,
+  Modal,
+  notification,
+  Tag,
+  Tooltip,
+} from 'antd'
 import classNames from 'classnames'
 import React, { memo, useContext, useEffect, useRef, useState } from 'react'
 import { Todo } from '@/app/components/TodoItem/types'
@@ -85,6 +93,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
+  const [modal, modalContextHolder] = Modal.useModal()
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
     useState<boolean>(false)
   const [shouldAnimateDeleted, setShouldAnimateDeleted] =
@@ -319,9 +328,20 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
         <div
           style={{ color: 'red' }}
           onClick={() => {
-            setShouldAnimateFadeOut(true)
-            setShouldAnimateDeleted(true)
-            deleteTodo.mutate()
+            modal.confirm({
+              title: 'Delete task',
+              content: (
+                <>
+                  Are you sure you want to delete <strong>{todo.name}</strong>?
+                </>
+              ),
+              okText: 'Delete',
+              onOk: () => {
+                setShouldAnimateFadeOut(true)
+                setShouldAnimateDeleted(true)
+                deleteTodo.mutate()
+              },
+            })
           }}
         >
           <DeleteOutlined /> Delete
@@ -417,6 +437,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
           todo={todo}
         />
       )}
+      {modalContextHolder}
     </div>
   )
 }
