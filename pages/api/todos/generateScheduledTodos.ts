@@ -12,6 +12,11 @@ import {
 import { v4 as uuidv4 } from 'uuid'
 import { dateIsoToSql } from '@/pages/api/utils'
 
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
 type FetchResult = {
   id: number
   uuid: string
@@ -33,15 +38,6 @@ type FetchResult = {
   incompleteCount: number
 }
 
-const getTargetDate = (r: FetchResult) => {
-  return dayjs(new Date(r.latestCompletedDateTime))
-    .startOf('day')
-    .add(
-      repeatDayUnitsToSqlUnits[r.unit as TODO_REPEAT_FREQUENCY].count,
-      repeatDayUnitsToSqlUnits[r.unit as TODO_REPEAT_FREQUENCY].unit,
-    )
-}
-
 // 1. Fetch all todos from the user that match the scheduled name and are not incomplete
 // 2. Filter results to only those todos who are overdue since their latest completion date
 // 3. Create new todo with the same details except new start date
@@ -50,8 +46,17 @@ export const generateScheduledTodos = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { user_id } = req.query
+  const { user_id, tz } = req.query
   if (!user_id || user_id.length === 0) return {}
+  const getTargetDate = (r: FetchResult) => {
+    return dayjs(new Date(r.latestCompletedDateTime))
+      .tz(tz as string)
+      .startOf('day')
+      .add(
+        repeatDayUnitsToSqlUnits[r.unit as TODO_REPEAT_FREQUENCY].count,
+        repeatDayUnitsToSqlUnits[r.unit as TODO_REPEAT_FREQUENCY].unit,
+      )
+  }
 
   try {
     const query = `
