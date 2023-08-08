@@ -15,7 +15,6 @@ import {
   ExclamationCircleOutlined,
   FileTextOutlined,
   LoadingOutlined,
-  RedoOutlined,
   RiseOutlined,
 } from '@ant-design/icons'
 import styles from './todo.module.scss'
@@ -29,6 +28,7 @@ import { useDrag, useDrop, XYCoord } from 'react-dnd'
 import { DRAGGABLE_TYPE } from '@/app/constants/constants'
 import { Identifier } from 'dnd-core'
 import { v4 as uuidv4 } from 'uuid'
+import { BsRepeat } from 'react-icons/bs'
 
 type TodoProps = {
   todo: Todo
@@ -345,7 +345,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   })
 
   const content = (
-    <>
+    <div className={styles.indicatorList}>
       {todo.name}{' '}
       <Tag color={sizeTags[todo.size].color}>{sizeTags[todo.size].label}</Tag>
       {todo.notes && (
@@ -355,10 +355,10 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       )}
       {todo.isRecurring && (
         <Tooltip title={`Repeats ${todo.repeats?.toLowerCase()}`}>
-          <RedoOutlined />
+          <BsRepeat />
         </Tooltip>
       )}
-    </>
+    </div>
   )
 
   drag(drop(ref))

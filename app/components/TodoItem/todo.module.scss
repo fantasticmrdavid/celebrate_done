@@ -58,6 +58,16 @@
   }
 }
 
+.indicatorList {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+
+  > * {
+    margin-inline-end: 0;
+  }
+}
+
 @keyframes fadeOut {
   0% {
     opacity: 1;
