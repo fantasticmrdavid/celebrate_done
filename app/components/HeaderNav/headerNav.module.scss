@@ -33,6 +33,15 @@
   }
 }
 
+.logoIcon {
+  display: inline-block;
+  vertical-align: middle;
+  svg {
+    width: auto;
+    height: 1.75em;
+  }
+}
+
 .menu {
   display: flex;
   li {

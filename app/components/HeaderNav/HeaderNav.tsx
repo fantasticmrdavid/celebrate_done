@@ -8,6 +8,7 @@ import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import { COOKIE_NAME } from '@/app/constants/constants'
 import { deleteCookie } from 'cookies-next'
 import { useQueryClient } from '@tanstack/react-query'
+import { GiGlassCelebration } from 'react-icons/gi'
 
 const menuItemList: MenuProps['items'] = [
   {
@@ -52,7 +53,12 @@ export const HeaderNav = () => {
   return (
     <Space className={styles.container}>
       <Space className={styles.contentWrapper}>
-        <h2 className={styles.title}>celebrate.DONE 🎉</h2>
+        <h2 className={styles.title}>
+          celebrate.DONE
+          <div className={styles.logoIcon}>
+            <GiGlassCelebration />
+          </div>
+        </h2>
         <Space>
           <Menu
             className={styles.menu}
