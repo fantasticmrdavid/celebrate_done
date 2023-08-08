@@ -345,19 +345,21 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   })
 
   const content = (
-    <div className={styles.indicatorList}>
+    <div className={styles.todoContent}>
       {todo.name}{' '}
-      <Tag color={sizeTags[todo.size].color}>{sizeTags[todo.size].label}</Tag>
-      {todo.notes && (
-        <Tooltip title={todo.notes}>
-          <FileTextOutlined />
-        </Tooltip>
-      )}
-      {todo.isRecurring && (
-        <Tooltip title={`Repeats ${todo.repeats?.toLowerCase()}`}>
-          <BsRepeat />
-        </Tooltip>
-      )}
+      <div className={styles.indicatorList}>
+        <Tag color={sizeTags[todo.size].color}>{sizeTags[todo.size].label}</Tag>
+        {todo.notes && (
+          <Tooltip title={todo.notes}>
+            <FileTextOutlined />
+          </Tooltip>
+        )}
+        {todo.isRecurring && (
+          <Tooltip title={`Repeats ${todo.repeats?.toLowerCase()}`}>
+            <BsRepeat />
+          </Tooltip>
+        )}
+      </div>
     </div>
   )
 
