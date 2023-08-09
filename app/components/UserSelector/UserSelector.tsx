@@ -2,6 +2,8 @@ import React from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Select, Space, Spin } from 'antd'
 import { User } from '@/app/contexts/User'
+import { GiGlassCelebration } from 'react-icons/gi'
+import styles from './userSelector.module.scss'
 
 type Props = {
   onSelect: (uuid: string) => void
@@ -14,7 +16,7 @@ export const UserSelector = ({ onSelect }: Props) => {
     data: users,
   } = useQuery(
     ['getUserList'] as unknown as QueryKey,
-    async () => await fetch(`/api/users`).then((res) => res.json())
+    async () => await fetch(`/api/users`).then((res) => res.json()),
   )
 
   if (isLoading)
@@ -27,7 +29,12 @@ export const UserSelector = ({ onSelect }: Props) => {
 
   return (
     <Space direction={'vertical'}>
-      <h2>celebrate.DONE 🎉</h2>
+      <h2 style={{ textAlign: 'center' }}>
+        celebrate.DONE
+        <div className={styles.logoIcon}>
+          <GiGlassCelebration />
+        </div>
+      </h2>
       <Select
         style={{ minWidth: '250px' }}
         placeholder={'Select user'}
