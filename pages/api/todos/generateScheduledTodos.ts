@@ -126,7 +126,6 @@ export const generateScheduledTodos = async (
                 .map((a) => {
                   return `(
                   null,
-                  null,
                   ${SqlString.escape(a.category_id)},
                   ${SqlString.escape(a.user_id)},
                   ${SqlString.escape(a.uuid)}

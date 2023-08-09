@@ -43,7 +43,6 @@ export const addProgress = async (
             `INSERT into todos_to_categories
                 VALUES(
                   null,
-                  ${r.insertId},
                   ${SqlString.escape(category.uuid)},
                   ${SqlString.escape(user_id)},
                   ${SqlString.escape(new_uuid)}
