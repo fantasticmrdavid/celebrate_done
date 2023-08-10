@@ -1,32 +1,28 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from 'sqlstring'
 import { Category } from '@/app/components/CategoryFormModal/types'
 
 export const sortCategories = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => {
   try {
     const { categoryList } = req.body
     const updateCategoriesQuery = `UPDATE categories
             SET
             sortOrder=(CASE uuid 
-                ${categoryList
-                  .map(
-                    (c: Category, i: number) =>
-                      `WHEN ${SqlString.escape(c.uuid)} THEN ${SqlString.escape(
-                        i
-                      )} `
-                  )
-                  .join(' ')}
+                ${categoryList.map(() => `WHEN ? THEN ? `).join(' ')}
             END)
-            WHERE uuid IN (${categoryList
-              .map((c: Category) => SqlString.escape(c.uuid))
-              .join(',')})`
+            WHERE uuid IN (${categoryList.map(() => '?').join(',')})`
     const result = await dbConnect
       .transaction()
-      .query(updateCategoriesQuery)
+      .query({
+        sql: updateCategoriesQuery,
+        values: [
+          ...categoryList.flatMap((c: Category, i: number) => [c.uuid, i]),
+          ...categoryList.map((c: Category) => c.uuid),
+        ],
+      })
       .rollback((e: Error) => console.error(e))
       .commit()
     await dbConnect.end()
@@ -39,7 +35,7 @@ export const sortCategories = async (
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   switch (req.method) {
     case 'PATCH':
