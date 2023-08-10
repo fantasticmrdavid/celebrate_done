@@ -17,13 +17,17 @@ export const deleteTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const deleteTodoResult = await dbConnect
       .transaction()
-      .query(
-        `DELETE t, tc
+      .query({
+        sql: `DELETE t, tc
         FROM todos t
         JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
-        WHERE t.uuid=${SqlString.escape(id)}`,
-      )
-      .query(`DELETE FROM schedules WHERE todo_id=${SqlString.escape(id)}`)
+        WHERE t.uuid=?`,
+        values: [id],
+      })
+      .query({
+        sql: `DELETE FROM schedules WHERE todo_id=?`,
+        values: [id],
+      })
       .rollback((e: Error) => console.error(e))
       .commit()
     await dbConnect.end()
