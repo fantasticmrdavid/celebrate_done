@@ -64,19 +64,22 @@ export const getDoneTodos = async (
       LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
       LEFT JOIN categories c ON tc.category_id = c.uuid
       WHERE 
-      tc.user_id = ${SqlString.escape(user_id)} AND
+      tc.user_id = ? AND
       (
         t.status = "${TODO_STATUS.DONE}" 
-        AND t.completedDateTime >= ${SqlString.escape(dateRangeStart)} 
-        AND t.completedDateTime <= ${SqlString.escape(dateRangeEnd)}
+        AND t.completedDateTime >= ? 
+        AND t.completedDateTime <= ?
       )
       GROUP BY t.name, size, c.name
       ORDER BY
       c.name,
-      (size = "${TODO_SIZE.LARGE}") DESC,
-      (size = "${TODO_SIZE.MEDIUM}") DESC, 
+      (size = ${SqlString.escape(TODO_SIZE.LARGE)}) DESC,
+      (size = ${SqlString.escape(TODO_SIZE.MEDIUM)}) DESC, 
       count DESC`
-    const results = await dbConnect.query(query)
+    const results = await dbConnect.query({
+      sql: query,
+      values: [user_id, dateRangeStart, dateRangeEnd],
+    })
     await dbConnect.end()
     return res
       .status(200)

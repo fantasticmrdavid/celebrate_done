@@ -36,17 +36,20 @@ export const getFutureTodos = async (
       LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
       LEFT JOIN categories c ON tc.category_id = c.uuid
       WHERE
-      c.user_uuid = ${SqlString.escape(user_id)} AND
+      c.user_uuid = ? AND
       (
-        t.status != "${TODO_STATUS.DONE}" 
-        AND t.startDate >= ${SqlString.escape(dateRangeStart)} 
-        AND t.startDate <= ${SqlString.escape(dateRangeEnd)}
+        t.status != ${SqlString.escape(TODO_STATUS.DONE)} 
+        AND t.startDate >= ? 
+        AND t.startDate <= ?
       )
       ORDER BY
         t.startDate ASC,
-        (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
+        (t.priority = ${SqlString.escape(TODO_PRIORITY.URGENT)}) DESC,
         c.name, t.name ASC`
-    const results = await dbConnect.query(query)
+    const results = await dbConnect.query({
+      sql: query,
+      values: [user_id, dateRangeStart, dateRangeEnd],
+    })
     await dbConnect.end()
     return res
       .status(200)

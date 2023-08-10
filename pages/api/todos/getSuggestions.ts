@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from 'sqlstring'
 
 export type Get_Suggestions_Response = {
   name: string
@@ -17,8 +16,8 @@ export const getSuggestions = async (
     const query = `SELECT DISTINCT t.name
         FROM todos t
         LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
-        WHERE tc.user_id = ${SqlString.escape(user_id)}`
-    const results = await dbConnect.query(query)
+        WHERE tc.user_id = ?`
+    const results = await dbConnect.query({ sql: query, values: [user_id] })
     await dbConnect.end()
     return res.status(200).json(results as Get_Suggestions_Response[])
   } catch (error) {

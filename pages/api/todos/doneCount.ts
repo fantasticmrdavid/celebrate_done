@@ -17,13 +17,16 @@ export const getDoneTodosCount = async (
       FROM todos t
       LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
       WHERE 
-      tc.user_id = ${SqlString.escape(user_id)} AND
+      tc.user_id = ? AND
       (
-        t.status = "${TODO_STATUS.DONE}" 
-        AND t.completedDateTime >= ${SqlString.escape(dateRangeStart)} 
-        AND t.completedDateTime <= ${SqlString.escape(dateRangeEnd)}
+        t.status = ${SqlString.escape(TODO_STATUS.DONE)} 
+        AND t.completedDateTime >= ? 
+        AND t.completedDateTime <= ?
       )`
-    const results = await dbConnect.query(query)
+    const results = await dbConnect.query({
+      sql: query,
+      values: [user_id, dateRangeStart, dateRangeEnd],
+    })
     await dbConnect.end()
     return res.status(200).json((results as [count: number])[0])
   } catch (error) {

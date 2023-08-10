@@ -7,7 +7,6 @@ import {
   TODO_SIZE,
   TODO_STATUS,
 } from '@/app/components/TodoItem/utils'
-import SqlString from 'sqlstring'
 
 export type Get_Todos_Response = {
   uuid: string
@@ -90,16 +89,16 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
       LEFT JOIN categories c ON tc.category_id = c.uuid
       LEFT JOIN schedules s ON t.uuid = s.todo_id
       WHERE
-      c.user_uuid = ${SqlString.escape(user_id)} AND
+      c.user_uuid = ? AND
       (
         (
             t.status != "${TODO_STATUS.DONE}" AND
-           ${SqlString.escape(localStartOfDay)} >= t.startDate
+           ? >= t.startDate
            ) OR
         (
           t.status = "${TODO_STATUS.DONE}" 
-          AND t.completedDateTime >= ${SqlString.escape(localStartOfDay)}
-          AND t.completedDateTime <= ${SqlString.escape(localEndOfDay)} 
+          AND t.completedDateTime >= ?
+          AND t.completedDateTime <= ? 
         )
       )
       ORDER BY
@@ -107,7 +106,10 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         (t.priority = "${TODO_PRIORITY.URGENT}") DESC,
         (t.sortOrder) ASC,
         t.id, c.name, t.name ASC`
-    const results = await dbConnect.query(query)
+    const results = await dbConnect.query({
+      sql: query,
+      values: [user_id, localStartOfDay, localStartOfDay, localEndOfDay],
+    })
     await dbConnect.end()
     return res
       .status(200)

@@ -77,9 +77,12 @@ export const generateScheduledTodos = async (
       GROUP BY t.uuid
       HAVING 
         incompleteCount = 0 
-        AND s.user_id = ${SqlString.escape(user_id)};
+        AND s.user_id = ?;
       `
-    const results: FetchResult[] = await dbConnect.query(query)
+    const results: FetchResult[] = await dbConnect.query({
+      sql: query,
+      values: [user_id],
+    })
     await dbConnect.end()
     const createdDateTime = dateIsoToSql(new Date().toISOString())
     const actionableResults = results.reduce((acc: FetchResult[], r) => {

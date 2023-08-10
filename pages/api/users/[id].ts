@@ -1,7 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from 'sqlstring'
 
 export const getUser = async (req: NextApiRequest, res: NextApiResponse) => {
   const { id } = req.query
@@ -14,15 +13,16 @@ export const getUser = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const result = await dbConnect
       .transaction()
-      .query(
-        `SELECT
+      .query({
+        sql: `SELECT
         uuid,
         username,
         email,
         firstname,
         surname
-        FROM users WHERE uuid=${SqlString.escape(id)} LIMIT 1`
-      )
+        FROM users WHERE uuid=? LIMIT 1`,
+        values: [id],
+      })
       .rollback((e: Error) => console.error(e))
       .commit()
     await dbConnect.end()
@@ -35,7 +35,7 @@ export const getUser = async (req: NextApiRequest, res: NextApiResponse) => {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   switch (req.method) {
     case 'GET':
