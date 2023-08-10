@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from 'sqlstring'
 import { v4 as uuidv4 } from 'uuid'
 import { dateIsoToSql } from '@/pages/api/utils'
 
@@ -21,51 +20,44 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
     const createdDateTime = dateIsoToSql(new Date().toISOString())
     const new_uuid = uuidv4()
     const insertTodoQuery = `INSERT into todos
-            VALUES (
-                null,
-                ${SqlString.escape(new_uuid)},
-                ${SqlString.escape(createdDateTime)},
-                ${SqlString.escape(dateIsoToSql(startDate))},
-                ${SqlString.escape(name.trim())},
-                ${SqlString.escape(notes.trim())},
-                '${size}',
-                '${priority}',
-                '${TODO_STATUS.INCOMPLETE}',
-                null,
-                999
-            )`
+            VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, null, 999)`
     const repeatQuery = isRecurring
       ? `
 		INSERT INTO schedules
-		VALUES (
-			null,
-			${SqlString.escape(user_id)},
-			${SqlString.escape(new_uuid)},
-			${SqlString.escape(name.trim())},
-			1,
-			${SqlString.escape(repeats)}
-		)`
+		VALUES (null, ?, ?, ?, 1, ?)`
       : null
 
     const todoResult = await dbConnect
       .transaction()
-      .query(insertTodoQuery)
+      .query({
+        sql: insertTodoQuery,
+        values: [
+          new_uuid,
+          createdDateTime,
+          dateIsoToSql(startDate),
+          name.trim(),
+          notes.trim(),
+          size,
+          priority,
+          TODO_STATUS.INCOMPLETE,
+        ],
+      })
       .query((r: { affectedRows: number; insertId: number }) => {
         if (r.affectedRows === 1) {
           return [
             `INSERT into todos_to_categories
-                VALUES(
-                  null,
-                  ${SqlString.escape(category.uuid)},
-                  ${SqlString.escape(user_id)},
-                  ${SqlString.escape(new_uuid)}
-                )`,
+                VALUES(null, ?, ?, ?)`,
+            [category.uuid, user_id, new_uuid],
           ]
         } else {
           return null
         }
       })
-      .query(() => (repeatQuery ? [repeatQuery] : null))
+      .query(() =>
+        repeatQuery
+          ? [repeatQuery, [user_id, new_uuid, name.trim(), repeats]]
+          : null,
+      )
       .rollback((e: Error) => console.error(e))
       .commit()
     const result = todoResult

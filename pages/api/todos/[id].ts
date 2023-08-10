@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from 'sqlstring'
 
 type Data = {
   name: string
