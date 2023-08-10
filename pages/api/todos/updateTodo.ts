@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { Todo } from '@/app/components/TodoItem/types'
 import { TODO_PRIORITY, TODO_STATUS } from '@/app/components/TodoItem/utils'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from 'sqlstring'
 import { dateIsoToSql } from '@/pages/api/utils'
 
 export const updateTodos = async (
@@ -10,7 +9,7 @@ export const updateTodos = async (
   res: NextApiResponse,
 ) => {
   const { user_id, uuid, name, isRecurring, repeats, action } = req.body
-  let updateTodoQuery: string
+  let updateTodoQuery: { sql: string; values?: (string | number)[] }
 
   switch (action) {
     case 'complete': {
@@ -19,114 +18,118 @@ export const updateTodos = async (
         status === TODO_STATUS.DONE
           ? `"${completedDateTime.slice(0, 19).replace('T', ' ')}"`
           : null
-      updateTodoQuery = `UPDATE todos
+      updateTodoQuery = {
+        sql: `UPDATE todos
            SET
             completedDateTime=${completedDateTimeValue},
             status="${status}"
-            WHERE uuid=${SqlString.escape(uuid)}`
+            WHERE uuid=?`,
+        values: [uuid],
+      }
       break
     }
     case 'togglePriority': {
       const { uuid, priority } = req.body
-      updateTodoQuery = `UPDATE todos
+      updateTodoQuery = {
+        sql: `UPDATE todos
            SET
-            priority=${SqlString.escape(
-              priority === TODO_PRIORITY.URGENT
-                ? TODO_PRIORITY.NORMAL
-                : TODO_PRIORITY.URGENT,
-            )}
-            WHERE uuid=${SqlString.escape(uuid)}`
+            priority=?
+            WHERE uuid=?`,
+        values: [
+          priority === TODO_PRIORITY.URGENT
+            ? TODO_PRIORITY.NORMAL
+            : TODO_PRIORITY.URGENT,
+          uuid,
+        ],
+      }
       break
     }
     case 'updateSortOrder': {
       const { todoList } = req.body
-      updateTodoQuery = `UPDATE todos
+      updateTodoQuery = {
+        sql: `UPDATE todos
            SET
             sortOrder=(CASE uuid 
-                ${todoList
-                  .map(
-                    (t: Todo, i: number) =>
-                      `WHEN ${SqlString.escape(t.uuid)} THEN ${SqlString.escape(
-                        i,
-                      )} `,
-                  )
-                  .join(' ')}
+                ${todoList.map(() => `WHEN ? THEN ? `).join(' ')}
             END)
-            WHERE uuid IN (${todoList
-              .map((t: Todo) => SqlString.escape(t.uuid))
-              .join(',')})`
+            WHERE uuid IN (${todoList.map(() => '?').join(',')})`,
+        values: [
+          ...todoList.flatMap((t: Todo, i: number) => [t.uuid, i]),
+          ...todoList.map((t: Todo) => t.uuid),
+        ],
+      }
       break
     }
     case 'update': {
       const { uuid, name, startDate, notes, size, priority, category } =
         req.body
-      updateTodoQuery = `
+      updateTodoQuery = {
+        sql: `
         UPDATE todos t
         INNER JOIN todos_to_categories tc ON (t.uuid = tc.todo_uuid)
            SET
-            t.name=${SqlString.escape(name)},
-            t.startDate=${SqlString.escape(dateIsoToSql(startDate))},
-            t.notes=${
-              notes && notes.trim().length > 0
-                ? SqlString.escape(notes)
-                : 'NULL'
-            },
-            t.size=${SqlString.escape(size)},
-            t.priority=${SqlString.escape(priority)},
-            tc.category_id=${SqlString.escape(category.uuid)},
-            tc.todo_uuid=${SqlString.escape(uuid)}
-            WHERE t.uuid=${SqlString.escape(
-              uuid,
-            )} AND tc.todo_uuid=${SqlString.escape(uuid)}`
+            t.name=?,
+            t.startDate=?,
+            t.notes=?,
+            t.size=?,
+            t.priority=?,
+            tc.category_id=?,
+            tc.todo_uuid=?
+            WHERE t.uuid=?
+            AND tc.todo_uuid=?`,
+        values: [
+          name,
+          dateIsoToSql(startDate),
+          notes && notes.trim().length > 0 ? notes : 'NULL',
+          size,
+          priority,
+          category.uuid,
+          uuid,
+          uuid,
+          uuid,
+        ],
+      }
       break
     }
     default:
-      updateTodoQuery = ''
+      updateTodoQuery = { sql: '' }
   }
 
   try {
     const updateTodoResult = await dbConnect
       .transaction()
       .query(updateTodoQuery)
-      .query(
-        `SELECT todo_id FROM schedules WHERE todo_id=${SqlString.escape(
-          uuid,
-        )} LIMIT 1`,
-      )
+      .query({
+        sql: `SELECT todo_id FROM schedules WHERE todo_id=? LIMIT 1`,
+        values: [uuid],
+      })
       .query((r: never[]) => {
         const scheduleExists = r.length > 0
         if (action !== 'update') return null
         if (!isRecurring && scheduleExists)
-          return [
-            `DELETE FROM schedules WHERE todo_id=${SqlString.escape(uuid)}`,
-          ]
+          return [`DELETE FROM schedules WHERE todo_id=?`, [uuid]]
         if (isRecurring && scheduleExists)
           return [
             `UPDATE schedules 
               SET 
-                unit=${SqlString.escape(repeats)},
-                name=${SqlString.escape(name)}
-            WHERE todo_id=${SqlString.escape(uuid)} LIMIT 1`,
+                unit=?,
+                name=?
+            WHERE todo_id=? LIMIT 1`,
+            [repeats, name, uuid],
           ]
 
         if (isRecurring && !scheduleExists)
           return [
-            `INSERT into schedules VALUES(
-              null,
-              ${SqlString.escape(user_id)},
-              ${SqlString.escape(uuid)},
-              ${SqlString.escape(name.trim())},
-              1,
-              ${SqlString.escape(repeats)})`,
+            `INSERT into schedules VALUES(null,?,?,?,1,?)`,
+            [user_id, uuid, name.trim(), repeats],
           ]
 
         return null
       })
       .rollback((e: Error) => console.error(e))
       .commit()
-    const result = updateTodoResult
     await dbConnect.end()
-    return res.status(200).json(result)
+    return res.status(200).json(updateTodoResult)
   } catch (error) {
     console.error('SQL ERROR: ', error, updateTodoQuery)
     return res.status(500).json({ error })
