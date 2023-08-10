@@ -1,7 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from 'sqlstring'
 import { Category } from '@/app/components/CategoryFormModal/types'
 
 type Get_Categories_Response = {
@@ -15,7 +14,7 @@ type Get_Categories_Response = {
 }
 
 export function mapCategoryResponse(
-  results: Get_Categories_Response[]
+  results: Get_Categories_Response[],
 ): Category[] {
   return results.map((r, i) => ({
     uuid: r.uuid,
@@ -30,7 +29,7 @@ export function mapCategoryResponse(
 
 export const getCategories = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => {
   try {
     const { user_id } = req.query
@@ -43,9 +42,9 @@ export const getCategories = async (
         user_uuid,
         color
       FROM categories
-      WHERE user_uuid = ${SqlString.escape(user_id)}
+      WHERE user_uuid = ?
       ORDER BY sortOrder, name ASC`
-    const results = await dbConnect.query(query)
+    const results = await dbConnect.query({ sql: query, values: [user_id] })
     await dbConnect.end()
     return res
       .status(200)

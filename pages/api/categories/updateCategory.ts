@@ -1,26 +1,35 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-import SqlString from 'sqlstring'
 
 export const updateCategory = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) => {
   try {
     const { uuid, name, description, maxPerDay, sortOrder, color } = req.body
     const updateCategoryQuery = `UPDATE categories
             SET
-            name=${SqlString.escape(name)},
-            description=${SqlString.escape(description)},
-            maxPerDay=${maxPerDay || null},
-            sortOrder=${sortOrder},
-            color=${SqlString.escape(color)}
-            WHERE uuid=${SqlString.escape(uuid)}
+              name=?,
+              description=?,
+              maxPerDay=?,
+              sortOrder=?,
+              color=?
+            WHERE uuid=?
             LIMIT 1
             `
     const result = await dbConnect
       .transaction()
-      .query(updateCategoryQuery)
+      .query({
+        sql: updateCategoryQuery,
+        values: [
+          name.trim(),
+          description.trim(),
+          maxPerDay || null,
+          sortOrder,
+          color,
+          uuid,
+        ],
+      })
       .rollback((e: Error) => console.error(e))
       .commit()
     await dbConnect.end()
