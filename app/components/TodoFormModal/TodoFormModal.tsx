@@ -24,6 +24,7 @@ import {
   TODO_PRIORITY,
   TODO_REPEAT_FREQUENCY,
   TODO_SIZE,
+  TODO_STATUS,
 } from '@/app/components/TodoItem/utils'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
@@ -143,7 +144,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       queryClient.setQueryData(
         ['getTodos', currentDate],
         [
-          ...previousTodoList,
+          ...previousTodoList.filter((t) => t.status !== TODO_STATUS.DONE),
           {
             name,
             startDate,
@@ -156,6 +157,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             user_id: user.uuid,
             uuid: `temp_newID`,
           },
+          ...previousTodoList.filter((t) => t.status === TODO_STATUS.DONE),
         ],
       )
       if (onCancel) onCancel()

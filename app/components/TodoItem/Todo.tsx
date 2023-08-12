@@ -390,6 +390,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     >
       <div className={labelClassNames}>
         <Checkbox
+          disabled={todo.uuid === 'temp_newID'}
           checked={isDone}
           onChange={() => {
             setShouldAnimateFadeOut(true)
@@ -405,7 +406,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       </div>
       {!updateTodo.isLoading && (
         <div className={styles.actions}>
-          {updateTodo.isLoading ? (
+          {todo.uuid === 'temp_newID' || updateTodo.isLoading ? (
             <LoadingOutlined />
           ) : (
             <Dropdown
