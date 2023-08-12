@@ -80,7 +80,7 @@ export const updateTodos = async (
         values: [
           name,
           dateIsoToSql(startDate),
-          notes && notes.trim().length > 0 ? notes : 'NULL',
+          notes && notes.trim().length > 0 ? notes : null,
           size,
           priority,
           category.uuid,
