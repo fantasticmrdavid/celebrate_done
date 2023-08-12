@@ -30,6 +30,7 @@ import ConfettiExplosion from 'react-confetti-explosion'
 import { CategoryCardSkeleton } from '@/app/components/CategoryCard/CategoryCardSkeleton'
 import { isMobile } from 'react-device-detect'
 import { EmptyCategoriesMessage } from '@/app/components/CategoryCardList/EmptyCategoriesMessage'
+import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 
 const { Title } = Typography
 
@@ -53,8 +54,8 @@ const sortTodoList = (tList: Todo[]) => {
 export const CategoryCardList = () => {
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
+  const { currentDate, setCurrentDate } = useContext(SelectedDateContext)
   const today = new Date()
-  const [currentDate, setCurrentDate] = useState<string>(today.toISOString())
 
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false)
@@ -206,7 +207,6 @@ export const CategoryCardList = () => {
         key={`category_${c.uuid}`}
         category={c}
         todoList={filteredTodoList}
-        currentDate={currentDate}
         onAddTaskClick={() => openTodoModal(c)}
         onEditCategoryClick={() => openCategoryModal(c)}
         onAdd={addToTodoList}

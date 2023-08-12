@@ -33,6 +33,7 @@ import { getLocalStartOfDay } from '@/app/utils'
 
 import { TodoValidation, validateTodo } from './utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
+import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -119,6 +120,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
 
   const { categoryList, isFetchingCategories, isFetchingCategoriesError } =
     useContext(CategoriesContext)
+  const { currentDate } = useContext(SelectedDateContext)
 
   const createTodo = useMutation({
     mutationFn: () =>
@@ -133,6 +135,32 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         repeats,
         user_id: user.uuid,
       } as New_Todo),
+    onMutate: async () => {
+      const previousTodoList = queryClient.getQueryData([
+        'getTodos',
+        currentDate,
+      ]) as Todo[]
+      queryClient.setQueryData(
+        ['getTodos', currentDate],
+        [
+          ...previousTodoList,
+          {
+            name,
+            startDate,
+            notes,
+            size,
+            priority,
+            category,
+            isRecurring,
+            repeats,
+            user_id: user.uuid,
+            uuid: `temp_newID`,
+          },
+        ],
+      )
+      if (onCancel) onCancel()
+      return { previousTodoList }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
       queryClient.invalidateQueries(['generateScheduledTodos'])
@@ -169,6 +197,34 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         repeats,
         action: 'update',
       }),
+    onMutate: async () => {
+      const previousTodoList = queryClient.getQueryData([
+        'getTodos',
+        currentDate,
+      ]) as Todo[]
+      queryClient.setQueryData(
+        ['getTodos', currentDate],
+        [
+          ...previousTodoList.map((t) =>
+            t.uuid === (todo as Todo).uuid
+              ? {
+                  ...todo,
+                  name,
+                  startDate,
+                  notes,
+                  size,
+                  priority,
+                  category,
+                  isRecurring,
+                  repeats,
+                }
+              : t,
+          ),
+        ],
+      )
+      if (onCancel) onCancel()
+      return { previousTodoList }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
       queryClient.invalidateQueries(['generateScheduledTodos'])

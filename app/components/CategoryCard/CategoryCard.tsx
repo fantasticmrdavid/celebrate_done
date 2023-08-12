@@ -30,6 +30,7 @@ import { CategoriesContext } from '@/app/contexts/Categories'
 import { arrayMoveImmutable } from 'array-move'
 import update from 'immutability-helper'
 import { EmptyCategoryMessage } from './EmptyCategoryMessage'
+import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 
 const { Title } = Typography
 
@@ -38,7 +39,6 @@ type Props = {
   isLast: boolean
   category: Category
   todoList: Todo[]
-  currentDate: string
   onAddTaskClick: () => void
   onEditCategoryClick: () => void
   onAdd: (t: Todo) => Promise<{ previousTodoList: unknown }>
@@ -57,7 +57,6 @@ export const UnMemoizedCategoryCard = ({
   isLast,
   todoList,
   category,
-  currentDate,
   onAddTaskClick,
   onEditCategoryClick,
   onAdd,
@@ -68,6 +67,7 @@ export const UnMemoizedCategoryCard = ({
 
   const [localTodoList, setLocalTodoList] = useState<Todo[]>(todoList)
   const [isExpanded, setIsExpanded] = useState(true)
+  const { currentDate } = useContext(SelectedDateContext)
 
   useEffect(() => {
     setLocalTodoList(todoList)
@@ -255,7 +255,6 @@ export const UnMemoizedCategoryCard = ({
                   key={`todo_${t.uuid}`}
                   todo={t}
                   index={i}
-                  currentDate={currentDate}
                   onDrag={updateSortedTodoList}
                   onSort={sortTodoList.mutate}
                   onAddProgress={onAdd}

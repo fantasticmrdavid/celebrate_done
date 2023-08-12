@@ -37,11 +37,11 @@ import { DRAGGABLE_TYPE } from '@/app/constants/constants'
 import { Identifier } from 'dnd-core'
 import { v4 as uuidv4 } from 'uuid'
 import { BsRepeat } from 'react-icons/bs'
+import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 
 type TodoProps = {
   todo: Todo
   index: number
-  currentDate: string
   onDrag: (dragIndex: number, hoverIndex: number) => void
   onSort?: () => void
   onAddProgress?: (t: Todo) => Promise<{ previousTodoList: unknown }>
@@ -81,18 +81,11 @@ type DragItem = {
 }
 
 export const UnmemoizedTodoItem = (props: TodoProps) => {
-  const {
-    todo,
-    currentDate,
-    index,
-    onDrag,
-    onSort,
-    onAddProgress,
-    onComplete,
-  } = props
+  const { todo, index, onDrag, onSort, onAddProgress, onComplete } = props
   const ref = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const { user } = useContext(UserContext)
+  const { currentDate } = useContext(SelectedDateContext)
   const [modal, modalContextHolder] = Modal.useModal()
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
     useState<boolean>(false)

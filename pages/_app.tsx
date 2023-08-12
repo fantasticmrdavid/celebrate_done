@@ -24,6 +24,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import '@fontsource/raleway'
 import '@fontsource/raleway/700.css'
 import { Footer } from '@/app/components/Footer/Footer'
+import { SelectedDateProvider } from '@/app/contexts/SelectedDate'
 
 dayjs.extend(updateLocale)
 dayjs.updateLocale('en', {
@@ -88,18 +89,20 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         {uuid ? (
           <UserProvider uuid={uuid}>
             <CategoriesProvider>
-              {head}
-              <DndProvider backend={HTML5Backend}>
-                <Layout>
-                  <div className={styles.layout}>
-                    <HeaderNav />
-                    <Content className={styles.content}>
-                      <Component {...pageProps} />
-                    </Content>
-                    <Footer />
-                  </div>
-                </Layout>
-              </DndProvider>
+              <SelectedDateProvider>
+                {head}
+                <DndProvider backend={HTML5Backend}>
+                  <Layout>
+                    <div className={styles.layout}>
+                      <HeaderNav />
+                      <Content className={styles.content}>
+                        <Component {...pageProps} />
+                      </Content>
+                      <Footer />
+                    </div>
+                  </Layout>
+                </DndProvider>
+              </SelectedDateProvider>
             </CategoriesProvider>
           </UserProvider>
         ) : (
