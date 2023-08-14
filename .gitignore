@@ -6,3 +6,6 @@
 node_modules/
 npm-debug.log
 public/*.svg
+.env
+dbBackup.sh
+db_backup.sql
