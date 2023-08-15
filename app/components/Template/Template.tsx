@@ -6,7 +6,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import HeaderNav from '@/app/components/HeaderNav/HeaderNav'
 import { Footer } from '@/app/components/Footer/Footer'
-import { signIn, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 
 import styles from './template.module.scss'
@@ -73,10 +73,7 @@ export const Template = ({ children }: RootLayoutProps) => {
       {head}
       <Layout>
         <Content className={styles.centeredContent}>
-          <div>
-            You are not logged in! <br />
-            <button onClick={() => signIn()}>Sign in</button>
-          </div>
+          <Content className={styles.content}>{children}</Content>
         </Content>
       </Layout>
     </>
