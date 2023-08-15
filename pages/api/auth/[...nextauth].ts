@@ -14,7 +14,7 @@ export default NextAuth({
       clientSecret: process.env.GITHUB_SECRET as string,
     }),
     EmailProvider({
-      secret: process.env.NEXT_AUTH_SECRET,
+      secret: process.env.NEXTAUTH_SECRET,
       server: {
         host: process.env.SMTP_HOST,
         port: Number(process.env.SMTP_PORT),
@@ -27,11 +27,11 @@ export default NextAuth({
     }),
   ],
   adapter: PrismaAdapter(prisma),
-  secret: process.env.NEXT_AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    session: async ({ session, user }) => {
-      if (session?.user) {
-        session.user.id = user.id
+    session: async ({ session, token }) => {
+      if (session?.user && token.sub) {
+        session.user.id = token.sub
       }
       return session
     },

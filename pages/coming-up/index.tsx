@@ -3,7 +3,6 @@ import { Radio, Skeleton, Space, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Todo } from '@/app/components/TodoItem/types'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
-import { UserContext } from '@/app/contexts/User'
 
 import { Fireworks } from '@fireworks-js/react'
 import type { FireworksHandlers } from '@fireworks-js/react'
@@ -20,6 +19,7 @@ import { Quote } from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import dayjs from 'dayjs'
+import { useSession } from 'next-auth/react'
 
 export enum DateRangeType {
   WEEK = 'WEEK',
@@ -35,7 +35,7 @@ const titleStrings = {
 
 export const ComingUpPage = () => {
   const today = new Date()
-  const { user } = useContext(UserContext)
+  const { data: session } = useSession()
   const { categoryList } = useContext(CategoriesContext)
   const [currentDate] = useState<string>(today.toISOString().slice(0, 10))
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
@@ -67,7 +67,7 @@ export const ComingUpPage = () => {
     ['getFutureTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/future?user_id=${user.uuid}&${getDateRangeQuery()}`,
+        `/api/todos/future?user_id=${session?.user?.id}&${getDateRangeQuery()}`,
       ).then((res) => res.json()),
   )
   const ref = useRef<FireworksHandlers>(null)

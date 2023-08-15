@@ -1,8 +1,8 @@
-import React, { createContext, ReactNode, FC, useContext } from 'react'
+import React, { createContext, ReactNode, FC } from 'react'
 import { Category } from '@/app/components/CategoryFormModal/types'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Spin } from 'antd'
-import { UserContext } from '@/app/contexts/User'
+import { useSession } from 'next-auth/react'
 
 export interface CategoriesContextValues {
   categoryList: Category[]
@@ -21,22 +21,22 @@ const CategoriesContextInitialValues = {
 }
 
 export const CategoriesContext = createContext<CategoriesContextValues>(
-  CategoriesContextInitialValues
+  CategoriesContextInitialValues,
 )
 
 export const CategoriesProvider: FC<CategoriesContextProps> = ({
   children,
 }) => {
-  const { user } = useContext(UserContext)
+  const { data: session } = useSession()
   const { isLoading, error, data } = useQuery(
     ['getCategories'] as unknown as QueryKey,
     async () =>
-      await fetch(`/api/categories?user_id=${user?.uuid || ''}`).then((res) =>
-        res.json()
+      await fetch(`/api/categories?user_id=${session?.user?.id || ''}`).then(
+        (res) => res.json(),
       ),
     {
       initialData: [],
-    }
+    },
   )
 
   if (isLoading || !data) {

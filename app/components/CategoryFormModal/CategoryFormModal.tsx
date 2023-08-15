@@ -1,15 +1,15 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
 import { Category } from './types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EditOutlined, FolderAddOutlined } from '@ant-design/icons'
-import { UserContext } from '@/app/contexts/User'
 import {
   CategoryValidation,
   validateCategory,
 } from '@/app/components/CategoryFormModal/utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
+import { useSession } from 'next-auth/react'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',
@@ -29,13 +29,13 @@ export const CategoryFormModal = ({
   mode,
   category,
 }: CategoryFormModalProps) => {
-  const { user } = useContext(UserContext)
+  const { data: session } = useSession()
   const [name, setName] = useState<string>(category ? category.name : '')
   const [description, setDescription] = useState<string>(
-    category ? category.description : ''
+    category ? category.description : '',
   )
   const [color, setColor] = useState<string>(
-    category?.color ? category.color : '#d9d9d9'
+    category?.color ? category.color : '#d9d9d9',
   )
   const [validation, setValidation] = useState<CategoryValidation>({})
 
@@ -47,7 +47,7 @@ export const CategoryFormModal = ({
         name,
         description,
         color,
-        user_id: user.uuid,
+        user_id: session?.user?.id,
       } as Category),
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])

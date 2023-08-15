@@ -4,9 +4,8 @@ import { Dropdown, Menu, MenuProps, Space } from 'antd'
 import styles from './headerNav.module.scss'
 import Link from 'next/link'
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
-import { useQueryClient } from '@tanstack/react-query'
 import { GiGlassCelebration } from 'react-icons/gi'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 
 const menuItemList: MenuProps['items'] = [
   {
@@ -43,7 +42,6 @@ const menuKeysToRoutes = [
 ]
 
 export const HeaderNav = () => {
-  const queryClient = useQueryClient()
   const [isUserMenuCollapsed, setIsUserMenuCollapsed] = useState<boolean>(true)
   const { data: session } = useSession()
   const router = useRouter()
@@ -73,13 +71,8 @@ export const HeaderNav = () => {
                 items: [
                   {
                     label: (
-                      <div
-                        onClick={() => {
-                          queryClient.clear()
-                          router.push('./')
-                        }}
-                      >
-                        <LogoutOutlined /> Logout {session.user.email}
+                      <div onClick={() => signOut()}>
+                        <LogoutOutlined /> Logout {session?.user?.email}
                       </div>
                     ),
                     key: '1',

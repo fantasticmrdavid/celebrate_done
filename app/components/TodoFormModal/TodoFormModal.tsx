@@ -29,12 +29,12 @@ import {
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
-import { UserContext } from '@/app/contexts/User'
 import { getLocalStartOfDay } from '@/app/utils'
 
 import { TodoValidation, validateTodo } from './utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
+import { useSession } from 'next-auth/react'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -78,7 +78,7 @@ const priorityList = [
 const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
-  const { user } = useContext(UserContext)
+  const { data: session } = useSession()
   const { isOpen, onCancel, category: propsCategory, todo, mode } = props
   const [name, setName] = useState<string>(todo ? todo.name : '')
   const [startDate, setStartDate] = useState<string>(
@@ -109,9 +109,9 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const { data: suggestionList } = useQuery<Get_Suggestions_Response[]>(
     ['getTodoSuggestions'] as unknown as QueryKey,
     async () =>
-      await fetch(`/api/todos/getSuggestions?user_id=${user?.uuid || ''}`).then(
-        (res) => res.json(),
-      ),
+      await fetch(
+        `/api/todos/getSuggestions?user_id=${session?.user?.id || ''}`,
+      ).then((res) => res.json()),
     {
       initialData: [],
     },
@@ -134,7 +134,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         category,
         isRecurring,
         repeats,
-        user_id: user.uuid,
+        user_id: session?.user?.id,
       } as New_Todo),
     onMutate: async () => {
       const previousTodoList = queryClient.getQueryData([
@@ -154,7 +154,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             category,
             isRecurring,
             repeats,
-            user_id: user.uuid,
+            user_id: session?.user?.id,
             uuid: `temp_newID`,
           },
           ...previousTodoList.filter((t) => t.status === TODO_STATUS.DONE),
@@ -187,7 +187,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const saveTodo = useMutation({
     mutationFn: () =>
       axios.patch('/api/todos', {
-        user_id: user.uuid,
+        user_id: session?.user?.id,
         uuid: (todo as Todo).uuid,
         name,
         startDate,

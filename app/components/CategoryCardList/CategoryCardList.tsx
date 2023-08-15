@@ -13,7 +13,6 @@ import CategoryFormModal, {
 import { Category } from '@/app/components/CategoryFormModal/types'
 import { FolderAddOutlined } from '@ant-design/icons'
 import { CategoriesContext } from '@/app/contexts/Categories'
-import { UserContext } from '@/app/contexts/User'
 import styles from './categoryCardList.module.scss'
 import { dateIsoToSql } from '@/pages/api/utils'
 import {
@@ -31,6 +30,7 @@ import { CategoryCardSkeleton } from '@/app/components/CategoryCard/CategoryCard
 import { isMobile } from 'react-device-detect'
 import { EmptyCategoriesMessage } from '@/app/components/CategoryCardList/EmptyCategoriesMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
+import { useSession } from 'next-auth/react'
 
 const { Title } = Typography
 
@@ -53,7 +53,7 @@ const sortTodoList = (tList: Todo[]) => {
 
 export const CategoryCardList = () => {
   const queryClient = useQueryClient()
-  const { user } = useContext(UserContext)
+  const { data: session } = useSession()
   const { currentDate, setCurrentDate } = useContext(SelectedDateContext)
   const today = new Date()
 
@@ -77,7 +77,7 @@ export const CategoryCardList = () => {
     ['getTodos', currentDate] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos?user_id=${user?.uuid || ''}
+        `/api/todos?user_id=${session?.user?.id || ''}
         &localStartOfDay=${dateIsoToSql(getLocalStartOfDay(currentDate))}
         &localEndOfDay=${dateIsoToSql(getLocalEndOfDay(currentDate))}`,
       ).then((res) => res.json()),

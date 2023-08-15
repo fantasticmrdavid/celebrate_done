@@ -31,13 +31,13 @@ import axios from 'axios'
 import TodoFormModal, {
   TodoModal_Mode,
 } from '@/app/components/TodoFormModal/TodoFormModal'
-import { UserContext } from '@/app/contexts/User'
 import { useDrag, useDrop, XYCoord } from 'react-dnd'
 import { DRAGGABLE_TYPE } from '@/app/constants/constants'
 import { Identifier } from 'dnd-core'
 import { v4 as uuidv4 } from 'uuid'
 import { BsRepeat } from 'react-icons/bs'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
+import { useSession } from 'next-auth/react'
 
 type TodoProps = {
   todo: Todo
@@ -84,7 +84,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   const { todo, index, onDrag, onSort, onAddProgress, onComplete } = props
   const ref = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
-  const { user } = useContext(UserContext)
+  const { data: session } = useSession()
   const { currentDate } = useContext(SelectedDateContext)
   const [modal, modalContextHolder] = Modal.useModal()
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
@@ -202,7 +202,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       axios.post('/api/todos/progress', {
         name: todo.name,
         category: todo.category,
-        user_id: user.uuid,
+        user_id: session?.user?.id,
       }),
     onMutate: async () => {
       if (onAddProgress) {

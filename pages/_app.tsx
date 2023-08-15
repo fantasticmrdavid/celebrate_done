@@ -11,6 +11,7 @@ import '@fontsource/raleway'
 import '@fontsource/raleway/700.css'
 import { ConfigProvider } from 'antd'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Template } from '@/app/components/Template/Template'
 
 dayjs.extend(updateLocale)
 dayjs.updateLocale('en', {
@@ -32,7 +33,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             },
           }}
         >
-          <Component {...pageProps} />
+          <Template>
+            <Component {...pageProps} />
+          </Template>
         </ConfigProvider>
       </QueryClientProvider>
     </SessionProvider>

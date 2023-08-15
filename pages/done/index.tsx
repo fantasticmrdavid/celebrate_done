@@ -4,7 +4,6 @@ import { QueryKey, useQuery } from '@tanstack/react-query'
 import { TODO_SIZE } from '@/app/components/TodoItem/utils'
 import { DoneCount } from '@/app/components/DoneCount/DoneCount'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
-import { UserContext } from '@/app/contexts/User'
 
 import { Fireworks } from '@fireworks-js/react'
 import type { FireworksHandlers } from '@fireworks-js/react'
@@ -25,6 +24,7 @@ import quoteList from '@/app/data/quotes'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import Image from 'next/image'
 import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
+import { useSession } from 'next-auth/react'
 
 export enum DateRangeType {
   DAY = 'DAY',
@@ -48,7 +48,7 @@ const emptyTodoListGifList = [
 
 export const DonePage = () => {
   const today = new Date()
-  const { user } = useContext(UserContext)
+  const { data: session, status: sessionStatus } = useSession()
   const { categoryList } = useContext(CategoriesContext)
   const [currentDate] = useState<string>(
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
@@ -93,14 +93,14 @@ export const DonePage = () => {
     ['getDoneTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/done?user_id=${user.uuid}&${getDateRangeQuery()}`,
+        `/api/todos/done?user_id=${session?.user?.id}&${getDateRangeQuery()}`,
       ).then((res) => res.json()),
   )
   const ref = useRef<FireworksHandlers>(null)
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
-  const isReady = !isLoading && todoList
+  const isReady = !isLoading && sessionStatus === 'authenticated' && todoList
 
   return (
     <Space direction={'vertical'} align={'center'} style={{ width: '100%' }}>
