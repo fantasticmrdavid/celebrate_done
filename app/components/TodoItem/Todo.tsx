@@ -4,12 +4,12 @@ import {
   MenuProps,
   Modal,
   notification,
+  Space,
   Tag,
   Tooltip,
 } from 'antd'
 import classNames from 'classnames'
 import React, { memo, useContext, useEffect, useRef, useState } from 'react'
-import { Todo } from '@/app/components/TodoItem/types'
 import {
   TODO_PRIORITY,
   TODO_SIZE,
@@ -38,22 +38,24 @@ import { v4 as uuidv4 } from 'uuid'
 import { BsRepeat } from 'react-icons/bs'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 import { useSession } from 'next-auth/react'
+import { TodoWithRelationsNoCategory } from '@/pages/api/todos/getTodos'
+import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
+import ConfettiExplosion from 'react-confetti-explosion'
+import { Schedule, Todo } from '@prisma/client'
 
 type TodoProps = {
-  todo: Todo
+  todo: TodoWithRelationsNoCategory
+  schedule: Schedule | null
   index: number
+  category: CategoryWithRelations
   onDrag: (dragIndex: number, hoverIndex: number) => void
   onSort?: () => void
   onAddProgress?: (t: Todo) => Promise<{ previousTodoList: unknown }>
-  onComplete?: (
-    t: Todo,
-    status: TODO_STATUS,
-  ) => Promise<{ previousTodoList: unknown }>
 }
 
 type Update_Todo_Params = {
   action: string
-  uuid: string
+  id: string
   status?: TODO_STATUS
   completedDateTime?: string | undefined
   priority?: TODO_PRIORITY
@@ -81,7 +83,8 @@ type DragItem = {
 }
 
 export const UnmemoizedTodoItem = (props: TodoProps) => {
-  const { todo, index, onDrag, onSort, onAddProgress, onComplete } = props
+  const { todo, category, schedule, index, onDrag, onSort, onAddProgress } =
+    props
   const ref = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const { data: session } = useSession()
@@ -94,6 +97,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   const [shouldAnimateFadeOut, setShouldAnimateFadeOut] =
     useState<boolean>(false)
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
+  const [isExploding, setIsExploding] = useState<boolean>(false)
 
   const [{ handlerId }, drop] = useDrop<
     DragItem,
@@ -175,15 +179,49 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     mutationFn: (req: Update_Todo_Params) =>
       axios.patch('/api/todos', {
         action: req.action,
-        uuid: req.uuid,
+        id: req.id,
         status: req.status,
         completedDateTime: req.completedDateTime,
         priority: req.priority,
       }),
     onMutate: async (updateTodoParams) => {
       const { status, action } = updateTodoParams
-      if (action === 'complete' && onComplete) {
-        onComplete(todo, status || TODO_STATUS.INCOMPLETE)
+      if (action === 'complete') {
+        await queryClient.cancelQueries(['getCategories', currentDate])
+
+        const previousCategoriesList = queryClient.getQueryData([
+          'getCategories',
+          currentDate,
+        ]) as CategoryWithRelations[]
+
+        const updatedCategoriesList = previousCategoriesList.map((c) =>
+          c.id === category.id
+            ? {
+                ...c,
+                todos: c.todos.map((t) =>
+                  t.id === todo.id
+                    ? {
+                        ...t,
+                        status: status || TODO_STATUS.INCOMPLETE,
+                      }
+                    : t,
+                ),
+              }
+            : c,
+        )
+
+        queryClient.setQueryData(
+          ['getCategories', currentDate],
+          updatedCategoriesList,
+        )
+
+        if (status === TODO_STATUS.DONE) {
+          setIsExploding(true)
+          setTimeout(() => {
+            setIsExploding(false)
+          }, 3000)
+        }
+        return { previousCategoriesList }
       }
     },
     onError: (e) => {
@@ -191,7 +229,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ['getTodos', currentDate],
+        queryKey: ['getCategories', currentDate],
       })
       queryClient.invalidateQueries(['generateScheduledTodos'])
     },
@@ -201,23 +239,24 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     mutationFn: () =>
       axios.post('/api/todos/progress', {
         name: todo.name,
-        category: todo.category,
-        user_id: session?.user?.id,
+        category: category,
+        userId: session?.user?.id,
       }),
     onMutate: async () => {
       if (onAddProgress) {
         onAddProgress({
-          uuid: uuidv4(),
-          created: new Date().toISOString(),
-          startDate: new Date().toISOString(),
-          completedDateTime: new Date().toISOString(),
+          id: uuidv4(),
+          userId: todo.userId,
+          categoryId: category.id,
+          scheduleId: null,
+          created: new Date(),
+          startDate: new Date(),
+          completedDateTime: new Date(),
           name: `Chipped away at ${todo.name.trim()}`,
           notes: `I made progress on ${todo.name.trim()} today`,
-          category: todo.category,
           size: TODO_SIZE.SMALL,
           priority: TODO_PRIORITY.NORMAL,
           sortOrder: 999,
-          isRecurring: false,
           status: TODO_STATUS.DONE,
         })
       }
@@ -227,22 +266,29 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['getTodos'],
+        queryKey: ['getCategories', currentDate],
       })
     },
   })
 
   const deleteTodo = useMutation({
-    mutationFn: () => axios.delete(`/api/todos/${todo.uuid}`),
+    mutationFn: () => axios.delete(`/api/todos/${todo.id}`),
     onMutate: async () => {
-      await queryClient.cancelQueries(['getTodos', currentDate])
-      const previousTodoList: Todo[] =
-        queryClient.getQueryData(['getTodos', currentDate]) || []
+      await queryClient.cancelQueries(['getCategories', currentDate])
+      const previousCategoriesList: CategoryWithRelations[] =
+        queryClient.getQueryData(['getCategories', currentDate]) || []
       queryClient.setQueryData(
-        ['getTodos', currentDate],
-        previousTodoList.filter((t) => t.uuid !== todo.uuid),
+        ['getCategories', currentDate],
+        previousCategoriesList.map((c) =>
+          c.id === category.id
+            ? {
+                ...c,
+                todos: c.todos.filter((t) => t.id !== todo.id),
+              }
+            : c,
+        ),
       )
-      return { previousTodoList }
+      return { previousCategoriesList }
     },
     onSuccess: () => {
       notification.success({
@@ -256,7 +302,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['getTodos'] })
+      queryClient.invalidateQueries({ queryKey: ['getCategories'] })
     },
   })
 
@@ -264,7 +310,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     const shouldMarkCompleted = todo.status !== TODO_STATUS.DONE
     updateTodo.mutate({
       action: 'complete',
-      uuid: todo.uuid,
+      id: todo.id,
       status: shouldMarkCompleted ? TODO_STATUS.DONE : TODO_STATUS.INCOMPLETE,
       completedDateTime: shouldMarkCompleted
         ? new Date().toISOString()
@@ -275,8 +321,11 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   const togglePriority = () => {
     updateTodo.mutate({
       action: 'togglePriority',
-      uuid: todo.uuid,
-      priority: todo.priority,
+      id: todo.id,
+      priority:
+        todo.priority == TODO_PRIORITY.URGENT
+          ? TODO_PRIORITY.NORMAL
+          : TODO_PRIORITY.URGENT,
     })
   }
 
@@ -366,8 +415,8 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
             <FileTextOutlined />
           </Tooltip>
         )}
-        {todo.isRecurring && (
-          <Tooltip title={`Repeats ${todo.repeats?.toLowerCase()}`}>
+        {schedule && (
+          <Tooltip title={`Repeats ${schedule.unit?.toLowerCase()}`}>
             <BsRepeat />
           </Tooltip>
         )}
@@ -390,7 +439,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     >
       <div className={labelClassNames}>
         <Checkbox
-          disabled={todo.uuid === 'temp_newID'}
+          disabled={todo.id === 'temp_newID'}
           checked={isDone}
           onChange={() => {
             setShouldAnimateFadeOut(true)
@@ -406,7 +455,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       </div>
       {!updateTodo.isLoading && (
         <div className={styles.actions}>
-          {todo.uuid === 'temp_newID' || updateTodo.isLoading ? (
+          {todo.id === 'temp_newID' || updateTodo.isLoading ? (
             <LoadingOutlined />
           ) : (
             <Dropdown
@@ -427,10 +476,26 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
             setIsTodoModalOpen(false)
           }}
           mode={TodoModal_Mode.EDIT}
+          category={category}
           todo={todo}
+          schedule={schedule}
         />
       )}
       {modalContextHolder}
+      <Space
+        style={{
+          position: 'absolute',
+          width: '100%',
+          top: '10%',
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+        }}
+      >
+        {isExploding && (
+          <ConfettiExplosion duration={3000} particleCount={100} width={1600} />
+        )}
+      </Space>
     </div>
   )
 }

@@ -14,6 +14,7 @@ import { dateIsoToSql } from '@/pages/api/utils'
 
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import prisma from '@/app/lib/prisma'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -57,6 +58,18 @@ export const generateScheduledTodos = async (
         repeatDayUnitsToSqlUnits[r.unit as TODO_REPEAT_FREQUENCY].unit,
       )
   }
+
+  const results = await prisma.schedules.findMany({
+    where: {
+      userId: {
+        equals: user_id,
+      },
+    },
+    orderBy: {
+      sortOrder: 'desc',
+      name: 'asc',
+    },
+  })
 
   try {
     const query = `

@@ -47,7 +47,7 @@ export const CategoryFormModal = ({
         name,
         description,
         color,
-        user_id: session?.user?.id,
+        userId: session?.user?.id,
       } as Category),
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
@@ -73,7 +73,7 @@ export const CategoryFormModal = ({
   const saveCategory = useMutation({
     mutationFn: () =>
       axios.patch('/api/categories', {
-        uuid: (category as Category).uuid,
+        id: (category as Category).id,
         name,
         description,
         color,

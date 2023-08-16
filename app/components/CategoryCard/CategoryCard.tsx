@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { Todo } from '@/app/components/TodoItem/types'
 import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import {
   Button,
@@ -23,7 +22,6 @@ import {
   ArrowDownOutlined,
 } from '@ant-design/icons'
 import { TodoItem } from '@/app/components/TodoItem/Todo'
-import { Category } from '@/app/components/CategoryFormModal/types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { CategoriesContext } from '@/app/contexts/Categories'
@@ -31,21 +29,22 @@ import { arrayMoveImmutable } from 'array-move'
 import update from 'immutability-helper'
 import { EmptyCategoryMessage } from './EmptyCategoryMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
+import {
+  TodoWithRelations,
+  TodoWithRelationsNoCategory,
+} from '@/pages/api/todos/getTodos'
+import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
+import { Todo } from '@prisma/client'
+import { getSortedTodoList } from '@/pages/api/utils'
 
 const { Title } = Typography
 
 type Props = {
   isFirst: boolean
   isLast: boolean
-  category: Category
-  todoList: Todo[]
+  category: CategoryWithRelations
   onAddTaskClick: () => void
   onEditCategoryClick: () => void
-  onAdd: (t: Todo) => Promise<{ previousTodoList: unknown }>
-  onComplete: (
-    t: Todo,
-    status: TODO_STATUS,
-  ) => Promise<{ previousTodoList: unknown }>
 }
 
 type SortParams = {
@@ -55,27 +54,50 @@ type SortParams = {
 export const UnMemoizedCategoryCard = ({
   isFirst,
   isLast,
-  todoList,
   category,
   onAddTaskClick,
   onEditCategoryClick,
-  onAdd,
-  onComplete,
 }: Props) => {
   const queryClient = useQueryClient()
   const { categoryList } = useContext(CategoriesContext)
 
-  const [localTodoList, setLocalTodoList] = useState<Todo[]>(todoList)
+  const [localTodoList, setLocalTodoList] = useState<
+    TodoWithRelationsNoCategory[]
+  >(category.todos)
   const [isExpanded, setIsExpanded] = useState(true)
   const { currentDate } = useContext(SelectedDateContext)
 
   useEffect(() => {
-    setLocalTodoList(todoList)
-  }, [todoList])
+    setLocalTodoList(category.todos)
+  }, [category.todos])
+
+  const optimisticUpdateTodoList = async (t: Todo) => {
+    const newTodoList = getSortedTodoList([...localTodoList, t])
+    await queryClient.cancelQueries(['getCategories', currentDate])
+    const previousCategoriesList = queryClient.getQueryData([
+      'getCategories',
+      currentDate,
+    ]) as CategoryWithRelations[]
+
+    const updatedCategoriesList = previousCategoriesList.map((c) =>
+      c.id === category?.id
+        ? {
+            ...c,
+            todos: newTodoList,
+          }
+        : c,
+    )
+
+    queryClient.setQueryData(
+      ['getCategories', currentDate],
+      updatedCategoriesList,
+    )
+    return { previousCategoriesList }
+  }
 
   const getSortedCategories = (newPosition: number) => {
     const currentCategoryIndex = categoryList.findIndex(
-      (c) => c.uuid === category.uuid,
+      (c) => c.id === category.id,
     )
     return arrayMoveImmutable(categoryList, currentCategoryIndex, newPosition)
   }
@@ -105,11 +127,11 @@ export const UnMemoizedCategoryCard = ({
       const previousTodoList = queryClient.getQueryData([
         'getTodos',
         currentDate,
-      ]) as Todo[]
+      ]) as TodoWithRelations[]
       queryClient.setQueryData(
         ['getTodos', currentDate],
         [
-          ...previousTodoList.filter((t) => t.category.uuid !== category.uuid),
+          ...previousTodoList.filter((t) => t.categoryId !== category.id),
           ...localTodoList,
         ],
       )
@@ -152,21 +174,21 @@ export const UnMemoizedCategoryCard = ({
     },
   })
 
-  const doneCount = todoList.filter((t) => t.status === TODO_STATUS.DONE)
+  const doneCount = category.todos.filter((t) => t.status === TODO_STATUS.DONE)
     ?.length
 
   return (
     <Collapse
       style={{ backgroundColor: category.color || undefined }}
-      defaultActiveKey={[category.uuid]}
-      key={`category_${category.uuid}`}
+      defaultActiveKey={[category.id]}
+      key={`category_${category.id}`}
       collapsible="icon"
       expandIconPosition={'end'}
       size={'small'}
-      onChange={(uuidList) => setIsExpanded(uuidList.includes(category.uuid))}
+      onChange={(uuidList) => setIsExpanded(uuidList.includes(category.id))}
       items={[
         {
-          key: category.uuid,
+          key: category.id,
           label: (
             <Space
               direction={'vertical'}
@@ -183,7 +205,7 @@ export const UnMemoizedCategoryCard = ({
               >
                 <div className={styles.categoryCardTitle}>
                   {category.name}
-                  {!isExpanded && ` (${todoList.length})`}
+                  {!isExpanded && ` (${category.todos.length})`}
                   <div
                     className={styles.categoryCardDoneCount}
                     style={{
@@ -250,15 +272,16 @@ export const UnMemoizedCategoryCard = ({
           ),
           children:
             localTodoList.length > 0 ? (
-              localTodoList.map((t: Todo, i) => (
+              localTodoList.map((t: TodoWithRelationsNoCategory, i) => (
                 <TodoItem
-                  key={`todo_${t.uuid}`}
+                  key={`todo_${t.id}`}
                   todo={t}
+                  category={category}
+                  schedule={t.schedule}
                   index={i}
                   onDrag={updateSortedTodoList}
                   onSort={sortTodoList.mutate}
-                  onAddProgress={onAdd}
-                  onComplete={onComplete}
+                  onAddProgress={optimisticUpdateTodoList}
                 />
               ))
             ) : (

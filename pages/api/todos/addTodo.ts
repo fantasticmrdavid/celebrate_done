@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { TODO_STATUS } from '@/app/components/TodoItem/utils'
-import { dbConnect } from '@/config/dbConnect'
-import { v4 as uuidv4 } from 'uuid'
-import { dateIsoToSql } from '@/pages/api/utils'
+import prisma from '@/app/lib/prisma'
+import { getLocalStartOfDay } from '@/app/utils'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -13,55 +12,44 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
       size,
       category,
       startDate,
-      user_id,
+      userId,
       isRecurring,
       repeats,
     } = req.body
-    const createdDateTime = dateIsoToSql(new Date().toISOString())
-    const new_uuid = uuidv4()
-    const insertTodoQuery = `INSERT into todos
-            VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, null, 999)`
-    const repeatQuery = isRecurring
-      ? `
-		INSERT INTO schedules
-		VALUES (null, ?, ?, ?, 1, ?)`
-      : null
 
-    const todoResult = await dbConnect
-      .transaction()
-      .query({
-        sql: insertTodoQuery,
-        values: [
-          new_uuid,
-          createdDateTime,
-          dateIsoToSql(startDate),
-          name.trim(),
-          notes.trim(),
-          size,
-          priority,
-          TODO_STATUS.INCOMPLETE,
-        ],
-      })
-      .query((r: { affectedRows: number; insertId: number }) => {
-        if (r.affectedRows === 1) {
-          return [
-            `INSERT into todos_to_categories
-                VALUES(null, ?, ?, ?)`,
-            [category.uuid, user_id, new_uuid],
-          ]
-        } else {
-          return null
-        }
-      })
-      .query(() =>
-        repeatQuery
-          ? [repeatQuery, [user_id, new_uuid, name.trim(), repeats]]
-          : null,
-      )
-      .rollback((e: Error) => console.error(e))
-      .commit()
-    const result = todoResult
-    await dbConnect.end()
+    const result = await prisma.todo.create({
+      data: {
+        name,
+        notes,
+        priority,
+        size,
+        startDate: getLocalStartOfDay(startDate),
+        status: TODO_STATUS.INCOMPLETE,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+        category: {
+          connect: {
+            id: category.id,
+          },
+        },
+        schedule: isRecurring
+          ? {
+              create: {
+                unit: repeats,
+                user: {
+                  connect: {
+                    id: userId,
+                  },
+                },
+              },
+            }
+          : undefined,
+      },
+    })
+
     return res.status(200).json(result)
   } catch (error) {
     console.log('SQL ERROR: ', error)

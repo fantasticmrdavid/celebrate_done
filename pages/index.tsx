@@ -14,7 +14,7 @@ const IndexPage = () => {
   return (
     <>
       <TodosPage />
-      <ScheduledTodoGenerator />
+      {/*<ScheduledTodoGenerator />*/}
     </>
   )
 }

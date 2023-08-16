@@ -10,7 +10,6 @@ datasource db {
 
 model Category {
   id          String  @id @default(cuid())
-  uuid        String  @db.VarChar(255)
   userId      String  @db.VarChar(255)
   name        String  @db.VarChar(255)
   description String  @db.Text
@@ -26,11 +25,11 @@ model Schedule {
   id     String @id @default(cuid())
   userId String @db.VarChar(255)
   todoId String @unique @db.VarChar(255)
-  name   String @db.VarChar(255)
   count  Int    @default(1) @db.SmallInt
   unit   String @db.VarChar(255)
 
   todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, todoId])
 }
@@ -39,6 +38,7 @@ model Todo {
   id                String    @id @default(cuid())
   categoryId        String
   userId            String
+  scheduleId        String?
   created           DateTime  @default(now()) @db.Timestamp(6)
   startDate         DateTime  @default(now()) @db.DateTime(0)
   name              String    @db.VarChar(255)
@@ -64,6 +64,7 @@ model User {
   sessions      Session[]
   categories    Category[]
   todos         Todo[]
+  schedules     Schedule[]
 }
 
 model Account {

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { dbConnect } from '@/config/dbConnect'
+import prisma from '@/app/lib/prisma'
 
 type Data = {
   name: string
@@ -14,23 +14,12 @@ export const deleteTodo = async (req: NextApiRequest, res: NextApiResponse) => {
       .json({ message: 'Error: Invalid or no ID defined for deletion.' })
 
   try {
-    const deleteTodoResult = await dbConnect
-      .transaction()
-      .query({
-        sql: `DELETE t, tc
-        FROM todos t
-        JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
-        WHERE t.uuid=?`,
-        values: [id],
-      })
-      .query({
-        sql: `DELETE FROM schedules WHERE todo_id=?`,
-        values: [id],
-      })
-      .rollback((e: Error) => console.error(e))
-      .commit()
-    await dbConnect.end()
-    return res.status(200).json(deleteTodoResult)
+    const result = await prisma.todo.delete({
+      where: {
+        id: id as string,
+      },
+    })
+    return res.status(200).json(result)
   } catch (error) {
     console.error('SQL ERROR: ', error)
     return res.status(500).json({ error })

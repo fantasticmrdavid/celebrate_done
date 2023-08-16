@@ -51,8 +51,8 @@ export const Template = ({ children }: RootLayoutProps) => {
 
   if (session && session.user) {
     return (
-      <CategoriesProvider>
-        <SelectedDateProvider>
+      <SelectedDateProvider>
+        <CategoriesProvider>
           {head}
           <DndProvider backend={HTML5Backend}>
             <Layout>
@@ -63,8 +63,8 @@ export const Template = ({ children }: RootLayoutProps) => {
               </div>
             </Layout>
           </DndProvider>
-        </SelectedDateProvider>
-      </CategoriesProvider>
+        </CategoriesProvider>
+      </SelectedDateProvider>
     )
   }
 

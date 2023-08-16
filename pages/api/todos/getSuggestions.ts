@@ -1,25 +1,36 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/config/dbConnect'
-
-export type Get_Suggestions_Response = {
-  name: string
-  count: number
-}
+import prisma from '@/app/lib/prisma'
 
 export const getSuggestions = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { user_id } = req.query
-  if (!user_id || user_id.length === 0) return {}
+  const { userId } = req.query
+  if (!userId || userId.length === 0) return {}
   try {
-    const query = `SELECT DISTINCT t.name
-        FROM todos t
-        LEFT JOIN todos_to_categories tc ON tc.todo_uuid = t.uuid
-        WHERE tc.user_id = ?`
-    const results = await dbConnect.query({ sql: query, values: [user_id] })
+    const results = await prisma.todo.findMany({
+      select: {
+        name: true,
+      },
+      where: {
+        AND: [
+          {
+            userId: {
+              equals: userId as string,
+            },
+          },
+        ],
+      },
+      orderBy: [
+        {
+          sortOrder: 'asc',
+        },
+        { name: 'asc' },
+      ],
+    })
     await dbConnect.end()
-    return res.status(200).json(results as Get_Suggestions_Response[])
+    return res.status(200).json(results)
   } catch (error) {
     return res.status(500).json({ error })
   }

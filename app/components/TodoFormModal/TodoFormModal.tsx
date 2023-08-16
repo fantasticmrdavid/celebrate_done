@@ -11,7 +11,6 @@ import {
   Space,
 } from 'antd'
 import axios from 'axios'
-import { Category } from '@/app/components/CategoryFormModal/types'
 import {
   QueryKey,
   useMutation,
@@ -19,7 +18,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { New_Todo, Todo } from '@/app/components/TodoItem/types'
+import { New_Todo } from '@/app/components/TodoItem/types'
 import {
   TODO_PRIORITY,
   TODO_REPEAT_FREQUENCY,
@@ -28,20 +27,23 @@ import {
 } from '@/app/components/TodoItem/utils'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
-import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
 import { getLocalStartOfDay } from '@/app/utils'
 
 import { TodoValidation, validateTodo } from './utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 import { useSession } from 'next-auth/react'
+import { TodoWithRelationsNoCategory } from '@/pages/api/todos/getTodos'
+import { Category, Schedule } from '@prisma/client'
+import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 
 type TodoFormModalProps = {
   isOpen: boolean
   onCancel?: () => void
   category?: Category
+  schedule?: Schedule | null
   mode: TodoModal_Mode
-  todo?: Todo
+  todo?: TodoWithRelationsNoCategory
 }
 
 export enum TodoModal_Mode {
@@ -79,38 +81,41 @@ const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const { data: session } = useSession()
-  const { isOpen, onCancel, category: propsCategory, todo, mode } = props
+  const {
+    isOpen,
+    onCancel,
+    category: propsCategory,
+    todo,
+    schedule,
+    mode,
+  } = props
   const [name, setName] = useState<string>(todo ? todo.name : '')
   const [startDate, setStartDate] = useState<string>(
     todo
       ? dayjs(new Date(todo.startDate)).startOf('day').toISOString()
       : dayjs(new Date()).startOf('day').toISOString(),
   )
-  const [notes, setNotes] = useState<string>(todo ? todo.notes : '')
+  const [notes, setNotes] = useState<string | null>(todo ? todo.notes : '')
   const [size, setSize] = useState<TODO_SIZE>(
     todo ? todo.size : TODO_SIZE.SMALL,
   )
   const [priority, setPriority] = useState<TODO_PRIORITY>(
     todo ? todo.priority : TODO_PRIORITY.NORMAL,
   )
-  const [category, setCategory] = useState<Category | undefined>(
-    todo ? todo.category : propsCategory,
-  )
+  const [category, setCategory] = useState<Category | undefined>(propsCategory)
 
-  const [isRecurring, setIsRecurring] = useState(
-    todo ? todo.isRecurring : false,
-  )
+  const [isRecurring, setIsRecurring] = useState(!!schedule || false)
   const [repeats, setRepeats] = useState(
-    todo && todo.isRecurring ? todo.repeats : TODO_REPEAT_FREQUENCY.DAILY,
+    todo && todo.schedule ? todo.schedule.unit : TODO_REPEAT_FREQUENCY.DAILY,
   )
 
   const [validation, setValidation] = useState<TodoValidation>({})
 
-  const { data: suggestionList } = useQuery<Get_Suggestions_Response[]>(
+  const { data: suggestionList } = useQuery(
     ['getTodoSuggestions'] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/getSuggestions?user_id=${session?.user?.id || ''}`,
+        `/api/todos/getSuggestions?userId=${session?.user?.id || ''}`,
       ).then((res) => res.json()),
     {
       initialData: [],
@@ -134,37 +139,47 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         category,
         isRecurring,
         repeats,
-        user_id: session?.user?.id,
+        userId: session?.user?.id,
       } as New_Todo),
     onMutate: async () => {
-      const previousTodoList = queryClient.getQueryData([
-        'getTodos',
+      const previousCategoriesList = queryClient.getQueryData([
+        'getCategories',
         currentDate,
-      ]) as Todo[]
+      ]) as CategoryWithRelations[]
+
+      const updatedCategoriesList = previousCategoriesList.map((c) =>
+        c.id === category?.id
+          ? {
+              ...c,
+              todos: [
+                ...c.todos.filter((t) => t.status !== TODO_STATUS.DONE),
+                {
+                  name,
+                  startDate,
+                  notes,
+                  size,
+                  priority,
+                  category,
+                  isRecurring,
+                  repeats,
+                  userId: session?.user?.id,
+                  uuid: `temp_newID`,
+                },
+                ...c.todos.filter((t) => t.status === TODO_STATUS.DONE),
+              ],
+            }
+          : c,
+      )
+
       queryClient.setQueryData(
-        ['getTodos', currentDate],
-        [
-          ...previousTodoList.filter((t) => t.status !== TODO_STATUS.DONE),
-          {
-            name,
-            startDate,
-            notes,
-            size,
-            priority,
-            category,
-            isRecurring,
-            repeats,
-            user_id: session?.user?.id,
-            uuid: `temp_newID`,
-          },
-          ...previousTodoList.filter((t) => t.status === TODO_STATUS.DONE),
-        ],
+        ['getCategories', currentDate],
+        updatedCategoriesList,
       )
       if (onCancel) onCancel()
-      return { previousTodoList }
+      return { previousCategoriesList }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['getTodos'])
+      queryClient.invalidateQueries(['getCategories'])
       queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
         message: (
@@ -179,7 +194,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
-        message: <>Error adding todo. Check console for details.</>,
+        message: <>Error adding Todo. Check console for details.</>,
       })
     },
   })
@@ -187,8 +202,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const saveTodo = useMutation({
     mutationFn: () =>
       axios.patch('/api/todos', {
-        user_id: session?.user?.id,
-        uuid: (todo as Todo).uuid,
+        id: todo?.id,
+        userId: session?.user?.id,
         name,
         startDate,
         notes,
@@ -200,32 +215,42 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         action: 'update',
       }),
     onMutate: async () => {
-      const previousTodoList = queryClient.getQueryData([
-        'getTodos',
+      const previousCategoriesList = queryClient.getQueryData([
+        'getCategories',
         currentDate,
-      ]) as Todo[]
+      ]) as CategoryWithRelations[]
+      const updatedCategoriesList = previousCategoriesList.map((c) =>
+        c.id === category?.id
+          ? {
+              ...c,
+              todos: c.todos.map((t) =>
+                t.id === todo?.id
+                  ? {
+                      ...t,
+                      name,
+                      startDate,
+                      notes,
+                      size,
+                      priority,
+                      schedule: repeats
+                        ? {
+                            count: 1,
+                            unit: repeats,
+                          }
+                        : undefined,
+                    }
+                  : t,
+              ),
+            }
+          : c,
+      )
+
       queryClient.setQueryData(
-        ['getTodos', currentDate],
-        [
-          ...previousTodoList.map((t) =>
-            t.uuid === (todo as Todo).uuid
-              ? {
-                  ...todo,
-                  name,
-                  startDate,
-                  notes,
-                  size,
-                  priority,
-                  category,
-                  isRecurring,
-                  repeats,
-                }
-              : t,
-          ),
-        ],
+        ['getCategories', currentDate],
+        updatedCategoriesList,
       )
       if (onCancel) onCancel()
-      return { previousTodoList }
+      return { previousCategoriesList }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
@@ -290,7 +315,9 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       <Space style={{ padding: '1em', width: '100%' }} direction={'vertical'}>
         <Form.Item label={'Name'}>
           <AutoComplete
-            options={suggestionList.map((s) => ({ value: s.name }))}
+            options={suggestionList.map((s: { name: string }) => ({
+              value: s.name,
+            }))}
             filterOption={(inputValue, option) => {
               return (
                 (option?.value as string)
@@ -325,10 +352,10 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         </Form.Item>
         <Form.Item label={'Category'}>
           <Select
-            defaultValue={isFetchingCategories ? undefined : category?.uuid}
+            defaultValue={isFetchingCategories ? undefined : category?.id}
             disabled={isFetchingCategories}
             onChange={(value) =>
-              setCategory(categoryList.find((c) => c.uuid === value))
+              setCategory(categoryList.find((c) => c.id === value))
             }
             placeholder={
               isFetchingCategories
@@ -338,7 +365,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             allowClear={false}
           >
             {categoryList.map((c) => (
-              <Option key={`category_${c.uuid}`} value={c.uuid}>
+              <Option key={`category_${c.id}`} value={c.id}>
                 {c.name}
               </Option>
             ))}
@@ -400,7 +427,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         <Form.Item label={'Notes'}>
           <Input.TextArea
             placeholder={'Add any notes (optional)'}
-            value={notes}
+            value={notes || ''}
             onChange={(e) => setNotes(e.target.value)}
           />
         </Form.Item>
