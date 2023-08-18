@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
-import { Category } from './types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EditOutlined, FolderAddOutlined } from '@ant-design/icons'
 import {
@@ -10,6 +9,7 @@ import {
 } from '@/app/components/CategoryFormModal/utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 import { useSession } from 'next-auth/react'
+import { Category } from '@prisma/client'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',

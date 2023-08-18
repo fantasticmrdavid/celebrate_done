@@ -2,10 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import prisma from '@/app/lib/prisma'
 
-export type DoneTodoCount = {
-  count: number
-}
-
 export const getDoneTodosCount = async (
   req: NextApiRequest,
   res: NextApiResponse,

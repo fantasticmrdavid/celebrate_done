@@ -66,6 +66,7 @@ export const getCategories = async (
           include: {
             schedule: true,
           },
+          orderBy: [{ sortOrder: 'asc' }],
         },
       },
       where: {
@@ -73,7 +74,7 @@ export const getCategories = async (
           equals: userId as string,
         },
       },
-      orderBy: [{ sortOrder: 'desc' }, { name: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
     })
     return res.status(200).json(results)
   } catch (error) {

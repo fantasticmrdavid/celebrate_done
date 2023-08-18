@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import prisma from '@/app/lib/prisma'
 import dayjs from 'dayjs'
+import { TodoWithRelations } from '@/pages/api/todos/getTodos'
 
 export const updateTodos = async (
   req: NextApiRequest,
@@ -40,33 +41,23 @@ export const updateTodos = async (
         result = await prisma.todo.update(updatePriorityQuery)
         break
       }
-      // case 'updateSortOrder': {
-      //   const { category, todoList } = req.body
-      //   updateTodoQuery = {
-      //     sql: `UPDATE todos
-      //        SET
-      //         sortOrder=(CASE uuid
-      //             ${todoList.map(() => `WHEN ? THEN ? `).join(' ')}
-      //         END)
-      //         WHERE uuid IN (${todoList.map(() => '?').join(',')})`,
-      //     values: [
-      //       ...todoList.flatMap((t: Todo, i: number) => [t.uuid, i]),
-      //       ...todoList.map((t: Todo) => t.uuid),
-      //     ],
-      //   }
-      //
-      //   updateTodoQuery = {
-      //     where: {
-      //       categoryId: category.id,
-      //     },
-      //     data: {
-      //       completedDateTime:
-      //         status === TODO_STATUS.DONE ? completedDateTime : null,
-      //       status: status,
-      //     },
-      //   }
-      //   break
-      // }
+      case 'updateSortOrder': {
+        const { todoList } = req.body
+
+        result = await prisma.$transaction(
+          todoList.map((t: TodoWithRelations, i: number) =>
+            prisma.todo.update({
+              data: {
+                sortOrder: i,
+              },
+              where: {
+                id: t.id,
+              },
+            }),
+          ),
+        )
+        break
+      }
       case 'update': {
         const {
           id,

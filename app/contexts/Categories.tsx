@@ -56,8 +56,6 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
     )
   }
 
-  console.log('CATEGORIES: ', data)
-
   return (
     <CategoriesContext.Provider
       value={{

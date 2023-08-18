@@ -50,7 +50,7 @@ type TodoProps = {
   category: CategoryWithRelations
   onDrag: (dragIndex: number, hoverIndex: number) => void
   onSort?: () => void
-  onAddProgress?: (t: Todo) => Promise<{ previousTodoList: unknown }>
+  onAddProgress?: (t: Todo) => Promise<{ previousCategoriesList: unknown }>
 }
 
 type Update_Todo_Params = {

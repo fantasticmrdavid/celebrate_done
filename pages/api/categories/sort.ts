@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { dbConnect } from '@/config/dbConnect'
-import { Category } from '@/app/components/CategoryFormModal/types'
+import prisma from '@/app/lib/prisma'
+import { Category } from '@prisma/client'
 
 export const sortCategories = async (
   req: NextApiRequest,
@@ -8,24 +8,19 @@ export const sortCategories = async (
 ) => {
   try {
     const { categoryList } = req.body
-    const updateCategoriesQuery = `UPDATE categories
-            SET
-            sortOrder=(CASE uuid 
-                ${categoryList.map(() => `WHEN ? THEN ? `).join(' ')}
-            END)
-            WHERE uuid IN (${categoryList.map(() => '?').join(',')})`
-    const result = await dbConnect
-      .transaction()
-      .query({
-        sql: updateCategoriesQuery,
-        values: [
-          ...categoryList.flatMap((c: Category, i: number) => [c.uuid, i]),
-          ...categoryList.map((c: Category) => c.uuid),
-        ],
-      })
-      .rollback((e: Error) => console.error(e))
-      .commit()
-    await dbConnect.end()
+
+    const result = prisma.$transaction(
+      categoryList.map((c: Category) =>
+        prisma.category.update({
+          data: {
+            sortOrder: c.sortOrder,
+          },
+          where: {
+            id: c.id,
+          },
+        }),
+      ),
+    )
     return res.status(200).json(result)
   } catch (error) {
     console.log('SQL ERROR: ', error)

@@ -17,8 +17,6 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
       repeats,
     } = req.body
 
-    console.log('LOCAL START DATE: ', getLocalStartOfDay(startDate))
-
     const result = await prisma.todo.create({
       data: {
         name,

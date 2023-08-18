@@ -1,10 +1,4 @@
-import React, {
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import {
   Button,
@@ -26,7 +20,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { arrayMoveImmutable } from 'array-move'
-import update from 'immutability-helper'
 import { EmptyCategoryMessage } from './EmptyCategoryMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 import {
@@ -51,7 +44,7 @@ type SortParams = {
   newPosition: number
 }
 
-export const UnMemoizedCategoryCard = ({
+export const CategoryCard = ({
   isFirst,
   isLast,
   category,
@@ -95,25 +88,16 @@ export const UnMemoizedCategoryCard = ({
     return { previousCategoriesList }
   }
 
-  const getSortedCategories = (newPosition: number) => {
-    const currentCategoryIndex = categoryList.findIndex(
-      (c) => c.id === category.id,
-    )
-    return arrayMoveImmutable(categoryList, currentCategoryIndex, newPosition)
-  }
-
   const updateSortedTodoList = useCallback(
     (srcIndex: number, destIndex: number) => {
-      setLocalTodoList((prevState) =>
-        update(prevState, {
-          $splice: [
-            [srcIndex, 1],
-            [destIndex, 0, prevState[srcIndex]],
-          ],
-        }),
+      setLocalTodoList(
+        arrayMoveImmutable(localTodoList, srcIndex, destIndex).map((t, i) => ({
+          ...t,
+          sortOrder: i,
+        })),
       )
     },
-    [],
+    [setLocalTodoList],
   )
 
   const sortTodoList = useMutation({
@@ -125,15 +109,19 @@ export const UnMemoizedCategoryCard = ({
     onMutate: async () => {
       await queryClient.cancelQueries(['getTodos', currentDate])
       const previousTodoList = queryClient.getQueryData([
-        'getTodos',
+        'getCategories',
         currentDate,
       ]) as TodoWithRelations[]
       queryClient.setQueryData(
-        ['getTodos', currentDate],
-        [
-          ...previousTodoList.filter((t) => t.categoryId !== category.id),
-          ...localTodoList,
-        ],
+        ['getCategories', currentDate],
+        categoryList.map((c) =>
+          c.id === category.id
+            ? {
+                ...c,
+                todos: localTodoList,
+              }
+            : c,
+        ),
       )
       return { previousTodoList }
     },
@@ -144,10 +132,18 @@ export const UnMemoizedCategoryCard = ({
         message: <>Error sorting todo list. Check console for details.</>,
       })
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(['getTodos', currentDate])
-    },
   })
+
+  const getSortedCategories = (newPosition: number) => {
+    const currentCategoryIndex = categoryList.findIndex(
+      (c) => c.id === category.id,
+    )
+    return arrayMoveImmutable(
+      categoryList,
+      currentCategoryIndex,
+      newPosition,
+    ).map((c, i) => ({ ...c, sortOrder: i }))
+  }
 
   const sortCategory = useMutation({
     mutationFn: (req: SortParams) => {
@@ -156,16 +152,16 @@ export const UnMemoizedCategoryCard = ({
       })
     },
     onMutate: async (req: SortParams) => {
-      await queryClient.cancelQueries(['getCategories'])
-      const previousCategoriesList = queryClient.getQueryData(['getCategories'])
+      await queryClient.cancelQueries(['getCategories', currentDate])
+      const previousCategoriesList = queryClient.getQueryData([
+        'getCategories',
+        currentDate,
+      ])
       queryClient.setQueryData(
-        ['getCategories'],
+        ['getCategories', currentDate],
         getSortedCategories(req.newPosition),
       )
       return { previousCategoriesList }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(['getCategories'])
     },
     onError: (error) => {
       console.log('ERROR: ', error)
@@ -294,5 +290,3 @@ export const UnMemoizedCategoryCard = ({
     />
   )
 }
-
-export const CategoryCard = memo(UnMemoizedCategoryCard)
