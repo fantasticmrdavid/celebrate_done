@@ -81,6 +81,7 @@ const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const { data: session } = useSession()
+  const { currentDate } = useContext(SelectedDateContext)
   const {
     isOpen,
     onCancel,
@@ -93,7 +94,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const [startDate, setStartDate] = useState<string>(
     todo
       ? dayjs(new Date(todo.startDate)).startOf('day').toISOString()
-      : dayjs(new Date()).startOf('day').toISOString(),
+      : dayjs(new Date(currentDate)).startOf('day').toISOString(),
   )
   const [notes, setNotes] = useState<string | null>(todo ? todo.notes : '')
   const [size, setSize] = useState<TODO_SIZE>(
@@ -126,7 +127,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
 
   const { categoryList, isFetchingCategories, isFetchingCategoriesError } =
     useContext(CategoriesContext)
-  const { currentDate } = useContext(SelectedDateContext)
 
   const createTodo = useMutation({
     mutationFn: () =>

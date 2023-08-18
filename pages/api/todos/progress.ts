@@ -6,7 +6,6 @@ import {
 } from '@/app/components/TodoItem/utils'
 import dayjs from 'dayjs'
 import prisma from '@/app/lib/prisma'
-import { getLocalStartOfDay } from '@/app/utils'
 
 export const addProgress = async (
   req: NextApiRequest,

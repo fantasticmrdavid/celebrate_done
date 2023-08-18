@@ -41,7 +41,7 @@ export const getCategories = async (
                   },
                   {
                     startDate: {
-                      gte: new Date(localStartOfDay as string),
+                      lte: new Date(localStartOfDay as string),
                     },
                   },
                 ],

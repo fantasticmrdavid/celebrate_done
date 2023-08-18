@@ -12,12 +12,10 @@ import {
 } from '@/app/utils'
 import { DateRangeType } from '@/pages/done'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { DoneTodoCount } from '@/pages/api/todos/doneCount'
 import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
 import { useSession } from 'next-auth/react'
 
 type Props = {
-  count: number
   date: string
   dateRangeType: DateRangeType
 }
@@ -42,11 +40,11 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
         &dateRangeEnd=${dateIsoToSql(getLocalEndOfYear(date))}`
     }
   }
-  const { data: doneCount, isLoading } = useQuery<DoneTodoCount>(
+  const { data: doneCount, isLoading } = useQuery<number>(
     ['getDoneTodosCount', date, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/doneCount?user_id=${session?.user
+        `/api/todos/doneCount?userId=${session?.user
           ?.id}&${getDateRangeQuery()}`,
       ).then((res) => res.json()),
   )
@@ -57,7 +55,7 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
       {isReady && (
         <>
           <div style={{ fontSize: '10rem' }}>
-            <CountUp isCounting end={doneCount.count} />
+            <CountUp isCounting end={doneCount} />
           </div>
           <div>things done!</div>
         </>

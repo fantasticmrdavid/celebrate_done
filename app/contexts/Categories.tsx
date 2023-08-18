@@ -4,7 +4,7 @@ import { Spin } from 'antd'
 import { useSession } from 'next-auth/react'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
-import { dateIsoToSql, getSortedTodoList } from '@/pages/api/utils'
+import { getSortedTodoList } from '@/pages/api/utils'
 import { getLocalEndOfDay, getLocalStartOfDay } from '@/app/utils'
 
 export interface CategoriesContextValues {
