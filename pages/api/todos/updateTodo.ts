@@ -76,7 +76,7 @@ export const updateTodos = async (
           if (schedule && repeats) {
             return prisma.schedule.update({
               where: {
-                id: schedule.id,
+                todoId: id,
               },
               data: {
                 unit: repeats,

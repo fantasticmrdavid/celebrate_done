@@ -104,7 +104,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const [category, setCategory] = useState<Category | undefined>(propsCategory)
 
   const [isRecurring, setIsRecurring] = useState(!!schedule || false)
-  const [repeats, setRepeats] = useState(
+  const [repeats, setRepeats] = useState<TodoRepeatFrequency>(
     todo && todo.schedule ? todo.schedule.unit : TodoRepeatFrequency.DAILY,
   )
 
@@ -212,6 +212,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         category,
         isRecurring,
         repeats,
+        schedule,
         action: 'update',
       }),
     onMutate: async () => {
