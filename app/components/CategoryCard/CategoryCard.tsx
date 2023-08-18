@@ -97,7 +97,7 @@ export const CategoryCard = ({
         })),
       )
     },
-    [setLocalTodoList],
+    [localTodoList],
   )
 
   const sortTodoList = useMutation({

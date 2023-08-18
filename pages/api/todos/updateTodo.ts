@@ -72,9 +72,9 @@ export const updateTodos = async (
           repeats,
         } = req.body
 
-        const scheduleQuery = () => {
+        const scheduleQuery = async () => {
           if (schedule && repeats) {
-            prisma.schedule.update({
+            return prisma.schedule.update({
               where: {
                 id: schedule.id,
               },
@@ -83,7 +83,7 @@ export const updateTodos = async (
               },
             })
           } else if (!schedule && repeats) {
-            prisma.schedule.create({
+            return prisma.schedule.create({
               data: {
                 unit: repeats,
                 todo: {
@@ -99,7 +99,7 @@ export const updateTodos = async (
               },
             })
           } else if (!repeats) {
-            prisma.schedule.delete({
+            return prisma.schedule.delete({
               where: {
                 todoId: id,
               },
@@ -122,7 +122,7 @@ export const updateTodos = async (
         }
 
         result = await prisma.todo.update(updateTodoQuery)
-        scheduleQuery()
+        await scheduleQuery()
         break
       }
       default:
