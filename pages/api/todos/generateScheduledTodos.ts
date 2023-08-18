@@ -1,15 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import dayjs from 'dayjs'
-import {
-  repeatDayUnitsToSqlUnits,
-  TODO_REPEAT_FREQUENCY,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/utils'
+import { repeatDayUnitsToSqlUnits } from '@/app/components/TodoItem/utils'
 
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import prisma from '@/app/lib/prisma'
-import { Prisma } from '@prisma/client'
+import { Prisma, TodoStatus } from '@prisma/client'
 import { getLocalStartOfDay } from '@/app/utils'
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -39,8 +35,8 @@ export const generateScheduledTodos = async (
       .tz(tz as string)
       .startOf('day')
       .add(
-        repeatDayUnitsToSqlUnits[s.unit as TODO_REPEAT_FREQUENCY].count,
-        repeatDayUnitsToSqlUnits[s.unit as TODO_REPEAT_FREQUENCY].unit,
+        repeatDayUnitsToSqlUnits[s.unit].count,
+        repeatDayUnitsToSqlUnits[s.unit].unit,
       )
   }
 
@@ -59,7 +55,7 @@ export const generateScheduledTodos = async (
           {
             todo: {
               status: {
-                equals: TODO_STATUS.DONE,
+                equals: TodoStatus.DONE,
               },
             },
           },
@@ -81,7 +77,7 @@ export const generateScheduledTodos = async (
             priority: s.todo.priority,
             size: s.todo.size,
             startDate: getLocalStartOfDay(),
-            status: TODO_STATUS.INCOMPLETE,
+            status: TodoStatus.INCOMPLETE,
             user: {
               connect: {
                 id: s.todo.userId,

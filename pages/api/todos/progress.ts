@@ -1,11 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import {
-  TODO_PRIORITY,
-  TODO_SIZE,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/utils'
 import dayjs from 'dayjs'
 import prisma from '@/app/lib/prisma'
+import { TodoPriority, TodoSize, TodoStatus } from '@prisma/client'
 
 export const addProgress = async (
   req: NextApiRequest,
@@ -18,11 +14,11 @@ export const addProgress = async (
       data: {
         name: `Chipped away at ${name}`,
         notes: `I made progress on ${name} today`,
-        priority: TODO_PRIORITY.NORMAL,
-        size: TODO_SIZE.SMALL,
+        priority: TodoPriority.NORMAL,
+        size: TodoSize.SMALL,
         startDate: dayjs(new Date()).startOf('day').toISOString(),
         completedDateTime: dayjs(new Date()).startOf('day').toISOString(),
-        status: TODO_STATUS.DONE,
+        status: TodoStatus.DONE,
         user: {
           connect: {
             id: userId,

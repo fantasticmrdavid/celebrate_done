@@ -1,7 +1,6 @@
 import React from 'react'
 import { CountUp } from 'use-count-up'
 import styles from './doneCount.module.scss'
-import { dateIsoToSql } from '@/pages/api/utils'
 import {
   getLocalEndOfDay,
   getLocalEndOfYear,
@@ -24,20 +23,24 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
   const { data: session } = useSession()
   const getDateRangeQuery = () => {
     if (dateRangeType === DateRangeType.DAY) {
-      return `dateRangeStart=${dateIsoToSql(getLocalStartOfDay(date))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(date))}`
+      return `dateRangeStart=${getLocalStartOfDay(
+        date,
+      )}&dateRangeEnd=${getLocalEndOfDay(date)}`
     }
     if (dateRangeType === DateRangeType.SEVEN_DAYS) {
-      return `dateRangeStart=${dateIsoToSql(getLocalPastSevenDays(date))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(date))}`
+      return `dateRangeStart=${getLocalPastSevenDays(
+        date,
+      )}&dateRangeEnd=${getLocalEndOfDay(date)}`
     }
     if (dateRangeType === DateRangeType.NINETY_DAYS) {
-      return `dateRangeStart=${dateIsoToSql(getLocalPastNinetyDays(date))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfDay(date))}`
+      return `dateRangeStart=${getLocalPastNinetyDays(
+        date,
+      )}&dateRangeEnd=${getLocalEndOfDay(date)}`
     }
     if (dateRangeType === DateRangeType.YEAR) {
-      return `dateRangeStart=${dateIsoToSql(getLocalStartOfYear(date))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfYear(date))}`
+      return `dateRangeStart=${getLocalStartOfYear(
+        date,
+      )}&dateRangeEnd=${getLocalEndOfYear(date)}`
     }
   }
   const { data: doneCount, isLoading } = useQuery<number>(

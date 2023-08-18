@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import prisma from '@/app/lib/prisma'
-import { Prisma } from '@prisma/client'
+import { Prisma, TodoStatus } from '@prisma/client'
 
 const todoWithCategory = Prisma.validator<Prisma.TodoDefaultArgs>()({
   include: {
@@ -32,7 +31,7 @@ export const getFutureTodos = async (
           },
           {
             status: {
-              equals: TODO_STATUS.INCOMPLETE,
+              equals: TodoStatus.INCOMPLETE,
             },
           },
           {

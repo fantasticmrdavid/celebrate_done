@@ -47,7 +47,6 @@ export const Template = ({ children }: RootLayoutProps) => {
   )
 
   if (sessionStatus === 'loading') return <div>Loading...</div>
-  console.log('SESSION: ', session)
 
   if (session && session.user) {
     return (

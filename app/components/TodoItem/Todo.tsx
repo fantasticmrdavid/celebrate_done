@@ -11,11 +11,6 @@ import {
 import classNames from 'classnames'
 import React, { memo, useContext, useEffect, useRef, useState } from 'react'
 import {
-  TODO_PRIORITY,
-  TODO_SIZE,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/utils'
-import {
   CaretDownOutlined,
   DeleteOutlined,
   EditOutlined,
@@ -41,7 +36,13 @@ import { useSession } from 'next-auth/react'
 import { TodoWithRelationsNoCategory } from '@/pages/api/todos/getTodos'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import ConfettiExplosion from 'react-confetti-explosion'
-import { Schedule, Todo } from '@prisma/client'
+import {
+  Schedule,
+  Todo,
+  TodoPriority,
+  TodoSize,
+  TodoStatus,
+} from '@prisma/client'
 
 type TodoProps = {
   todo: TodoWithRelationsNoCategory
@@ -56,21 +57,21 @@ type TodoProps = {
 type Update_Todo_Params = {
   action: string
   id: string
-  status?: TODO_STATUS
+  status?: TodoStatus
   completedDateTime?: string | undefined
-  priority?: TODO_PRIORITY
+  priority?: TodoPriority
 }
 
 export const sizeTags = {
-  [TODO_SIZE.SMALL]: {
+  [TodoSize.SMALL]: {
     label: 'S',
     color: 'green',
   },
-  [TODO_SIZE.MEDIUM]: {
+  [TodoSize.MEDIUM]: {
     label: 'M',
     color: 'orange',
   },
-  [TODO_SIZE.LARGE]: {
+  [TodoSize.LARGE]: {
     label: 'L',
     color: 'purple',
   },
@@ -168,7 +169,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       isDragging: monitor.isDragging(),
     }),
   })
-  const isDone = todo.status === TODO_STATUS.DONE
+  const isDone = todo.status === TodoStatus.DONE
 
   useEffect(() => {
     if (isDone) setShouldAnimateCompleted(false)
@@ -202,7 +203,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
                   t.id === todo.id
                     ? {
                         ...t,
-                        status: status || TODO_STATUS.INCOMPLETE,
+                        status: status || TodoStatus.INCOMPLETE,
                       }
                     : t,
                 ),
@@ -215,7 +216,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
           updatedCategoriesList,
         )
 
-        if (status === TODO_STATUS.DONE) {
+        if (status === TodoStatus.DONE) {
           setIsExploding(true)
           setTimeout(() => {
             setIsExploding(false)
@@ -254,10 +255,10 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
           completedDateTime: new Date(),
           name: `Chipped away at ${todo.name.trim()}`,
           notes: `I made progress on ${todo.name.trim()} today`,
-          size: TODO_SIZE.SMALL,
-          priority: TODO_PRIORITY.NORMAL,
+          size: TodoSize.SMALL,
+          priority: TodoPriority.NORMAL,
           sortOrder: 999,
-          status: TODO_STATUS.DONE,
+          status: TodoStatus.DONE,
         })
       }
     },
@@ -309,11 +310,11 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   })
 
   const toggleCompleted = () => {
-    const shouldMarkCompleted = todo.status !== TODO_STATUS.DONE
+    const shouldMarkCompleted = todo.status !== TodoStatus.DONE
     updateTodo.mutate({
       action: 'complete',
       id: todo.id,
-      status: shouldMarkCompleted ? TODO_STATUS.DONE : TODO_STATUS.INCOMPLETE,
+      status: shouldMarkCompleted ? TodoStatus.DONE : TodoStatus.INCOMPLETE,
       completedDateTime: shouldMarkCompleted
         ? new Date().toISOString()
         : undefined,
@@ -325,9 +326,9 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       action: 'togglePriority',
       id: todo.id,
       priority:
-        todo.priority == TODO_PRIORITY.URGENT
-          ? TODO_PRIORITY.NORMAL
-          : TODO_PRIORITY.URGENT,
+        todo.priority == TodoPriority.URGENT
+          ? TodoPriority.NORMAL
+          : TodoPriority.URGENT,
     })
   }
 
@@ -344,12 +345,12 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       key: '2',
       label: (
         <div onClick={() => togglePriority()}>
-          {todo.priority === TODO_PRIORITY.NORMAL && (
+          {todo.priority === TodoPriority.NORMAL && (
             <>
               <ExclamationCircleOutlined /> Mark Urgent
             </>
           )}
-          {todo.priority === TODO_PRIORITY.URGENT && (
+          {todo.priority === TodoPriority.URGENT && (
             <>
               <CaretDownOutlined /> Unmark Urgent
             </>
@@ -399,8 +400,8 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     [styles.isDeleted]: shouldAnimateDeleted,
     [styles.isUrgent]:
       !isDragging &&
-      todo.priority === TODO_PRIORITY.URGENT &&
-      todo.status !== TODO_STATUS.DONE,
+      todo.priority === TodoPriority.URGENT &&
+      todo.status !== TodoStatus.DONE,
   })
 
   const labelClassNames = classNames({

@@ -1,13 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_SIZE, TODO_STATUS } from '@/app/components/TodoItem/utils'
 
 import prisma from '@/app/lib/prisma'
+import { TodoSize, TodoStatus } from '@prisma/client'
 
 type TodoCount = {
   id: string
   name: string
   count: number
-  size: TODO_SIZE
+  size: TodoSize
 }
 
 export type CategoryWithTodoCounts = {
@@ -34,7 +34,7 @@ export const getDoneTodos = async (
             AND: [
               {
                 status: {
-                  equals: TODO_STATUS.DONE,
+                  equals: TodoStatus.DONE,
                 },
               },
               {
@@ -68,7 +68,7 @@ export const getDoneTodos = async (
                   {
                     id: t.id,
                     name: t.name,
-                    size: t.size as TODO_SIZE,
+                    size: t.size,
                     count: c.todos.filter((tt) => tt.name === t.name).length,
                   },
                 ]

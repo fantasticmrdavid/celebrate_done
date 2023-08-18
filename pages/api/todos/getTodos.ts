@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import prisma from '@/app/lib/prisma'
-import { Prisma } from '@prisma/client'
+import { Prisma, TodoStatus } from '@prisma/client'
 
 const todoWithRelations = Prisma.validator<Prisma.TodoDefaultArgs>()({
   include: {
@@ -46,7 +45,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
                   {
                     status: {
                       not: {
-                        equals: TODO_STATUS.DONE,
+                        equals: TodoStatus.DONE,
                       },
                     },
                   },
@@ -61,7 +60,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
                 AND: [
                   {
                     status: {
-                      equals: TODO_STATUS.DONE,
+                      equals: TodoStatus.DONE,
                     },
                   },
                   {

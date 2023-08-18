@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { dbConnect } from '@/config/dbConnect'
 import prisma from '@/app/lib/prisma'
 
 export const getSuggestions = async (
@@ -29,7 +28,6 @@ export const getSuggestions = async (
         { name: 'asc' },
       ],
     })
-    await dbConnect.end()
     return res.status(200).json(results)
   } catch (error) {
     return res.status(500).json({ error })

@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import prisma from '@/app/lib/prisma'
 import dayjs from 'dayjs'
 import { TodoWithRelations } from '@/pages/api/todos/getTodos'
+import { TodoStatus } from '@prisma/client'
 
 export const updateTodos = async (
   req: NextApiRequest,
@@ -21,7 +21,7 @@ export const updateTodos = async (
           },
           data: {
             completedDateTime:
-              status === TODO_STATUS.DONE ? completedDateTime : null,
+              status === TodoStatus.DONE ? completedDateTime : null,
             status: status,
           },
         }

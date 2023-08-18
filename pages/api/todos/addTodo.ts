@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import prisma from '@/app/lib/prisma'
 import { getLocalStartOfDay } from '@/app/utils'
+import { TodoStatus } from '@prisma/client'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -24,7 +24,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
         priority,
         size,
         startDate: getLocalStartOfDay(startDate),
-        status: TODO_STATUS.INCOMPLETE,
+        status: TodoStatus.INCOMPLETE,
         user: {
           connect: {
             id: userId,

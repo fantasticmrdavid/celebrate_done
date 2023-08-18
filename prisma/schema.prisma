@@ -8,6 +8,30 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+enum TodoSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum TodoPriority {
+  NORMAL
+  URGENT
+}
+
+enum TodoStatus {
+  INCOMPLETE
+  DONE
+}
+
+enum TodoRepeatFrequency {
+  DAILY
+  WEEKLY
+  FORTNIGHTLY
+  MONTHLY
+  ANNUALLY
+}
+
 model Category {
   id          String  @id @default(cuid())
   userId      String  @db.VarChar(255)
@@ -26,7 +50,7 @@ model Schedule {
   userId String @db.VarChar(255)
   todoId String @unique @db.VarChar(255)
   count  Int    @default(1) @db.SmallInt
-  unit   String @db.VarChar(255)
+  unit   TodoRepeatFrequency @default(DAILY)
 
   todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -43,9 +67,9 @@ model Todo {
   startDate         DateTime  @default(now()) @db.DateTime(0)
   name              String    @db.VarChar(255)
   notes             String?   @db.Text
-  size              String    @db.VarChar(32)
-  priority          String    @default("NORMAL") @db.VarChar(32)
-  status            String    @db.VarChar(32)
+  size              TodoSize    @default(SMALL)
+  priority          TodoPriority    @default(NORMAL)
+  status            TodoStatus    @default(INCOMPLETE)
   completedDateTime DateTime? @db.DateTime(6)
   sortOrder         Int       @default(0)
   schedule          Schedule?

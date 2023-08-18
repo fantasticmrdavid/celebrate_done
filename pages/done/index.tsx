@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { Radio, Skeleton, Space, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { TODO_SIZE } from '@/app/components/TodoItem/utils'
 import { DoneCount } from '@/app/components/DoneCount/DoneCount'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
 
@@ -23,6 +22,7 @@ import quoteList from '@/app/data/quotes'
 import Image from 'next/image'
 import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
 import { useSession } from 'next-auth/react'
+import { TodoSize } from '@prisma/client'
 
 export enum DateRangeType {
   DAY = 'DAY',
@@ -200,7 +200,7 @@ export const DonePage = () => {
                     0,
                   )
                   return doneCategoriesList.length > 0 ? (
-                    <>
+                    <div key={`doneCategory_${c.id}`}>
                       <h4 style={{ fontWeight: 700 }}>
                         {c.name}
                         {dateRangeType !== DateRangeType.DAY &&
@@ -220,7 +220,7 @@ export const DonePage = () => {
                           <li key={`todo_${t.id}`} className={styles.doneItem}>
                             {t.name}{' '}
                             {t.count > 1 && <strong>x{t.count}</strong>}
-                            {t.size !== TODO_SIZE.SMALL && (
+                            {t.size !== TodoSize.SMALL && (
                               <Tag color={sizeTags[t.size].color}>
                                 {sizeTags[t.size].label}
                               </Tag>
@@ -228,7 +228,7 @@ export const DonePage = () => {
                           </li>
                         ))}
                       </ul>
-                    </>
+                    </div>
                   ) : null
                 })}
               </div>

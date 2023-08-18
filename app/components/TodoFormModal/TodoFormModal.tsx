@@ -18,13 +18,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { New_Todo } from '@/app/components/TodoItem/types'
-import {
-  TODO_PRIORITY,
-  TODO_REPEAT_FREQUENCY,
-  TODO_SIZE,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/utils'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
 import { getLocalStartOfDay } from '@/app/utils'
@@ -34,7 +27,14 @@ import { ValidationMessage } from '@/app/components/ValidationMessage/Validation
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 import { useSession } from 'next-auth/react'
 import { TodoWithRelationsNoCategory } from '@/pages/api/todos/getTodos'
-import { Category, Schedule } from '@prisma/client'
+import {
+  Category,
+  Schedule,
+  TodoPriority,
+  TodoRepeatFrequency,
+  TodoSize,
+  TodoStatus,
+} from '@prisma/client'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 
 type TodoFormModalProps = {
@@ -54,26 +54,26 @@ export enum TodoModal_Mode {
 const sizeList = [
   {
     label: 'Small',
-    value: TODO_SIZE.SMALL,
+    value: TodoSize.SMALL,
   },
   {
     label: 'Medium',
-    value: TODO_SIZE.MEDIUM,
+    value: TodoSize.MEDIUM,
   },
   {
     label: 'Large',
-    value: TODO_SIZE.LARGE,
+    value: TodoSize.LARGE,
   },
 ]
 
 const priorityList = [
   {
     label: 'Normal',
-    value: TODO_PRIORITY.NORMAL,
+    value: TodoPriority.NORMAL,
   },
   {
     label: 'Urgent',
-    value: TODO_PRIORITY.URGENT,
+    value: TodoPriority.URGENT,
   },
 ]
 
@@ -97,17 +97,15 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       : dayjs(new Date(currentDate)).startOf('day').toISOString(),
   )
   const [notes, setNotes] = useState<string | null>(todo ? todo.notes : '')
-  const [size, setSize] = useState<TODO_SIZE>(
-    todo ? todo.size : TODO_SIZE.SMALL,
-  )
-  const [priority, setPriority] = useState<TODO_PRIORITY>(
-    todo ? todo.priority : TODO_PRIORITY.NORMAL,
+  const [size, setSize] = useState<TodoSize>(todo ? todo.size : TodoSize.SMALL)
+  const [priority, setPriority] = useState<TodoPriority>(
+    todo ? todo.priority : TodoPriority.NORMAL,
   )
   const [category, setCategory] = useState<Category | undefined>(propsCategory)
 
   const [isRecurring, setIsRecurring] = useState(!!schedule || false)
   const [repeats, setRepeats] = useState(
-    todo && todo.schedule ? todo.schedule.unit : TODO_REPEAT_FREQUENCY.DAILY,
+    todo && todo.schedule ? todo.schedule.unit : TodoRepeatFrequency.DAILY,
   )
 
   const [validation, setValidation] = useState<TodoValidation>({})
@@ -140,7 +138,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         isRecurring,
         repeats,
         userId: session?.user?.id,
-      } as New_Todo),
+      }),
     onMutate: async () => {
       const previousCategoriesList = queryClient.getQueryData([
         'getCategories',
@@ -152,7 +150,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
           ? {
               ...c,
               todos: [
-                ...c.todos.filter((t) => t.status !== TODO_STATUS.DONE),
+                ...c.todos.filter((t) => t.status !== TodoStatus.DONE),
                 {
                   name,
                   startDate,
@@ -165,7 +163,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   userId: session?.user?.id,
                   uuid: `temp_newID`,
                 },
-                ...c.todos.filter((t) => t.status === TODO_STATUS.DONE),
+                ...c.todos.filter((t) => t.status === TodoStatus.DONE),
               ],
             }
           : c,
@@ -418,7 +416,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                 allowClear={false}
                 popupMatchSelectWidth={false}
               >
-                {Object.values(TODO_REPEAT_FREQUENCY).map((r) => (
+                {Object.values(TodoRepeatFrequency).map((r) => (
                   <Option key={`recurringDateType_${r}`} value={r}>
                     {r}
                   </Option>

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import prisma from '@/app/lib/prisma'
+import { TodoStatus } from '@prisma/client'
 
 export const getDoneTodosCount = async (
   req: NextApiRequest,
@@ -20,7 +20,7 @@ export const getDoneTodosCount = async (
             AND: [
               {
                 status: {
-                  equals: TODO_STATUS.DONE,
+                  equals: TodoStatus.DONE,
                 },
               },
               {

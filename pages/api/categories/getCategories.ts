@@ -1,8 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
-import { Prisma } from '@prisma/client'
-import { TODO_STATUS } from '@/app/components/TodoItem/utils'
+import { Prisma, TodoStatus } from '@prisma/client'
 
 const categoryWithRelations = Prisma.validator<Prisma.CategoryDefaultArgs>()({
   include: {
@@ -35,7 +34,7 @@ export const getCategories = async (
                   {
                     status: {
                       not: {
-                        equals: TODO_STATUS.DONE,
+                        equals: TodoStatus.DONE,
                       },
                     },
                   },
@@ -50,7 +49,7 @@ export const getCategories = async (
                 AND: [
                   {
                     status: {
-                      equals: TODO_STATUS.DONE,
+                      equals: TodoStatus.DONE,
                     },
                   },
                   {

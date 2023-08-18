@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { TODO_STATUS } from '@/app/components/TodoItem/utils'
 import {
   Button,
   Collapse,
@@ -27,7 +26,7 @@ import {
   TodoWithRelationsNoCategory,
 } from '@/pages/api/todos/getTodos'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
-import { Todo } from '@prisma/client'
+import { Todo, TodoStatus } from '@prisma/client'
 import { getSortedTodoList } from '@/pages/api/utils'
 
 const { Title } = Typography
@@ -172,7 +171,7 @@ export const CategoryCard = ({
     },
   })
 
-  const doneCount = category.todos.filter((t) => t.status === TODO_STATUS.DONE)
+  const doneCount = category.todos.filter((t) => t.status === TodoStatus.DONE)
     ?.length
 
   return (
