@@ -47,8 +47,8 @@ export const generateScheduledTodos = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { user_id, tz } = req.query
-  if (!user_id || user_id.length === 0) return {}
+  const { userId, tz } = req.query
+  if (!userId || userId.length === 0) return {}
   const getTargetDate = (r: FetchResult) => {
     return dayjs(new Date(r.latestCompletedDateTime))
       .tz(tz as string)

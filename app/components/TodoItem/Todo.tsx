@@ -292,12 +292,14 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     },
     onSuccess: () => {
       notification.success({
+        placement: 'bottomRight',
         message: 'Task deleted.',
       })
     },
     onError: (e) => {
       console.error('ERROR: ', e)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error deleting todo. Check console for details.</>,
       })
     },

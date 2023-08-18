@@ -52,6 +52,7 @@ export const CategoryFormModal = ({
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
       notification.success({
+        placement: 'bottomRight',
         message: (
           <>
             Category <strong>{name}</strong> added!
@@ -65,6 +66,7 @@ export const CategoryFormModal = ({
     onError: () => {
       console.log('ERROR')
       notification.error({
+        placement: 'bottomRight',
         message: <>Error creating category. Check console for details.</>,
       })
     },
@@ -81,8 +83,8 @@ export const CategoryFormModal = ({
       } as Category),
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
-      queryClient.invalidateQueries(['getTodos'])
       notification.success({
+        placement: 'bottomRight',
         message: (
           <>
             <strong>{name}</strong> updated!
@@ -94,6 +96,7 @@ export const CategoryFormModal = ({
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error saving category. Check console for details.</>,
       })
     },

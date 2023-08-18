@@ -7,7 +7,7 @@ export const ScheduledTodoGenerator = () => {
     ['generateScheduledTodos'] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/generateScheduledTodos?user_id=${
+        `/api/todos/generateScheduledTodos?userId=${
           session?.user?.id || ''
         }&tz=${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
       ).then((res) => res.json()),

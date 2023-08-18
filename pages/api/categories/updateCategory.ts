@@ -1,38 +1,26 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { dbConnect } from '@/config/dbConnect'
+import prisma from '@/app/lib/prisma'
 
 export const updateCategory = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
   try {
-    const { uuid, name, description, maxPerDay, sortOrder, color } = req.body
-    const updateCategoryQuery = `UPDATE categories
-            SET
-              name=?,
-              description=?,
-              maxPerDay=?,
-              sortOrder=?,
-              color=?
-            WHERE uuid=?
-            LIMIT 1
-            `
-    const result = await dbConnect
-      .transaction()
-      .query({
-        sql: updateCategoryQuery,
-        values: [
-          name.trim(),
-          description.trim(),
-          maxPerDay || null,
-          sortOrder,
-          color,
-          uuid,
-        ],
-      })
-      .rollback((e: Error) => console.error(e))
-      .commit()
-    await dbConnect.end()
+    const { id, name, description, maxPerDay, color, sortOrder } = req.body
+
+    const result = await prisma.category.update({
+      data: {
+        name,
+        description,
+        maxPerDay,
+        color,
+        sortOrder,
+      },
+      where: {
+        id,
+      },
+    })
+
     return res.status(200).json(result)
   } catch (error) {
     console.log('SQL ERROR: ', error)

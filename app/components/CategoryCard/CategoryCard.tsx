@@ -140,6 +140,7 @@ export const UnMemoizedCategoryCard = ({
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error sorting todo list. Check console for details.</>,
       })
     },
@@ -169,6 +170,7 @@ export const UnMemoizedCategoryCard = ({
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error updating category. Check console for details.</>,
       })
     },

@@ -182,6 +182,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       queryClient.invalidateQueries(['getCategories'])
       queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
+        placement: 'bottomRight',
         message: (
           <>
             <strong>{name}</strong> added to <strong>{category?.name}</strong>!
@@ -194,6 +195,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error adding Todo. Check console for details.</>,
       })
     },
@@ -256,6 +258,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       queryClient.invalidateQueries(['getTodos'])
       queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
+        placement: 'bottomRight',
         message: (
           <>
             <strong>{name}</strong> updated!
@@ -267,6 +270,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error saving todo. Check console for details.</>,
       })
     },
