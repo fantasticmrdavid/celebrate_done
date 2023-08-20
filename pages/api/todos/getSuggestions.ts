@@ -6,12 +6,13 @@ export const getSuggestions = async (
   res: NextApiResponse,
 ) => {
   const { userId } = req.query
-  if (!userId || userId.length === 0) return {}
+  if (!userId || typeof userId !== 'string' || userId.length === 0) return {}
   try {
     const results = await prisma.todo.findMany({
       select: {
         name: true,
       },
+      distinct: ['name'],
       where: {
         AND: [
           {

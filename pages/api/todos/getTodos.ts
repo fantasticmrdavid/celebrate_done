@@ -23,7 +23,7 @@ export type TodoWithRelationsNoCategory = Prisma.TodoGetPayload<
 
 export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
   const { userId, localStartOfDay, localEndOfDay } = req.query
-  if (!userId || userId.length === 0) return {}
+  if (!userId || typeof userId !== 'string' || userId.length === 0) return {}
 
   try {
     const results = await prisma.todo.findMany({

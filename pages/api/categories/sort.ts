@@ -9,19 +9,21 @@ export const sortCategories = async (
   try {
     const { categoryList } = req.body
 
-    const result = await prisma.$transaction(
-      categoryList.map((c: Category) =>
-        prisma.category.update({
-          data: {
-            sortOrder: c.sortOrder,
-          },
-          where: {
-            id: c.id,
-          },
-        }),
-      ),
-    )
-    return res.status(200).json(result)
+    if (categoryList && categoryList.isArray()) {
+      const result = await prisma.$transaction(
+        categoryList.map((c: Category) =>
+          prisma.category.update({
+            data: {
+              sortOrder: c.sortOrder,
+            },
+            where: {
+              id: c.id,
+            },
+          }),
+        ),
+      )
+      return res.status(200).json(result)
+    }
   } catch (error) {
     console.log('SQL ERROR: ', error)
     return res.status(500).json({ error })

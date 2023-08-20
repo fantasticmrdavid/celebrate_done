@@ -29,7 +29,7 @@ export const generateScheduledTodos = async (
   res: NextApiResponse,
 ) => {
   const { userId, tz } = req.query
-  if (!userId || userId.length === 0) return {}
+  if (!userId || typeof userId !== 'string' || userId.length === 0) return {}
   const getTargetDate = (s: ScheduleWithTodo) => {
     return dayjs(s.todo.completedDateTime)
       .tz(tz as string)
