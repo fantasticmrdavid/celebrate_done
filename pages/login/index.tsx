@@ -6,17 +6,19 @@ import { Button } from 'antd'
 
 export const LoginPage = () => {
   return (
-    <h2 style={{ textAlign: 'center' }}>
-      celebrate.DONE
-      <div className={styles.logoIcon}>
-        <GiGlassCelebration />
-      </div>
-      <div>
-        <Button type={'primary'} onClick={() => signIn()}>
+    <div style={{ textAlign: 'center' }}>
+      <h1>
+        celebrate.DONE
+        <div className={styles.logoIcon}>
+          <GiGlassCelebration />
+        </div>
+      </h1>
+      <div style={{ margin: '-1em 0 0' }}>
+        <Button size={'large'} type={'primary'} onClick={() => signIn()}>
           Sign in
         </Button>
       </div>
-    </h2>
+    </div>
   )
 }
 

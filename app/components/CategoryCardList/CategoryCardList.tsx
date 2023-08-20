@@ -193,8 +193,8 @@ export const CategoryCardList = () => {
             localStorage.setItem('isFirstActivityToday', today.toISOString())
             setShouldPromptUserToRefresh(false)
           }}
-          okText={'Yeah'}
-          cancelText={'Nah'}
+          okText={'Yes'}
+          cancelText={'No'}
         >
           <p>
             A brand new day lies ahead! Should we set the date to the current
