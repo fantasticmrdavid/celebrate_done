@@ -19,3 +19,5 @@ export const LoginPage = () => {
     </h2>
   )
 }
+
+export default LoginPage
