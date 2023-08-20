@@ -9,7 +9,7 @@ export const sortCategories = async (
   try {
     const { categoryList } = req.body
 
-    if (categoryList && categoryList.isArray()) {
+    if (categoryList && Array.isArray(categoryList)) {
       const result = await prisma.$transaction(
         categoryList.map((c: Category) =>
           prisma.category.update({
