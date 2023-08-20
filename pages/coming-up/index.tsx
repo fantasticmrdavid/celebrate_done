@@ -1,12 +1,7 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Radio, Skeleton, Space, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { Todo } from '@/app/components/TodoItem/types'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
-import { UserContext } from '@/app/contexts/User'
-
-import { Fireworks } from '@fireworks-js/react'
-import type { FireworksHandlers } from '@fireworks-js/react'
 
 import styles from './comingUpPage.module.scss'
 import {
@@ -15,11 +10,12 @@ import {
   getLocalEndOfWeek,
   getLocalEndOfYear,
 } from '@/app/utils'
-import { dateIsoToSql } from '@/pages/api/utils'
 import { Quote } from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import dayjs from 'dayjs'
+import { useSession } from 'next-auth/react'
+import { TodoWithCategory } from '@/pages/api/todos/future'
 
 export enum DateRangeType {
   WEEK = 'WEEK',
@@ -35,7 +31,7 @@ const titleStrings = {
 
 export const ComingUpPage = () => {
   const today = new Date()
-  const { user } = useContext(UserContext)
+  const { data: session } = useSession()
   const { categoryList } = useContext(CategoriesContext)
   const [currentDate] = useState<string>(today.toISOString().slice(0, 10))
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
@@ -46,16 +42,19 @@ export const ComingUpPage = () => {
 
   const getDateRangeQuery = () => {
     if (dateRangeType === DateRangeType.WEEK) {
-      return `dateRangeStart=${dateIsoToSql(getLocalEndOfDay(currentDate))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfWeek(currentDate))}`
+      return `dateRangeStart=${getLocalEndOfDay(
+        currentDate,
+      )}&dateRangeEnd=${getLocalEndOfWeek(currentDate)}`
     }
     if (dateRangeType === DateRangeType.MONTH) {
-      return `dateRangeStart=${dateIsoToSql(getLocalEndOfDay(currentDate))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfMonth(currentDate))}`
+      return `dateRangeStart=${getLocalEndOfDay(
+        currentDate,
+      )}&dateRangeEnd=${getLocalEndOfMonth(currentDate)}`
     }
     if (dateRangeType === DateRangeType.YEAR) {
-      return `dateRangeStart=${dateIsoToSql(getLocalEndOfDay(currentDate))}
-        &dateRangeEnd=${dateIsoToSql(getLocalEndOfYear(currentDate))}`
+      return `dateRangeStart=${getLocalEndOfDay(
+        currentDate,
+      )}&dateRangeEnd=${getLocalEndOfYear(currentDate)}`
     }
   }
 
@@ -63,14 +62,13 @@ export const ComingUpPage = () => {
     isLoading,
     error,
     data: todoList,
-  } = useQuery<Todo[]>(
+  } = useQuery<TodoWithCategory[]>(
     ['getFutureTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/future?user_id=${user.uuid}&${getDateRangeQuery()}`,
+        `/api/todos/future?userId=${session?.user?.id}&${getDateRangeQuery()}`,
       ).then((res) => res.json()),
   )
-  const ref = useRef<FireworksHandlers>(null)
 
   const isReady = !isLoading && todoList
 
@@ -92,19 +90,6 @@ export const ComingUpPage = () => {
         </Radio.Group>
       </div>
       <Space size={'middle'} className={styles.container}>
-        <div className={styles.bg}>
-          <Fireworks
-            ref={ref}
-            options={{ delay: { min: 100, max: 500 } }}
-            style={{
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-            }}
-          />
-        </div>
         <div className={styles.content}>
           <div>
             <h1>
@@ -139,7 +124,7 @@ export const ComingUpPage = () => {
                       }}
                     >
                       {categoryTodoList.map((t) => (
-                        <li key={`todo_${t.uuid}`} className={styles.doneItem}>
+                        <li key={`todo_${t.id}`} className={styles.doneItem}>
                           <>
                             {dayjs(t.startDate).format('MMM DD')} - {t.name}
                             <Tag

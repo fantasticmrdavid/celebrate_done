@@ -1,12 +1,4 @@
-import React, {
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
-import { Todo } from '@/app/components/TodoItem/types'
-import { TODO_STATUS } from '@/app/components/TodoItem/utils'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import {
   Button,
   Collapse,
@@ -23,75 +15,88 @@ import {
   ArrowDownOutlined,
 } from '@ant-design/icons'
 import { TodoItem } from '@/app/components/TodoItem/Todo'
-import { Category } from '@/app/components/CategoryFormModal/types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { arrayMoveImmutable } from 'array-move'
-import update from 'immutability-helper'
 import { EmptyCategoryMessage } from './EmptyCategoryMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
+import {
+  TodoWithRelations,
+  TodoWithRelationsNoCategory,
+} from '@/pages/api/todos/getTodos'
+import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
+import { Todo, TodoStatus } from '@prisma/client'
+import { getSortedTodoList } from '@/pages/api/utils'
 
 const { Title } = Typography
 
 type Props = {
   isFirst: boolean
   isLast: boolean
-  category: Category
-  todoList: Todo[]
+  category: CategoryWithRelations
   onAddTaskClick: () => void
   onEditCategoryClick: () => void
-  onAdd: (t: Todo) => Promise<{ previousTodoList: unknown }>
-  onComplete: (
-    t: Todo,
-    status: TODO_STATUS,
-  ) => Promise<{ previousTodoList: unknown }>
 }
 
 type SortParams = {
   newPosition: number
 }
 
-export const UnMemoizedCategoryCard = ({
+export const CategoryCard = ({
   isFirst,
   isLast,
-  todoList,
   category,
   onAddTaskClick,
   onEditCategoryClick,
-  onAdd,
-  onComplete,
 }: Props) => {
   const queryClient = useQueryClient()
   const { categoryList } = useContext(CategoriesContext)
 
-  const [localTodoList, setLocalTodoList] = useState<Todo[]>(todoList)
+  const [localTodoList, setLocalTodoList] = useState<
+    TodoWithRelationsNoCategory[]
+  >(category.todos)
   const [isExpanded, setIsExpanded] = useState(true)
   const { currentDate } = useContext(SelectedDateContext)
 
   useEffect(() => {
-    setLocalTodoList(todoList)
-  }, [todoList])
+    setLocalTodoList(category.todos)
+  }, [category.todos])
 
-  const getSortedCategories = (newPosition: number) => {
-    const currentCategoryIndex = categoryList.findIndex(
-      (c) => c.uuid === category.uuid,
+  const optimisticUpdateTodoList = async (t: Todo) => {
+    const newTodoList = getSortedTodoList([...localTodoList, t])
+    await queryClient.cancelQueries(['getCategories', currentDate])
+    const previousCategoriesList = queryClient.getQueryData([
+      'getCategories',
+      currentDate,
+    ]) as CategoryWithRelations[]
+
+    const updatedCategoriesList = previousCategoriesList.map((c) =>
+      c.id === category?.id
+        ? {
+            ...c,
+            todos: newTodoList,
+          }
+        : c,
     )
-    return arrayMoveImmutable(categoryList, currentCategoryIndex, newPosition)
+
+    queryClient.setQueryData(
+      ['getCategories', currentDate],
+      updatedCategoriesList,
+    )
+    return { previousCategoriesList }
   }
 
   const updateSortedTodoList = useCallback(
     (srcIndex: number, destIndex: number) => {
-      setLocalTodoList((prevState) =>
-        update(prevState, {
-          $splice: [
-            [srcIndex, 1],
-            [destIndex, 0, prevState[srcIndex]],
-          ],
-        }),
+      setLocalTodoList(
+        arrayMoveImmutable(localTodoList, srcIndex, destIndex).map((t, i) => ({
+          ...t,
+          sortOrder: i,
+        })),
       )
     },
-    [],
+    [localTodoList],
   )
 
   const sortTodoList = useMutation({
@@ -103,28 +108,41 @@ export const UnMemoizedCategoryCard = ({
     onMutate: async () => {
       await queryClient.cancelQueries(['getTodos', currentDate])
       const previousTodoList = queryClient.getQueryData([
-        'getTodos',
+        'getCategories',
         currentDate,
-      ]) as Todo[]
+      ]) as TodoWithRelations[]
       queryClient.setQueryData(
-        ['getTodos', currentDate],
-        [
-          ...previousTodoList.filter((t) => t.category.uuid !== category.uuid),
-          ...localTodoList,
-        ],
+        ['getCategories', currentDate],
+        categoryList.map((c) =>
+          c.id === category.id
+            ? {
+                ...c,
+                todos: localTodoList,
+              }
+            : c,
+        ),
       )
       return { previousTodoList }
     },
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error sorting todo list. Check console for details.</>,
       })
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(['getTodos', currentDate])
-    },
   })
+
+  const getSortedCategories = (newPosition: number) => {
+    const currentCategoryIndex = categoryList.findIndex(
+      (c) => c.id === category.id,
+    )
+    return arrayMoveImmutable(
+      categoryList,
+      currentCategoryIndex,
+      newPosition,
+    ).map((c, i) => ({ ...c, sortOrder: i }))
+  }
 
   const sortCategory = useMutation({
     mutationFn: (req: SortParams) => {
@@ -133,40 +151,41 @@ export const UnMemoizedCategoryCard = ({
       })
     },
     onMutate: async (req: SortParams) => {
-      await queryClient.cancelQueries(['getCategories'])
-      const previousCategoriesList = queryClient.getQueryData(['getCategories'])
+      await queryClient.cancelQueries(['getCategories', currentDate])
+      const previousCategoriesList = queryClient.getQueryData([
+        'getCategories',
+        currentDate,
+      ])
       queryClient.setQueryData(
-        ['getCategories'],
+        ['getCategories', currentDate],
         getSortedCategories(req.newPosition),
       )
       return { previousCategoriesList }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(['getCategories'])
-    },
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error updating category. Check console for details.</>,
       })
     },
   })
 
-  const doneCount = todoList.filter((t) => t.status === TODO_STATUS.DONE)
+  const doneCount = category.todos.filter((t) => t.status === TodoStatus.DONE)
     ?.length
 
   return (
     <Collapse
       style={{ backgroundColor: category.color || undefined }}
-      defaultActiveKey={[category.uuid]}
-      key={`category_${category.uuid}`}
+      defaultActiveKey={[category.id]}
+      key={`category_${category.id}`}
       collapsible="icon"
       expandIconPosition={'end'}
       size={'small'}
-      onChange={(uuidList) => setIsExpanded(uuidList.includes(category.uuid))}
+      onChange={(uuidList) => setIsExpanded(uuidList.includes(category.id))}
       items={[
         {
-          key: category.uuid,
+          key: category.id,
           label: (
             <Space
               direction={'vertical'}
@@ -183,7 +202,7 @@ export const UnMemoizedCategoryCard = ({
               >
                 <div className={styles.categoryCardTitle}>
                   {category.name}
-                  {!isExpanded && ` (${todoList.length})`}
+                  {!isExpanded && ` (${category.todos.length})`}
                   <div
                     className={styles.categoryCardDoneCount}
                     style={{
@@ -250,15 +269,16 @@ export const UnMemoizedCategoryCard = ({
           ),
           children:
             localTodoList.length > 0 ? (
-              localTodoList.map((t: Todo, i) => (
+              localTodoList.map((t: TodoWithRelationsNoCategory, i) => (
                 <TodoItem
-                  key={`todo_${t.uuid}`}
+                  key={`todo_${t.id}`}
                   todo={t}
+                  category={category}
+                  schedule={t.schedule}
                   index={i}
                   onDrag={updateSortedTodoList}
                   onSort={sortTodoList.mutate}
-                  onAddProgress={onAdd}
-                  onComplete={onComplete}
+                  onAddProgress={optimisticUpdateTodoList}
                 />
               ))
             ) : (
@@ -269,5 +289,3 @@ export const UnMemoizedCategoryCard = ({
     />
   )
 }
-
-export const CategoryCard = memo(UnMemoizedCategoryCard)

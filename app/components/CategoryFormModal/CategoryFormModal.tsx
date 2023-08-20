@@ -1,15 +1,15 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import { Form, Input, Modal, notification, Space } from 'antd'
 import axios from 'axios'
-import { Category } from './types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EditOutlined, FolderAddOutlined } from '@ant-design/icons'
-import { UserContext } from '@/app/contexts/User'
 import {
   CategoryValidation,
   validateCategory,
 } from '@/app/components/CategoryFormModal/utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
+import { useSession } from 'next-auth/react'
+import { Category } from '@prisma/client'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',
@@ -29,13 +29,13 @@ export const CategoryFormModal = ({
   mode,
   category,
 }: CategoryFormModalProps) => {
-  const { user } = useContext(UserContext)
+  const { data: session } = useSession()
   const [name, setName] = useState<string>(category ? category.name : '')
   const [description, setDescription] = useState<string>(
-    category ? category.description : ''
+    category ? category.description : '',
   )
   const [color, setColor] = useState<string>(
-    category?.color ? category.color : '#d9d9d9'
+    category?.color ? category.color : '#d9d9d9',
   )
   const [validation, setValidation] = useState<CategoryValidation>({})
 
@@ -47,11 +47,12 @@ export const CategoryFormModal = ({
         name,
         description,
         color,
-        user_id: user.uuid,
+        userId: session?.user?.id,
       } as Category),
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
       notification.success({
+        placement: 'bottomRight',
         message: (
           <>
             Category <strong>{name}</strong> added!
@@ -65,6 +66,7 @@ export const CategoryFormModal = ({
     onError: () => {
       console.log('ERROR')
       notification.error({
+        placement: 'bottomRight',
         message: <>Error creating category. Check console for details.</>,
       })
     },
@@ -73,7 +75,7 @@ export const CategoryFormModal = ({
   const saveCategory = useMutation({
     mutationFn: () =>
       axios.patch('/api/categories', {
-        uuid: (category as Category).uuid,
+        id: (category as Category).id,
         name,
         description,
         color,
@@ -81,8 +83,8 @@ export const CategoryFormModal = ({
       } as Category),
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
-      queryClient.invalidateQueries(['getTodos'])
       notification.success({
+        placement: 'bottomRight',
         message: (
           <>
             <strong>{name}</strong> updated!
@@ -94,6 +96,7 @@ export const CategoryFormModal = ({
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error saving category. Check console for details.</>,
       })
     },

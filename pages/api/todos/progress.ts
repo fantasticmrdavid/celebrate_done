@@ -1,55 +1,37 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import {
-  TODO_PRIORITY,
-  TODO_SIZE,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/utils'
-import { dbConnect } from '@/config/dbConnect'
-import { v4 as uuidv4 } from 'uuid'
-import { dateIsoToSql } from '@/pages/api/utils'
 import dayjs from 'dayjs'
+import prisma from '@/app/lib/prisma'
+import { TodoPriority, TodoSize, TodoStatus } from '@prisma/client'
 
 export const addProgress = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
   try {
-    const { name, category, user_id } = req.body
-    const createdDateTime = dateIsoToSql(new Date().toISOString())
-    const new_uuid = uuidv4()
-    const insertTodoQuery = `INSERT into todos
-            VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, 999)`
-    const todoResult = await dbConnect
-      .transaction()
-      .query({
-        sql: insertTodoQuery,
-        values: [
-          new_uuid,
-          createdDateTime,
-          dateIsoToSql(dayjs(new Date()).startOf('day').toISOString()),
-          `Chipped away at ${name.trim()}`,
-          `I made progress on ${name.trim()} today`,
-          TODO_SIZE.SMALL,
-          TODO_PRIORITY.NORMAL,
-          TODO_STATUS.DONE,
-          createdDateTime,
-        ],
-      })
-      .query((r: { affectedRows: number; insertId: number }) => {
-        if (r.affectedRows === 1) {
-          return [
-            `INSERT into todos_to_categories
-                VALUES(null, ?, ?, ?)`,
-            [category.uuid, user_id, new_uuid],
-          ]
-        } else {
-          return null
-        }
-      })
-      .rollback((e: Error) => console.error(e))
-      .commit()
-    const result = todoResult
-    await dbConnect.end()
+    const { name, category, userId } = req.body
+
+    const result = await prisma.todo.create({
+      data: {
+        name: `Chipped away at ${name}`,
+        notes: `I made progress on ${name} today`,
+        priority: TodoPriority.NORMAL,
+        size: TodoSize.SMALL,
+        startDate: dayjs(new Date()).startOf('day').toISOString(),
+        completedDateTime: dayjs(new Date()).startOf('day').toISOString(),
+        status: TodoStatus.DONE,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+        category: {
+          connect: {
+            id: category.id,
+          },
+        },
+      },
+    })
+
     return res.status(200).json(result)
   } catch (error) {
     console.log('SQL ERROR: ', error)

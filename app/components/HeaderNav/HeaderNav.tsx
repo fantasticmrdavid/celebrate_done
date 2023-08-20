@@ -1,14 +1,11 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import { Dropdown, Menu, MenuProps, Space } from 'antd'
 import styles from './headerNav.module.scss'
 import Link from 'next/link'
-import { UserContext } from '@/app/contexts/User'
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
-import { COOKIE_NAME } from '@/app/constants/constants'
-import { deleteCookie } from 'cookies-next'
-import { useQueryClient } from '@tanstack/react-query'
 import { GiGlassCelebration } from 'react-icons/gi'
+import { useSession, signOut } from 'next-auth/react'
 
 const menuItemList: MenuProps['items'] = [
   {
@@ -45,11 +42,10 @@ const menuKeysToRoutes = [
 ]
 
 export const HeaderNav = () => {
-  const queryClient = useQueryClient()
   const [isUserMenuCollapsed, setIsUserMenuCollapsed] = useState<boolean>(true)
-  const { user, isFetchingUser } = useContext(UserContext)
+  const { data: session } = useSession()
   const router = useRouter()
-  if (isFetchingUser) return null
+  if (!session || !session.user) return null
   return (
     <Space className={styles.container}>
       <Space className={styles.contentWrapper}>
@@ -75,14 +71,8 @@ export const HeaderNav = () => {
                 items: [
                   {
                     label: (
-                      <div
-                        onClick={() => {
-                          queryClient.clear()
-                          deleteCookie(COOKIE_NAME)
-                          router.push('./')
-                        }}
-                      >
-                        <LogoutOutlined /> Logout {user.username}
+                      <div onClick={() => signOut()}>
+                        <LogoutOutlined /> Logout {session?.user?.email}
                       </div>
                     ),
                     key: '1',

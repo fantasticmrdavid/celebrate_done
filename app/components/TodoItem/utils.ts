@@ -1,53 +1,30 @@
 import { ManipulateType } from 'dayjs'
-
-export enum TODO_SIZE {
-  SMALL = 'SMALL',
-  MEDIUM = 'MEDIUM',
-  LARGE = 'LARGE',
-}
-
-export enum TODO_PRIORITY {
-  NORMAL = 'NORMAL',
-  URGENT = 'URGENT',
-}
-
-export enum TODO_STATUS {
-  INCOMPLETE = 'INCOMPLETE',
-  DONE = 'DONE',
-}
-
-export enum TODO_REPEAT_FREQUENCY {
-  DAILY = 'DAILY',
-  WEEKLY = 'WEEKLY',
-  FORTNIGHTLY = 'FORTNIGHTLY',
-  MONTHLY = 'MONTHLY',
-  ANNUALLY = 'ANNUALLY',
-}
+import { TodoRepeatFrequency } from '@prisma/client'
 
 type RepeatDayUnitsToSqlUnits = {
-  [key in TODO_REPEAT_FREQUENCY]: {
+  [key in TodoRepeatFrequency]: {
     unit: ManipulateType
     count: number
   }
 }
 export const repeatDayUnitsToSqlUnits: RepeatDayUnitsToSqlUnits = {
-  [TODO_REPEAT_FREQUENCY.DAILY]: {
+  [TodoRepeatFrequency.DAILY]: {
     unit: 'day',
     count: 1,
   },
-  [TODO_REPEAT_FREQUENCY.WEEKLY]: {
+  [TodoRepeatFrequency.WEEKLY]: {
     unit: 'week',
     count: 1,
   },
-  [TODO_REPEAT_FREQUENCY.FORTNIGHTLY]: {
+  [TodoRepeatFrequency.FORTNIGHTLY]: {
     unit: 'week',
     count: 2,
   },
-  [TODO_REPEAT_FREQUENCY.MONTHLY]: {
+  [TodoRepeatFrequency.MONTHLY]: {
     unit: 'month',
     count: 1,
   },
-  [TODO_REPEAT_FREQUENCY.ANNUALLY]: {
+  [TodoRepeatFrequency.ANNUALLY]: {
     unit: 'year',
     count: 1,
   },

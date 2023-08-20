@@ -11,7 +11,6 @@ import {
   Space,
 } from 'antd'
 import axios from 'axios'
-import { Category } from '@/app/components/CategoryFormModal/types'
 import {
   QueryKey,
   useMutation,
@@ -19,29 +18,32 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { New_Todo, Todo } from '@/app/components/TodoItem/types'
-import {
-  TODO_PRIORITY,
-  TODO_REPEAT_FREQUENCY,
-  TODO_SIZE,
-  TODO_STATUS,
-} from '@/app/components/TodoItem/utils'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
-import { Get_Suggestions_Response } from '@/pages/api/todos/getSuggestions'
-import { UserContext } from '@/app/contexts/User'
 import { getLocalStartOfDay } from '@/app/utils'
 
 import { TodoValidation, validateTodo } from './utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
+import { useSession } from 'next-auth/react'
+import { TodoWithRelationsNoCategory } from '@/pages/api/todos/getTodos'
+import {
+  Category,
+  Schedule,
+  TodoPriority,
+  TodoRepeatFrequency,
+  TodoSize,
+  TodoStatus,
+} from '@prisma/client'
+import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 
 type TodoFormModalProps = {
   isOpen: boolean
   onCancel?: () => void
   category?: Category
+  schedule?: Schedule | null
   mode: TodoModal_Mode
-  todo?: Todo
+  todo?: TodoWithRelationsNoCategory
 }
 
 export enum TodoModal_Mode {
@@ -52,66 +54,68 @@ export enum TodoModal_Mode {
 const sizeList = [
   {
     label: 'Small',
-    value: TODO_SIZE.SMALL,
+    value: TodoSize.SMALL,
   },
   {
     label: 'Medium',
-    value: TODO_SIZE.MEDIUM,
+    value: TodoSize.MEDIUM,
   },
   {
     label: 'Large',
-    value: TODO_SIZE.LARGE,
+    value: TodoSize.LARGE,
   },
 ]
 
 const priorityList = [
   {
     label: 'Normal',
-    value: TODO_PRIORITY.NORMAL,
+    value: TodoPriority.NORMAL,
   },
   {
     label: 'Urgent',
-    value: TODO_PRIORITY.URGENT,
+    value: TodoPriority.URGENT,
   },
 ]
 
 const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
-  const { user } = useContext(UserContext)
-  const { isOpen, onCancel, category: propsCategory, todo, mode } = props
+  const { data: session } = useSession()
+  const { currentDate } = useContext(SelectedDateContext)
+  const {
+    isOpen,
+    onCancel,
+    category: propsCategory,
+    todo,
+    schedule,
+    mode,
+  } = props
   const [name, setName] = useState<string>(todo ? todo.name : '')
   const [startDate, setStartDate] = useState<string>(
     todo
       ? dayjs(new Date(todo.startDate)).startOf('day').toISOString()
-      : dayjs(new Date()).startOf('day').toISOString(),
+      : dayjs(new Date(currentDate)).startOf('day').toISOString(),
   )
-  const [notes, setNotes] = useState<string>(todo ? todo.notes : '')
-  const [size, setSize] = useState<TODO_SIZE>(
-    todo ? todo.size : TODO_SIZE.SMALL,
+  const [notes, setNotes] = useState<string | null>(todo ? todo.notes : '')
+  const [size, setSize] = useState<TodoSize>(todo ? todo.size : TodoSize.SMALL)
+  const [priority, setPriority] = useState<TodoPriority>(
+    todo ? todo.priority : TodoPriority.NORMAL,
   )
-  const [priority, setPriority] = useState<TODO_PRIORITY>(
-    todo ? todo.priority : TODO_PRIORITY.NORMAL,
-  )
-  const [category, setCategory] = useState<Category | undefined>(
-    todo ? todo.category : propsCategory,
-  )
+  const [category, setCategory] = useState<Category | undefined>(propsCategory)
 
-  const [isRecurring, setIsRecurring] = useState(
-    todo ? todo.isRecurring : false,
-  )
-  const [repeats, setRepeats] = useState(
-    todo && todo.isRecurring ? todo.repeats : TODO_REPEAT_FREQUENCY.DAILY,
+  const [isRecurring, setIsRecurring] = useState(!!schedule || false)
+  const [repeats, setRepeats] = useState<TodoRepeatFrequency>(
+    todo && todo.schedule ? todo.schedule.unit : TodoRepeatFrequency.DAILY,
   )
 
   const [validation, setValidation] = useState<TodoValidation>({})
 
-  const { data: suggestionList } = useQuery<Get_Suggestions_Response[]>(
+  const { data: suggestionList } = useQuery(
     ['getTodoSuggestions'] as unknown as QueryKey,
     async () =>
-      await fetch(`/api/todos/getSuggestions?user_id=${user?.uuid || ''}`).then(
-        (res) => res.json(),
-      ),
+      await fetch(
+        `/api/todos/getSuggestions?userId=${session?.user?.id || ''}`,
+      ).then((res) => res.json()),
     {
       initialData: [],
     },
@@ -121,7 +125,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
 
   const { categoryList, isFetchingCategories, isFetchingCategoriesError } =
     useContext(CategoriesContext)
-  const { currentDate } = useContext(SelectedDateContext)
 
   const createTodo = useMutation({
     mutationFn: () =>
@@ -134,39 +137,50 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         category,
         isRecurring,
         repeats,
-        user_id: user.uuid,
-      } as New_Todo),
+        userId: session?.user?.id,
+      }),
     onMutate: async () => {
-      const previousTodoList = queryClient.getQueryData([
-        'getTodos',
+      const previousCategoriesList = queryClient.getQueryData([
+        'getCategories',
         currentDate,
-      ]) as Todo[]
+      ]) as CategoryWithRelations[]
+
+      const updatedCategoriesList = previousCategoriesList.map((c) =>
+        c.id === category?.id
+          ? {
+              ...c,
+              todos: [
+                ...c.todos.filter((t) => t.status !== TodoStatus.DONE),
+                {
+                  name,
+                  startDate,
+                  notes,
+                  size,
+                  priority,
+                  category,
+                  isRecurring,
+                  repeats,
+                  userId: session?.user?.id,
+                  uuid: `temp_newID`,
+                },
+                ...c.todos.filter((t) => t.status === TodoStatus.DONE),
+              ],
+            }
+          : c,
+      )
+
       queryClient.setQueryData(
-        ['getTodos', currentDate],
-        [
-          ...previousTodoList.filter((t) => t.status !== TODO_STATUS.DONE),
-          {
-            name,
-            startDate,
-            notes,
-            size,
-            priority,
-            category,
-            isRecurring,
-            repeats,
-            user_id: user.uuid,
-            uuid: `temp_newID`,
-          },
-          ...previousTodoList.filter((t) => t.status === TODO_STATUS.DONE),
-        ],
+        ['getCategories', currentDate],
+        updatedCategoriesList,
       )
       if (onCancel) onCancel()
-      return { previousTodoList }
+      return { previousCategoriesList }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['getTodos'])
+      queryClient.invalidateQueries(['getCategories'])
       queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
+        placement: 'bottomRight',
         message: (
           <>
             <strong>{name}</strong> added to <strong>{category?.name}</strong>!
@@ -179,7 +193,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
-        message: <>Error adding todo. Check console for details.</>,
+        placement: 'bottomRight',
+        message: <>Error adding Todo. Check console for details.</>,
       })
     },
   })
@@ -187,8 +202,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const saveTodo = useMutation({
     mutationFn: () =>
       axios.patch('/api/todos', {
-        user_id: user.uuid,
-        uuid: (todo as Todo).uuid,
+        id: todo?.id,
+        userId: session?.user?.id,
         name,
         startDate,
         notes,
@@ -197,40 +212,52 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         category,
         isRecurring,
         repeats,
+        schedule,
         action: 'update',
       }),
     onMutate: async () => {
-      const previousTodoList = queryClient.getQueryData([
-        'getTodos',
+      const previousCategoriesList = queryClient.getQueryData([
+        'getCategories',
         currentDate,
-      ]) as Todo[]
+      ]) as CategoryWithRelations[]
+      const updatedCategoriesList = previousCategoriesList.map((c) =>
+        c.id === category?.id
+          ? {
+              ...c,
+              todos: c.todos.map((t) =>
+                t.id === todo?.id
+                  ? {
+                      ...t,
+                      name,
+                      startDate,
+                      notes,
+                      size,
+                      priority,
+                      schedule: repeats
+                        ? {
+                            count: 1,
+                            unit: repeats,
+                          }
+                        : undefined,
+                    }
+                  : t,
+              ),
+            }
+          : c,
+      )
+
       queryClient.setQueryData(
-        ['getTodos', currentDate],
-        [
-          ...previousTodoList.map((t) =>
-            t.uuid === (todo as Todo).uuid
-              ? {
-                  ...todo,
-                  name,
-                  startDate,
-                  notes,
-                  size,
-                  priority,
-                  category,
-                  isRecurring,
-                  repeats,
-                }
-              : t,
-          ),
-        ],
+        ['getCategories', currentDate],
+        updatedCategoriesList,
       )
       if (onCancel) onCancel()
-      return { previousTodoList }
+      return { previousCategoriesList }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['getTodos'])
       queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
+        placement: 'bottomRight',
         message: (
           <>
             <strong>{name}</strong> updated!
@@ -242,6 +269,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     onError: (error) => {
       console.log('ERROR: ', error)
       notification.error({
+        placement: 'bottomRight',
         message: <>Error saving todo. Check console for details.</>,
       })
     },
@@ -290,7 +318,9 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       <Space style={{ padding: '1em', width: '100%' }} direction={'vertical'}>
         <Form.Item label={'Name'}>
           <AutoComplete
-            options={suggestionList.map((s) => ({ value: s.name }))}
+            options={suggestionList.map((s: { name: string }) => ({
+              value: s.name,
+            }))}
             filterOption={(inputValue, option) => {
               return (
                 (option?.value as string)
@@ -325,10 +355,10 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         </Form.Item>
         <Form.Item label={'Category'}>
           <Select
-            defaultValue={isFetchingCategories ? undefined : category?.uuid}
+            defaultValue={isFetchingCategories ? undefined : category?.id}
             disabled={isFetchingCategories}
             onChange={(value) =>
-              setCategory(categoryList.find((c) => c.uuid === value))
+              setCategory(categoryList.find((c) => c.id === value))
             }
             placeholder={
               isFetchingCategories
@@ -338,7 +368,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             allowClear={false}
           >
             {categoryList.map((c) => (
-              <Option key={`category_${c.uuid}`} value={c.uuid}>
+              <Option key={`category_${c.id}`} value={c.id}>
                 {c.name}
               </Option>
             ))}
@@ -387,7 +417,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                 allowClear={false}
                 popupMatchSelectWidth={false}
               >
-                {Object.values(TODO_REPEAT_FREQUENCY).map((r) => (
+                {Object.values(TodoRepeatFrequency).map((r) => (
                   <Option key={`recurringDateType_${r}`} value={r}>
                     {r}
                   </Option>
@@ -400,7 +430,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         <Form.Item label={'Notes'}>
           <Input.TextArea
             placeholder={'Add any notes (optional)'}
-            value={notes}
+            value={notes || ''}
             onChange={(e) => setNotes(e.target.value)}
           />
         </Form.Item>

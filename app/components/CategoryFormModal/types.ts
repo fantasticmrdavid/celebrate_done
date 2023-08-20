@@ -1,9 +1,12 @@
+import { Todo } from '@prisma/client'
+
 export type Category = {
+  id: string
   color: string
-  uuid: string
   name: string
   description: string
   maxPerDay?: number
   sortOrder: number
-  user_id: string
+  userId: string
+  todos: Todo[]
 }

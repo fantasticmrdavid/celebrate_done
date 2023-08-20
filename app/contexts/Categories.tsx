@@ -1,11 +1,14 @@
 import React, { createContext, ReactNode, FC, useContext } from 'react'
-import { Category } from '@/app/components/CategoryFormModal/types'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { Spin } from 'antd'
-import { UserContext } from '@/app/contexts/User'
+import { useSession } from 'next-auth/react'
+import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
+import { SelectedDateContext } from '@/app/contexts/SelectedDate'
+import { getSortedTodoList } from '@/pages/api/utils'
+import { getLocalEndOfDay, getLocalStartOfDay } from '@/app/utils'
 
 export interface CategoriesContextValues {
-  categoryList: Category[]
+  categoryList: CategoryWithRelations[]
   isFetchingCategories: boolean
   isFetchingCategoriesError: boolean
 }
@@ -21,22 +24,27 @@ const CategoriesContextInitialValues = {
 }
 
 export const CategoriesContext = createContext<CategoriesContextValues>(
-  CategoriesContextInitialValues
+  CategoriesContextInitialValues,
 )
 
 export const CategoriesProvider: FC<CategoriesContextProps> = ({
   children,
 }) => {
-  const { user } = useContext(UserContext)
+  const { currentDate } = useContext(SelectedDateContext)
+  const { data: session } = useSession()
   const { isLoading, error, data } = useQuery(
-    ['getCategories'] as unknown as QueryKey,
+    ['getCategories', currentDate] as unknown as QueryKey,
     async () =>
-      await fetch(`/api/categories?user_id=${user?.uuid || ''}`).then((res) =>
-        res.json()
-      ),
+      await fetch(
+        `/api/categories?userId=${
+          session?.user?.id || ''
+        }&localStartOfDay=${getLocalStartOfDay(
+          currentDate,
+        )}&localEndOfDay=${getLocalEndOfDay(currentDate)}`,
+      ).then((res) => res.json()),
     {
       initialData: [],
-    }
+    },
   )
 
   if (isLoading || !data) {
@@ -48,20 +56,13 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
     )
   }
 
-  const categoriesList: Category[] = data.map((c: Category) => ({
-    uuid: c.uuid,
-    name: c.name,
-    description: c.description,
-    color: c.color,
-    maxPerDay: c.maxPerDay,
-    sortOrder: c.sortOrder,
-    user_id: c.user_id,
-  }))
-
   return (
     <CategoriesContext.Provider
       value={{
-        categoryList: categoriesList,
+        categoryList: data.map((c: CategoryWithRelations) => ({
+          ...c,
+          todos: getSortedTodoList(c.todos),
+        })),
         isFetchingCategories: isLoading,
         isFetchingCategoriesError: !!error,
       }}

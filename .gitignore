@@ -1,4 +1,4 @@
-.envrc
+.env
 .DS_Store
 .idea/*
 .vscode
@@ -9,3 +9,4 @@ public/*.svg
 .env
 dbBackup.sh
 db_backup.sql
+*.tsbuildinfo

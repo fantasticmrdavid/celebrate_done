@@ -1,4 +1,4 @@
-import { Todo } from '@/app/components/TodoItem/types'
+import { Todo } from '@prisma/client'
 
 export type TodoValidation = {
   [key: string]: string
