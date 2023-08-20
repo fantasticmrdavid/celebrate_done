@@ -43,6 +43,8 @@ model Category {
   todos       Todo[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
 }
 
 model Schedule {

@@ -41,6 +41,8 @@
     "react-dom": "18.2.0",
     "react-icons": "^4.10.1",
     "sass": "^1.58.3",
+    "serverless-mysql": "^1.5.5",
+    "sqlstring": "^2.3.3",
     "typescript": "5.1.6",
     "use-count-up": "^3.0.1",
     "uuid": "^9.0.0"
