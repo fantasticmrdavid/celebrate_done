@@ -1,0 +1,33 @@
+@keyframes cycleColors {
+  0% { background: #00d8ff }
+  12.5% { background: #00d8ff }
+  12.625% { background: #222222 }
+  100% { background: #222222 }
+}
+
+.container {
+  width: 200px;
+  height: 200px;
+  display: inline-block;
+  overflow: hidden;
+  background: #f1f2f3;
+  transform: scale(50%);
+  opacity: 0.8;
+}
+.spinnerBlocks {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform: translateZ(0) scale(1);
+  backface-visibility: hidden;
+  transform-origin: 0 0;
+
+  div {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: #222222;
+    animation: cycleColors 1s linear infinite;
+  }
+}
+.ldio-m7zkvj6yjue div { box-sizing: content-box; }

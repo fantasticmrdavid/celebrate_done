@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 
 import styles from './template.module.scss'
+import { LoadingSpinner } from '@/app/components/LoadingSpinner/LoadingSpinner'
 
 const { Content } = Layout
 
@@ -46,7 +47,12 @@ export const Template = ({ children }: RootLayoutProps) => {
     </Head>
   )
 
-  if (sessionStatus === 'loading') return <div>Loading...</div>
+  if (sessionStatus === 'loading')
+    return (
+      <div className={styles.centeredContent} style={{ gap: '0.5em' }}>
+        <LoadingSpinner />
+      </div>
+    )
 
   if (session && session.user) {
     return (

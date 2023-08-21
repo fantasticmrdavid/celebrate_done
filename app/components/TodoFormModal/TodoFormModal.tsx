@@ -33,7 +33,6 @@ import {
   TodoPriority,
   TodoRepeatFrequency,
   TodoSize,
-  TodoStatus,
 } from '@prisma/client'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 
