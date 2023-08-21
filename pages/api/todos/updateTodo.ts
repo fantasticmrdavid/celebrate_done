@@ -72,10 +72,11 @@ export const updateTodos = async (
           category,
           schedule,
           repeats,
+          isRecurring,
         } = req.body
 
         const scheduleQuery = async () => {
-          if (schedule && repeats) {
+          if (schedule && isRecurring) {
             return prisma.schedule.update({
               where: {
                 todoId: id,
@@ -84,7 +85,7 @@ export const updateTodos = async (
                 unit: repeats,
               },
             })
-          } else if (!schedule && repeats) {
+          } else if (!schedule && isRecurring) {
             return prisma.schedule.create({
               data: {
                 unit: repeats,
@@ -100,7 +101,7 @@ export const updateTodos = async (
                 },
               },
             })
-          } else if (!repeats) {
+          } else if (!isRecurring) {
             return prisma.schedule.delete({
               where: {
                 todoId: id,

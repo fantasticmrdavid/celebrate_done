@@ -233,7 +233,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                       notes,
                       size,
                       priority,
-                      schedule: repeats
+                      schedule: isRecurring
                         ? {
                             count: 1,
                             unit: repeats,
