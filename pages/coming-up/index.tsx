@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { Radio, Skeleton, Space, Tag } from 'antd'
+import { Radio, Skeleton, Space, Tag, Tooltip } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
 
@@ -15,7 +15,8 @@ import quoteList from '@/app/data/quotes'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import dayjs from 'dayjs'
 import { useSession } from 'next-auth/react'
-import { TodoWithCategory } from '@/pages/api/todos/future'
+import { ScheduleWithTodo, TodoWithCategory } from '@/pages/api/todos/future'
+import { BsRepeat } from 'react-icons/bs'
 
 export enum DateRangeType {
   WEEK = 'WEEK',
@@ -58,21 +59,24 @@ export const ComingUpPage = () => {
     }
   }
 
-  const {
-    isLoading,
-    error,
-    data: todoList,
-  } = useQuery<TodoWithCategory[]>(
+  const { isLoading, error, data } = useQuery(
     ['getFutureTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/future?userId=${session?.user?.id}&${getDateRangeQuery()}`,
+        `/api/todos/future?userId=${session?.user
+          ?.id}&${getDateRangeQuery()}&tz=${
+          Intl.DateTimeFormat().resolvedOptions().timeZone
+        }`,
       ).then((res) => res.json()),
   )
 
-  const isReady = !isLoading && todoList
+  const isReady = !isLoading && data && data.todos && data.schedules
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
+
+  if (!isReady) return <></>
+
+  const { schedules, todos } = data
 
   return (
     <Space direction={'vertical'} align={'center'} style={{ width: '100%' }}>
@@ -109,9 +113,18 @@ export const ComingUpPage = () => {
             )}
             {isReady &&
               categoryList.map((c) => {
-                const categoryTodoList = todoList.filter(
-                  (t) => t.category.name === c.name,
-                )
+                const filteredScheduleList = schedules
+                  .filter((_s: ScheduleWithTodo) => _s.todo.categoryId === c.id)
+                  .map((s: ScheduleWithTodo) => ({
+                    ...s.todo,
+                    scheduleId: s.id,
+                  }))
+                const categoryTodoList = [
+                  ...filteredScheduleList,
+                  ...todos.filter(
+                    (t: TodoWithCategory) => t.category.name === c.name,
+                  ),
+                ].sort((a, b) => (a.startDate > b.startDate ? 1 : -1))
                 return categoryTodoList.length > 0 ? (
                   <div key={`category_${c.name}`}>
                     <h4 style={{ fontWeight: 700 }}>{c.name}</h4>
@@ -123,7 +136,7 @@ export const ComingUpPage = () => {
                         listStylePosition: 'inside',
                       }}
                     >
-                      {categoryTodoList.map((t) => (
+                      {categoryTodoList.map((t: TodoWithCategory) => (
                         <li key={`todo_${t.id}`} className={styles.doneItem}>
                           <>
                             {dayjs(t.startDate).format('MMM DD')} - {t.name}
@@ -133,6 +146,11 @@ export const ComingUpPage = () => {
                             >
                               {sizeTags[t.size].label}
                             </Tag>
+                            {t.scheduleId && (
+                              <Tooltip title={'Recurring'}>
+                                <BsRepeat />
+                              </Tooltip>
+                            )}
                           </>
                         </li>
                       ))}
