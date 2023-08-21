@@ -150,7 +150,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
           ? {
               ...c,
               todos: [
-                ...c.todos.filter((t) => t.status !== TodoStatus.DONE),
                 {
                   name,
                   startDate,
@@ -163,6 +162,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   userId: session?.user?.id,
                   uuid: `temp_newID`,
                 },
+                ...c.todos.filter((t) => t.status !== TodoStatus.DONE),
                 ...c.todos.filter((t) => t.status === TodoStatus.DONE),
               ],
             }
@@ -254,7 +254,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       return { previousCategoriesList }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['getTodos'])
+      queryClient.invalidateQueries(['getCategories', currentDate])
       queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
         placement: 'bottomRight',
