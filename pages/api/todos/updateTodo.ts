@@ -43,13 +43,12 @@ export const updateTodos = async (
       }
       case 'updateSortOrder': {
         const { todoList } = req.body
-
         if (todoList && Array.isArray(todoList)) {
           result = await prisma.$transaction(
-            todoList.map((t: TodoWithRelations, i: number) =>
+            todoList.map((t: TodoWithRelations) =>
               prisma.todo.update({
                 data: {
-                  sortOrder: i,
+                  sortOrder: t.sortOrder,
                 },
                 where: {
                   id: t.id,

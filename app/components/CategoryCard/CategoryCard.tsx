@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import update from 'immutability-helper'
 import {
   Button,
   Collapse,
@@ -91,12 +90,10 @@ export const CategoryCard = ({
   const updateSortedTodoList = useCallback(
     (srcIndex: number, destIndex: number) => {
       setLocalTodoList((localTodoList) =>
-        update(localTodoList, {
-          $splice: [
-            [srcIndex, 1],
-            [destIndex, 0, localTodoList[srcIndex]],
-          ],
-        }),
+        arrayMoveImmutable(localTodoList, srcIndex, destIndex).map((c, i) => ({
+          ...c,
+          sortOrder: i,
+        })),
       )
     },
     [],
@@ -109,7 +106,7 @@ export const CategoryCard = ({
         action: 'updateSortOrder',
       }),
     onMutate: async () => {
-      await queryClient.cancelQueries(['getTodos', currentDate])
+      await queryClient.cancelQueries(['getCategories', currentDate])
       const previousTodoList = queryClient.getQueryData([
         'getCategories',
         currentDate,
@@ -120,7 +117,7 @@ export const CategoryCard = ({
           c.id === category.id
             ? {
                 ...c,
-                todos: localTodoList,
+                todos: getSortedTodoList(localTodoList),
               }
             : c,
         ),
