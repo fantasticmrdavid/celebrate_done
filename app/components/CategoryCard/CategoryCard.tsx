@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
+import update from 'immutability-helper'
 import {
   Button,
   Collapse,
@@ -89,14 +90,16 @@ export const CategoryCard = ({
 
   const updateSortedTodoList = useCallback(
     (srcIndex: number, destIndex: number) => {
-      setLocalTodoList(
-        arrayMoveImmutable(localTodoList, srcIndex, destIndex).map((t, i) => ({
-          ...t,
-          sortOrder: i,
-        })),
+      setLocalTodoList((localTodoList) =>
+        update(localTodoList, {
+          $splice: [
+            [srcIndex, 1],
+            [destIndex, 0, localTodoList[srcIndex]],
+          ],
+        }),
       )
     },
-    [localTodoList],
+    [],
   )
 
   const sortTodoList = useMutation({

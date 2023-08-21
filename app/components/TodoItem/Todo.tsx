@@ -434,8 +434,6 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       ref={ref}
       data-handler-id={handlerId}
       style={{
-        display: 'flex',
-        justifyContent: 'space-between',
         opacity: isDragging ? 0 : 1,
       }}
       className={containerClassNames}
