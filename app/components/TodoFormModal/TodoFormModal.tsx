@@ -162,8 +162,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   userId: session?.user?.id,
                   uuid: `temp_newID`,
                 },
-                ...c.todos.filter((t) => t.status !== TodoStatus.DONE),
-                ...c.todos.filter((t) => t.status === TodoStatus.DONE),
+                ...c.todos,
               ],
             }
           : c,
