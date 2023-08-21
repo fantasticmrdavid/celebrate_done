@@ -101,7 +101,7 @@ export const updateTodos = async (
                 },
               },
             })
-          } else if (!isRecurring) {
+          } else if (schedule && !isRecurring) {
             return prisma.schedule.delete({
               where: {
                 todoId: id,
