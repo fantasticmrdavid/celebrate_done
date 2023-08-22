@@ -56,11 +56,7 @@ export const updateTodos = async (
               ...todoList.map((t) => t.id),
             ],
           }
-          result = await dbConnect
-            .transaction()
-            .query(sortSqlQuery)
-            .rollback((e: Error) => console.error(e))
-            .commit()
+          result = await dbConnect.query(sortSqlQuery)
           await dbConnect.end()
           // NOTE: Temporarily using raw sql until Prisma supports CASE/THEN statements
           // result = await prisma.$transaction(
