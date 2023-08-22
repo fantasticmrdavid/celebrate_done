@@ -23,8 +23,6 @@ export const sortCategories = async (
         ),
       )
       return res.status(200).json(result)
-    } else {
-      return res.status(200).json({})
     }
   } catch (error) {
     console.log('SQL ERROR: ', error)

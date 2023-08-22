@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
 import dayjs from 'dayjs'
-import { TodoWithRelations } from '@/pages/api/todos/getTodos'
 import { TodoStatus } from '@prisma/client'
+import { dbConnect } from '@/config/dbConnect'
 
 export const updateTodos = async (
   req: NextApiRequest,
@@ -44,20 +44,37 @@ export const updateTodos = async (
       case 'updateSortOrder': {
         const { todoList } = req.body
         if (todoList && Array.isArray(todoList)) {
-          result = await prisma.$transaction(
-            todoList.map((t: TodoWithRelations) =>
-              prisma.todo.update({
-                data: {
-                  sortOrder: t.sortOrder,
-                },
-                where: {
-                  id: t.id,
-                },
-              }),
-            ),
-          )
-        } else {
-          result = {}
+          const sortSqlQuery = {
+            sql: `UPDATE Todo
+             SET
+              sortOrder=(CASE id 
+                  ${todoList.map(() => `WHEN ? THEN ? `).join(' ')}
+              END)
+              WHERE id IN (${todoList.map(() => '?').join(',')})`,
+            values: [
+              ...todoList.flatMap((t) => [t.id, t.sortOrder]),
+              ...todoList.map((t) => t.id),
+            ],
+          }
+          result = await dbConnect
+            .transaction()
+            .query(sortSqlQuery)
+            .rollback((e: Error) => console.error(e))
+            .commit()
+          await dbConnect.end()
+          // NOTE: Temporarily using raw sql until Prisma supports CASE/THEN statements
+          // result = await prisma.$transaction(
+          //   todoList.map((t: TodoWithRelations) =>
+          //     prisma.todo.update({
+          //       data: {
+          //         sortOrder: t.sortOrder,
+          //       },
+          //       where: {
+          //         id: t.id,
+          //       },
+          //     }),
+          //   ),
+          // )
         }
         break
       }
