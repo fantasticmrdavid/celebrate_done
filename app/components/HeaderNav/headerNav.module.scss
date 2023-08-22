@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background-color: #001529;
+  background-color: var(--header-nav-background);
   @media only screen and (min-width: 800px) {
     flex-direction: row;
     padding: 1em 3.5em;
@@ -43,9 +43,14 @@
 }
 
 .menu {
+  background-color: unset;
   display: flex;
   li {
     width: auto !important;
+
+    &.ant-menu-item-selected {
+      color: var(--primary-color)
+    }
   }
 }
 

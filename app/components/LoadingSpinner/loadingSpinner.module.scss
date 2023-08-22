@@ -1,8 +1,8 @@
 @keyframes cycleColors {
-  0% { background: #00d8ff }
-  12.5% { background: #00d8ff }
-  12.625% { background: #222222 }
-  100% { background: #222222 }
+  0% { background: var(--color-primary) }
+  12.5% { background: var(--color-primary) }
+  12.625% { background: #444 }
+  100% { background: #444 }
 }
 
 .container {
@@ -12,7 +12,7 @@
   overflow: hidden;
   background: #f1f2f3;
   transform: scale(50%);
-  opacity: 0.8;
+  opacity: 0.3;
 }
 .spinnerBlocks {
   width: 100%;

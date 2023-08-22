@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { SessionProvider } from 'next-auth/react'
+import { ThemeProvider } from 'next-themes'
 import type { AppProps } from 'next/app'
 import 'antd/dist/reset.css'
 import '../styles/globals.css'
@@ -26,6 +27,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <ConfigProvider
           theme={{
             token: {
+              colorPrimary: '#00ad86',
               fontFamily:
                 "Raleway, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,\n" +
                 "  'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',\n" +
@@ -33,9 +35,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             },
           }}
         >
-          <Template>
-            <Component {...pageProps} />
-          </Template>
+          <ThemeProvider>
+            <Template>
+              <Component {...pageProps} />
+            </Template>
+          </ThemeProvider>
         </ConfigProvider>
       </QueryClientProvider>
     </SessionProvider>

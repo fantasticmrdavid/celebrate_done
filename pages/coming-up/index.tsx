@@ -74,9 +74,7 @@ export const ComingUpPage = () => {
 
   if (error) return <div>ERROR FETCHING TODOS...</div>
 
-  if (!isReady) return <></>
-
-  const { schedules, todos } = data
+  const { schedules, todos } = data || {}
 
   return (
     <Space direction={'vertical'} align={'center'} style={{ width: '100%' }}>
@@ -137,7 +135,7 @@ export const ComingUpPage = () => {
                       }}
                     >
                       {categoryTodoList.map((t: TodoWithCategory) => (
-                        <li key={`todo_${t.id}`} className={styles.doneItem}>
+                        <li key={`todo_${t.id}`} className={styles.todoItem}>
                           <>
                             {dayjs(t.startDate).format('MMM DD')} - {t.name}
                             <Tag

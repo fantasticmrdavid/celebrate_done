@@ -31,8 +31,6 @@
 
 .isUrgent {
   font-weight: 800;
-  animation: flashOnLoad 1s ease 1;
-  animation-fill-mode: forwards;
 }
 
 .fadeOut {
@@ -91,23 +89,5 @@
   }
   100% {
     opacity: 1;
-  }
-}
-
-@keyframes flashOnLoad {
-  0% {
-    background-color: white;
-  }
-  25% {
-    background-color: rgba(fuchsia, 0.25);
-  }
-  50% {
-    background-color: white;
-  }
-  75% {
-    background-color: rgba(fuchsia, 0.25);
-  }
-  100% {
-    background-color: white;
   }
 }
