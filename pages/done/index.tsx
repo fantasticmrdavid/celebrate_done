@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { Radio, Skeleton, Space, Tag } from 'antd'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { DoneCount } from '@/app/components/DoneCount/DoneCount'
@@ -6,6 +6,8 @@ import { sizeTags } from '@/app/components/TodoItem/Todo'
 
 import { Fireworks } from '@fireworks-js/react'
 import type { FireworksHandlers } from '@fireworks-js/react'
+
+import { Chart } from 'react-google-charts'
 
 import styles from './donePage.module.scss'
 import {
@@ -83,6 +85,12 @@ export const DonePage = () => {
       )}&dateRangeEnd=${getLocalEndOfYear(currentDate)}`
     }
   }
+
+  const getCategoryTotalCount = useCallback(
+    (c: CategoryWithTodoCounts) =>
+      c.todos.reduce((acc, curr) => (acc += curr.count), 0),
+    [],
+  )
 
   const {
     isLoading,
@@ -177,7 +185,7 @@ export const DonePage = () => {
                     top: 0,
                     left: 0,
                     width: '100%',
-                    height: '100%',
+                    height: '500px',
                     position: 'absolute',
                   }}
                 />
@@ -191,14 +199,33 @@ export const DonePage = () => {
                 )}
               </div>
               <div>
-                <h1>
+                <h1 style={{ marginBottom: 0 }}>
                   What I did {titleStrings[dateRangeType].toLocaleLowerCase()}:
                 </h1>
+                <div className={styles.chartContainer}>
+                  <Chart
+                    chartType="PieChart"
+                    data={[
+                      ['Category', 'Count'],
+                      ...doneCategoriesList.map((c) => [
+                        c.name,
+                        getCategoryTotalCount(c),
+                      ]),
+                    ]}
+                    options={{
+                      is3D: true,
+                      backgroundColor: 'transparent',
+                      chartArea: {
+                        width: '100%',
+                      },
+                      legend: { position: 'bottom' },
+                    }}
+                    width={'100%'}
+                    height={'400px'}
+                  />
+                </div>
                 {doneCategoriesList.map((c) => {
-                  const categoryTotal = c.todos.reduce(
-                    (acc, curr) => (acc += curr.count),
-                    0,
-                  )
+                  const categoryTotal = getCategoryTotalCount(c)
                   return doneCategoriesList.length > 0 ? (
                     <div key={`doneCategory_${c.id}`}>
                       <h4 style={{ fontWeight: 700 }}>

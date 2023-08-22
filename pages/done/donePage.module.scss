@@ -35,6 +35,11 @@
   }
 }
 
+.chartContainer {
+  position: relative;
+  z-index: 2;
+}
+
 .doneItem {
   padding: 0.2em 0;
 }
