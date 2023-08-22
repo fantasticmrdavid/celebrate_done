@@ -219,6 +219,14 @@ export const DonePage = () => {
                         width: '100%',
                       },
                       legend: { position: 'bottom' },
+                      pieSliceTextStyle: {
+                        color: '#000',
+                      },
+                      colors: doneCategoriesList.map(
+                        (c) =>
+                          c.color ||
+                          Math.floor(Math.random() * 16777215).toString(16),
+                      ),
                     }}
                     width={'100%'}
                     height={'400px'}
