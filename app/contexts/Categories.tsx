@@ -1,11 +1,11 @@
 import React, { createContext, ReactNode, FC, useContext } from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { Spin } from 'antd'
 import { useSession } from 'next-auth/react'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 import { getSortedTodoList } from '@/pages/api/utils'
 import { getLocalEndOfDay, getLocalStartOfDay } from '@/app/utils'
+import { LoadingSpinner } from '@/app/components/LoadingSpinner/LoadingSpinner'
 
 export interface CategoriesContextValues {
   categoryList: CategoryWithRelations[]
@@ -50,7 +50,7 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
   if (isLoading || !data) {
     return (
       <div>
-        <Spin size="large" />
+        <LoadingSpinner />
         <div className="content">Loading categories</div>
       </div>
     )
