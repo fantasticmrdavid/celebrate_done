@@ -159,7 +159,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   isRecurring,
                   repeats,
                   userId: session?.user?.id,
-                  uuid: `temp_newID`,
+                  id: `temp_newID`,
                 },
                 ...c.todos,
               ],

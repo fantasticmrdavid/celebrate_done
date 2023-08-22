@@ -182,7 +182,7 @@ export const CategoryCard = ({
       collapsible="icon"
       expandIconPosition={'end'}
       size={'small'}
-      onChange={(uuidList) => setIsExpanded(uuidList.includes(category.id))}
+      onChange={(idList) => setIsExpanded(idList.includes(category.id))}
       items={[
         {
           key: category.id,
