@@ -56,6 +56,8 @@ export const updateTodos = async (
               }),
             ),
           )
+        } else {
+          result = {}
         }
         break
       }
