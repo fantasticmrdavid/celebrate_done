@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { SessionProvider } from 'next-auth/react'
-import { ThemeProvider } from 'next-themes'
 import type { AppProps } from 'next/app'
 import 'antd/dist/reset.css'
 import '../styles/globals.css'
@@ -35,11 +34,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             },
           }}
         >
-          <ThemeProvider>
-            <Template>
-              <Component {...pageProps} />
-            </Template>
-          </ThemeProvider>
+          <Template>
+            <Component {...pageProps} />
+          </Template>
         </ConfigProvider>
       </QueryClientProvider>
     </SessionProvider>
