@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import prisma from '@/app/lib/prisma'
 import { Category } from '@prisma/client'
+import { dbConnect } from '@/config/dbConnect'
 
 export const sortCategories = async (
   req: NextApiRequest,
@@ -10,18 +10,34 @@ export const sortCategories = async (
     const { categoryList } = req.body
 
     if (categoryList && Array.isArray(categoryList)) {
-      const result = await prisma.$transaction(
-        categoryList.map((c: Category) =>
-          prisma.category.update({
-            data: {
-              sortOrder: c.sortOrder,
-            },
-            where: {
-              id: c.id,
-            },
-          }),
-        ),
-      )
+      const sortCategoriesQuery = `UPDATE Category
+            SET
+            sortOrder=(CASE id 
+                ${categoryList.map(() => `WHEN ? THEN ? `).join(' ')}
+            END)
+            WHERE id IN (${categoryList.map(() => '?').join(',')})`
+      const result = await dbConnect.query({
+        sql: sortCategoriesQuery,
+        values: [
+          ...categoryList.flatMap((c: Category) => [c.id, c.sortOrder]),
+          ...categoryList.map((c: Category) => c.id),
+        ],
+      })
+      await dbConnect.end()
+
+      // NOTE: Temporarily using raw sql until Prisma supports CASE/THEN statements
+      // const result = await prisma.$transaction(
+      //   categoryList.map((c: Category) =>
+      //     prisma.category.update({
+      //       data: {
+      //         sortOrder: c.sortOrder,
+      //       },
+      //       where: {
+      //         id: c.id,
+      //       },
+      //     }),
+      //   ),
+      // )
       return res.status(200).json(result)
     }
   } catch (error) {
