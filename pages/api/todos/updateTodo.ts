@@ -3,6 +3,7 @@ import prisma from '@/app/lib/prisma'
 import dayjs from 'dayjs'
 import { TodoStatus } from '@prisma/client'
 import { dbConnect } from '@/config/dbConnect'
+import { getToken } from 'next-auth/jwt'
 
 export const updateTodos = async (
   req: NextApiRequest,
@@ -75,9 +76,13 @@ export const updateTodos = async (
         break
       }
       case 'update': {
+        const token = await getToken({ req })
+        if (!token) return res.status(401)
+        const { sub } = token
+        if (!sub) return res.status(401)
+
         const {
           id,
-          userId,
           name,
           startDate,
           notes,
@@ -110,7 +115,7 @@ export const updateTodos = async (
                 },
                 user: {
                   connect: {
-                    id: userId,
+                    id: sub,
                   },
                 },
               },

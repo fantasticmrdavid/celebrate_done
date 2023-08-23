@@ -1,16 +1,22 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
+import { getToken } from 'next-auth/jwt'
 
 export const addCategory = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
   try {
-    const { name, description, maxPerDay, userId, color } = req.body
+    const token = await getToken({ req })
+    if (!token) return res.status(401)
+    const { sub } = token
+    if (!sub) return res.status(401)
+
+    const { name, description, maxPerDay, color } = req.body
 
     const result = await prisma.category.create({
       data: {
-        userId,
+        userId: sub,
         name,
         description,
         maxPerDay,

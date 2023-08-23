@@ -63,7 +63,7 @@ export const CategoryCard = ({
     setLocalTodoList(category.todos)
   }, [category.todos])
 
-  const optimisticUpdateTodoList = async (t: Todo) => {
+  const optimisticUpdateTodoList = async (t: Omit<Todo, 'userId'>) => {
     const newTodoList = getSortedTodoList([...localTodoList, t])
     await queryClient.cancelQueries(['getCategories', currentDate])
     const previousCategoriesList = queryClient.getQueryData([

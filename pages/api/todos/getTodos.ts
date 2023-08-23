@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
 import { Prisma, TodoStatus } from '@prisma/client'
+import { getSession } from 'next-auth/react'
 
 const todoWithRelations = Prisma.validator<Prisma.TodoDefaultArgs>()({
   include: {
@@ -22,8 +23,11 @@ export type TodoWithRelationsNoCategory = Prisma.TodoGetPayload<
 >
 
 export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { userId, localStartOfDay, localEndOfDay } = req.query
-  if (!userId || typeof userId !== 'string' || userId.length === 0) return {}
+  const session = await getSession({ req })
+  if (!session) return res.status(401)
+  const { user } = session
+  if (!user) return res.status(401)
+  const { localStartOfDay, localEndOfDay } = req.query
 
   try {
     const results = await prisma.todo.findMany({
@@ -35,7 +39,7 @@ export const getTodos = async (req: NextApiRequest, res: NextApiResponse) => {
         AND: [
           {
             userId: {
-              equals: userId as string,
+              equals: user.id,
             },
           },
           {

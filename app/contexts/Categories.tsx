@@ -1,6 +1,5 @@
 import React, { createContext, ReactNode, FC, useContext } from 'react'
 import { QueryKey, useQuery } from '@tanstack/react-query'
-import { useSession } from 'next-auth/react'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 import { getSortedTodoList } from '@/pages/api/utils'
@@ -31,14 +30,11 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
   children,
 }) => {
   const { currentDate } = useContext(SelectedDateContext)
-  const { data: session } = useSession()
   const { isLoading, error, data } = useQuery(
     ['getCategories', currentDate] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/categories?userId=${
-          session?.user?.id || ''
-        }&localStartOfDay=${getLocalStartOfDay(
+        `/api/categories?localStartOfDay=${getLocalStartOfDay(
           currentDate,
         )}&localEndOfDay=${getLocalEndOfDay(currentDate)}`,
       ).then((res) => res.json()),

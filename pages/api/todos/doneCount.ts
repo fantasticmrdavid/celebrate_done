@@ -1,19 +1,24 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
 import { TodoStatus } from '@prisma/client'
+import { getSession } from 'next-auth/react'
 
 export const getDoneTodosCount = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { userId, dateRangeStart, dateRangeEnd } = req.query
+  const session = await getSession({ req })
+  if (!session) return res.status(401)
+  const { user } = session
+  if (!user) return res.status(401)
+  const { dateRangeStart, dateRangeEnd } = req.query
   try {
     const results = await prisma.todo.count({
       where: {
         AND: [
           {
             userId: {
-              equals: userId as string,
+              equals: user.id,
             },
           },
           {

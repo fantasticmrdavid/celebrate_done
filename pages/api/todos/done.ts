@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 
 import prisma from '@/app/lib/prisma'
 import { TodoSize, TodoStatus } from '@prisma/client'
+import { getSession } from 'next-auth/react'
 
 type TodoCount = {
   id: string
@@ -18,14 +19,17 @@ export type CategoryWithTodoCounts = {
   name: string
   sortOrder: number
   todos: TodoCount[]
-  userId: string
 }
 
 export const getDoneTodos = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { userId, dateRangeStart, dateRangeEnd } = req.query
+  const session = await getSession({ req })
+  if (!session) return res.status(401)
+  const { user } = session
+  if (!user) return res.status(401)
+  const { dateRangeStart, dateRangeEnd } = req.query
   try {
     const categoryResults = await prisma.category.findMany({
       include: {
@@ -49,7 +53,7 @@ export const getDoneTodos = async (
       },
       where: {
         userId: {
-          equals: userId as string,
+          equals: user.id as string,
         },
       },
       orderBy: [{ sortOrder: 'desc' }],

@@ -14,7 +14,6 @@ import { Quote } from '@/app/components/Quote/Quote'
 import quoteList from '@/app/data/quotes'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import dayjs from 'dayjs'
-import { useSession } from 'next-auth/react'
 import { ScheduleWithTodo, TodoWithCategory } from '@/pages/api/todos/future'
 import { BsRepeat } from 'react-icons/bs'
 
@@ -32,7 +31,6 @@ const titleStrings = {
 
 export const ComingUpPage = () => {
   const today = new Date()
-  const { data: session } = useSession()
   const { categoryList } = useContext(CategoriesContext)
   const [currentDate] = useState<string>(today.toISOString().slice(0, 10))
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
@@ -63,8 +61,7 @@ export const ComingUpPage = () => {
     ['getFutureTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
       await fetch(
-        `/api/todos/future?userId=${session?.user
-          ?.id}&${getDateRangeQuery()}&tz=${
+        `/api/todos/future?${getDateRangeQuery()}&tz=${
           Intl.DateTimeFormat().resolvedOptions().timeZone
         }`,
       ).then((res) => res.json()),

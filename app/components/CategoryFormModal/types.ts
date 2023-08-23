@@ -7,6 +7,5 @@ export type Category = {
   description: string
   maxPerDay?: number
   sortOrder: number
-  userId: string
   todos: Todo[]
 }

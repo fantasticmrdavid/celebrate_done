@@ -2,13 +2,18 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import dayjs from 'dayjs'
 import prisma from '@/app/lib/prisma'
 import { TodoPriority, TodoSize, TodoStatus } from '@prisma/client'
+import { getToken } from 'next-auth/jwt'
 
 export const addProgress = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
   try {
-    const { name, category, userId } = req.body
+    const token = await getToken({ req })
+    if (!token) return res.status(401)
+    const { sub } = token
+    if (!sub) return res.status(401)
+    const { name, category } = req.body
 
     const result = await prisma.todo.create({
       data: {
@@ -21,7 +26,7 @@ export const addProgress = async (
         status: TodoStatus.DONE,
         user: {
           connect: {
-            id: userId,
+            id: sub,
           },
         },
         category: {

@@ -25,7 +25,6 @@ import { getLocalStartOfDay } from '@/app/utils'
 import { TodoValidation, validateTodo } from './utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
-import { useSession } from 'next-auth/react'
 import { TodoWithRelationsNoCategory } from '@/pages/api/todos/getTodos'
 import {
   Category,
@@ -79,7 +78,6 @@ const priorityList = [
 const { Option } = Select
 
 export const TodoFormFormModal = (props: TodoFormModalProps) => {
-  const { data: session } = useSession()
   const { currentDate } = useContext(SelectedDateContext)
   const {
     isOpen,
@@ -112,9 +110,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const { data: suggestionList } = useQuery(
     ['getTodoSuggestions'] as unknown as QueryKey,
     async () =>
-      await fetch(
-        `/api/todos/getSuggestions?userId=${session?.user?.id || ''}`,
-      ).then((res) => res.json()),
+      await fetch(`/api/todos/getSuggestions`).then((res) => res.json()),
     {
       initialData: [],
     },
@@ -136,7 +132,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         category,
         isRecurring,
         repeats,
-        userId: session?.user?.id,
       }),
     onMutate: async () => {
       const previousCategoriesList = queryClient.getQueryData([
@@ -158,7 +153,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   category,
                   isRecurring,
                   repeats,
-                  userId: session?.user?.id,
                   id: `temp_newID`,
                 },
                 ...c.todos,
@@ -201,7 +195,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     mutationFn: () =>
       axios.patch('/api/todos', {
         id: todo?.id,
-        userId: session?.user?.id,
         name,
         startDate,
         notes,

@@ -8,7 +8,6 @@ import {
   validateCategory,
 } from '@/app/components/CategoryFormModal/utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
-import { useSession } from 'next-auth/react'
 import { Category } from '@prisma/client'
 
 export enum CategoryModal_Mode {
@@ -29,7 +28,6 @@ export const CategoryFormModal = ({
   mode,
   category,
 }: CategoryFormModalProps) => {
-  const { data: session } = useSession()
   const [name, setName] = useState<string>(category ? category.name : '')
   const [description, setDescription] = useState<string>(
     category ? category.description : '',
@@ -47,7 +45,6 @@ export const CategoryFormModal = ({
         name,
         description,
         color,
-        userId: session?.user?.id,
       } as Category),
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])

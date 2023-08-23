@@ -2,9 +2,15 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
 import { getLocalStartOfDay } from '@/app/utils'
 import { TodoStatus } from '@prisma/client'
+import { getToken } from 'next-auth/jwt'
 
 export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
+    const token = await getToken({ req })
+    if (!token) return res.status(401)
+    const { sub } = token
+    if (!sub) return res.status(401)
+
     const {
       name,
       notes,
@@ -12,7 +18,6 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
       size,
       category,
       startDate,
-      userId,
       isRecurring,
       repeats,
     } = req.body
@@ -27,7 +32,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
         status: TodoStatus.INCOMPLETE,
         user: {
           connect: {
-            id: userId,
+            id: sub,
           },
         },
         category: {
@@ -41,7 +46,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
                 unit: repeats,
                 user: {
                   connect: {
-                    id: userId,
+                    id: sub,
                   },
                 },
               },

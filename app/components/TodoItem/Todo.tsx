@@ -32,7 +32,6 @@ import { Identifier } from 'dnd-core'
 import { v4 as uuidv4 } from 'uuid'
 import { BsRepeat } from 'react-icons/bs'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
-import { useSession } from 'next-auth/react'
 import { TodoWithRelationsNoCategory } from '@/pages/api/todos/getTodos'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import ConfettiExplosion from 'react-confetti-explosion'
@@ -51,7 +50,9 @@ type TodoProps = {
   category: CategoryWithRelations
   onDrag: (dragIndex: number, hoverIndex: number) => void
   onSort?: () => void
-  onAddProgress?: (t: Todo) => Promise<{ previousCategoriesList: unknown }>
+  onAddProgress?: (
+    t: Omit<Todo, 'userId'>,
+  ) => Promise<{ previousCategoriesList: unknown }>
 }
 
 type Update_Todo_Params = {
@@ -88,7 +89,6 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     props
   const ref = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
-  const { data: session } = useSession()
   const { currentDate } = useContext(SelectedDateContext)
   const [modal, modalContextHolder] = Modal.useModal()
   const [shouldAnimateCompleted, setShouldAnimateCompleted] =
@@ -241,13 +241,11 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       axios.post('/api/todos/progress', {
         name: todo.name,
         category: category,
-        userId: session?.user?.id,
       }),
     onMutate: async () => {
       if (onAddProgress) {
         onAddProgress({
           id: uuidv4(),
-          userId: todo.userId,
           categoryId: category.id,
           scheduleId: null,
           created: new Date(),

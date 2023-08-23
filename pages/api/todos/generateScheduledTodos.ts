@@ -7,6 +7,7 @@ import timezone from 'dayjs/plugin/timezone'
 import prisma from '@/app/lib/prisma'
 import { Prisma, TodoStatus } from '@prisma/client'
 import { getLocalStartOfDay } from '@/app/utils'
+import { getSession } from 'next-auth/react'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -28,8 +29,11 @@ export const generateScheduledTodos = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { userId, tz } = req.query
-  if (!userId || typeof userId !== 'string' || userId.length === 0) return {}
+  const session = await getSession({ req })
+  if (!session) return res.status(401)
+  const { user } = session
+  if (!user) return res.status(401)
+  const { tz } = req.query
   const getTargetDate = (s: ScheduleWithTodo) => {
     return dayjs(s.todo.completedDateTime)
       .tz(tz as string)
@@ -49,7 +53,7 @@ export const generateScheduledTodos = async (
         AND: [
           {
             userId: {
-              equals: userId as string,
+              equals: user.id,
             },
           },
           {

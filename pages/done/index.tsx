@@ -48,7 +48,7 @@ const emptyTodoListGifList = [
 
 export const DonePage = () => {
   const today = new Date()
-  const { data: session, status: sessionStatus } = useSession()
+  const { status: sessionStatus } = useSession()
   const [currentDate] = useState<string>(
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
       2,
@@ -99,9 +99,9 @@ export const DonePage = () => {
   } = useQuery<CategoryWithTodoCounts[]>(
     ['getDoneTodos', currentDate, dateRangeType] as unknown as QueryKey,
     async () =>
-      await fetch(
-        `/api/todos/done?userId=${session?.user?.id}&${getDateRangeQuery()}`,
-      ).then((res) => res.json()),
+      await fetch(`/api/todos/done?${getDateRangeQuery()}`).then((res) =>
+        res.json(),
+      ),
   )
   const ref = useRef<FireworksHandlers>(null)
 

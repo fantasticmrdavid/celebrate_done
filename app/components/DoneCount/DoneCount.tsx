@@ -12,7 +12,6 @@ import {
 import { DateRangeType } from '@/pages/done'
 import { QueryKey, useQuery } from '@tanstack/react-query'
 import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
-import { useSession } from 'next-auth/react'
 
 type Props = {
   date: string
@@ -20,7 +19,6 @@ type Props = {
 }
 
 export const DoneCount = ({ dateRangeType, date }: Props) => {
-  const { data: session } = useSession()
   const getDateRangeQuery = () => {
     if (dateRangeType === DateRangeType.DAY) {
       return `dateRangeStart=${getLocalStartOfDay(
@@ -46,10 +44,9 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
   const { data: doneCount, isLoading } = useQuery<number>(
     ['getDoneTodosCount', date, dateRangeType] as unknown as QueryKey,
     async () =>
-      await fetch(
-        `/api/todos/doneCount?userId=${session?.user
-          ?.id}&${getDateRangeQuery()}`,
-      ).then((res) => res.json()),
+      await fetch(`/api/todos/doneCount?${getDateRangeQuery()}`).then((res) =>
+        res.json(),
+      ),
   )
   const isReady = doneCount && !isLoading
   return (

@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import { repeatDayUnitsToSqlUnits } from '@/app/components/TodoItem/utils'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import { getSession } from 'next-auth/react'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -30,8 +31,11 @@ export const getFutureTodos = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { userId, dateRangeStart, dateRangeEnd, tz } = req.query
-  if (!userId) return {}
+  const session = await getSession({ req })
+  if (!session) return res.status(401)
+  const { user } = session
+  if (!user) return res.status(401)
+  const { dateRangeStart, dateRangeEnd, tz } = req.query
 
   try {
     const getTargetDate = (s: ScheduleWithTodo) => {
@@ -52,7 +56,7 @@ export const getFutureTodos = async (
         AND: [
           {
             userId: {
-              equals: userId as string,
+              equals: user.id,
             },
           },
           {
@@ -87,7 +91,7 @@ export const getFutureTodos = async (
         AND: [
           {
             userId: {
-              equals: userId as string,
+              equals: user.id,
             },
           },
           {

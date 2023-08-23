@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
 import { Prisma, TodoStatus } from '@prisma/client'
+import { getSession } from 'next-auth/react'
 
 const categoryWithRelations = Prisma.validator<Prisma.CategoryDefaultArgs>()({
   include: {
@@ -22,7 +23,11 @@ export const getCategories = async (
   res: NextApiResponse,
 ) => {
   try {
-    const { userId, localStartOfDay, localEndOfDay } = req.query
+    const session = await getSession({ req })
+    if (!session) return res.status(401)
+    const { user } = session
+    if (!user) return res.status(401)
+    const { localStartOfDay, localEndOfDay } = req.query
 
     const results = await prisma.category.findMany({
       include: {
@@ -70,7 +75,7 @@ export const getCategories = async (
       },
       where: {
         userId: {
-          equals: userId as string,
+          equals: user.id as string,
         },
       },
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],

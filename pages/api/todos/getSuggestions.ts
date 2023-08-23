@@ -1,12 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
+import { getSession } from 'next-auth/react'
 
 export const getSuggestions = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
-  const { userId } = req.query
-  if (!userId || typeof userId !== 'string' || userId.length === 0) return {}
+  const session = await getSession({ req })
+  if (!session) return res.status(401)
+  const { user } = session
+  if (!user) return res.status(401)
+
   try {
     const results = await prisma.todo.findMany({
       select: {
@@ -17,7 +21,7 @@ export const getSuggestions = async (
         AND: [
           {
             userId: {
-              equals: userId as string,
+              equals: user.id,
             },
           },
         ],
