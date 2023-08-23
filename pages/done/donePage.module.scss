@@ -43,6 +43,8 @@
 
 .doneItem {
   padding: 0.2em 0;
+  display: flex;
+  gap: 0.25em;
 }
 
 .doneItem:before {

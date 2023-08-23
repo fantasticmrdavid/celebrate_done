@@ -75,7 +75,12 @@ export const getDoneTodos = async (
                     size: t.size,
                     count: c.todos.filter((tt) => tt.name === t.name).length,
                   },
-                ]
+                ].sort((a, b) => {
+                  if (a.count > b.count) return -1
+                  if (a.size === TodoSize.LARGE && b.size !== TodoSize.LARGE)
+                    return -1
+                  return 1
+                })
               }, [] as TodoCount[]),
             },
           ]

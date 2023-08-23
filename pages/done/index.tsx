@@ -256,7 +256,7 @@ export const DonePage = () => {
                       >
                         {c.todos.map((t) => (
                           <li key={`todo_${t.id}`} className={styles.doneItem}>
-                            {t.name}{' '}
+                            {t.name}
                             {t.count > 1 && <strong>x{t.count}</strong>}
                             {t.size !== TodoSize.SMALL && (
                               <Tag color={sizeTags[t.size].color}>
