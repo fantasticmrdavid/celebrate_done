@@ -199,7 +199,7 @@ export const DonePage = () => {
                 )}
               </div>
               <div>
-                <h1 style={{ marginBottom: 0 }}>
+                <h1>
                   What I did {titleStrings[dateRangeType].toLocaleLowerCase()}:
                 </h1>
                 <div className={styles.chartContainer}>
@@ -218,15 +218,18 @@ export const DonePage = () => {
                       chartArea: {
                         width: '100%',
                       },
-                      legend: { position: 'bottom' },
+                      legend: { position: 'top', maxLines: 5 },
                       pieSliceTextStyle: {
                         color: '#000',
                       },
-                      colors: doneCategoriesList.map(
-                        (c) =>
-                          c.color ||
-                          Math.floor(Math.random() * 16777215).toString(16),
-                      ),
+                      colors: doneCategoriesList
+                        .reverse()
+                        .map(
+                          (c) =>
+                            c.color ||
+                            Math.floor(Math.random() * 16777215).toString(16),
+                        ),
+                      reverseCategories: true,
                     }}
                     width={'100%'}
                     height={'400px'}
