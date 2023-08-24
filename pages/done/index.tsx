@@ -50,6 +50,7 @@ const emptyTodoListGifList = [
 
 export const DonePage = () => {
   const today = new Date()
+  const [isFireworksOn, setIsFireworksOn] = useState(false)
   const { status: sessionStatus } = useSession()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -196,21 +197,27 @@ export const DonePage = () => {
           )}
           {isReady && doneCategoriesList.length > 0 && (
             <>
-              <div className={styles.bg}>
-                <Fireworks
-                  ref={ref}
-                  options={{ delay: { min: 100, max: 500 } }}
-                  style={{
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '500px',
-                    position: 'absolute',
-                  }}
-                />
-              </div>
+              {isFireworksOn && (
+                <div className={styles.bg}>
+                  <Fireworks
+                    ref={ref}
+                    options={{ delay: { min: 100, max: 500 } }}
+                    style={{
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '500px',
+                      position: 'absolute',
+                    }}
+                  />
+                </div>
+              )}
               <div>
-                <DoneCount date={currentDate} dateRangeType={dateRangeType} />
+                <DoneCount
+                  date={currentDate}
+                  dateRangeType={dateRangeType}
+                  onCountComplete={() => setIsFireworksOn(true)}
+                />
                 {quote && (
                   <Space align={'center'} className={styles.quoteWrapper}>
                     <Quote author={quote.author} content={quote.quote} />

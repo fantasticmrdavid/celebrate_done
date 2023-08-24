@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { CountUp } from 'use-count-up'
+import classNames from 'classnames'
 import styles from './doneCount.module.scss'
 import {
   getLocalEndOfDay,
@@ -16,9 +17,11 @@ import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
 type Props = {
   date: string
   dateRangeType: DateRangeType
+  onCountComplete?: () => void
 }
 
-export const DoneCount = ({ dateRangeType, date }: Props) => {
+export const DoneCount = ({ dateRangeType, date, onCountComplete }: Props) => {
+  const [isComplete, setIsComplete] = useState(false)
   const getDateRangeQuery = () => {
     if (dateRangeType === DateRangeType.DAY) {
       return `dateRangeStart=${getLocalStartOfDay(
@@ -41,6 +44,7 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
       )}&dateRangeEnd=${getLocalEndOfYear(date)}`
     }
   }
+
   const { data: doneCount, isLoading } = useQuery<number>(
     ['getDoneTodosCount', date, dateRangeType] as unknown as QueryKey,
     async () =>
@@ -49,13 +53,26 @@ export const DoneCount = ({ dateRangeType, date }: Props) => {
       ),
   )
   const isReady = doneCount && !isLoading
+
+  const counterClassNames = classNames({
+    [styles.count]: true,
+    [styles.countComplete]: isComplete,
+  })
+
   return (
     <div className={styles.container}>
       {!isReady && <DoneCountSkeleton />}
       {isReady && (
         <>
-          <div style={{ fontSize: '10rem' }}>
-            <CountUp isCounting end={doneCount} />
+          <div className={counterClassNames}>
+            <CountUp
+              isCounting
+              end={doneCount}
+              onComplete={() => {
+                setIsComplete(true)
+                if (onCountComplete) onCountComplete()
+              }}
+            />
           </div>
           <div>things done!</div>
         </>
