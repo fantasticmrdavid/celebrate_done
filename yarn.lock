@@ -581,6 +581,11 @@
     "@typescript-eslint/types" "6.4.0"
     eslint-visitor-keys "^3.4.1"
 
+accessible-colors@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/accessible-colors/-/accessible-colors-1.0.4.tgz#dcbdf1385c0a008fa70a1a6305d854d21c4482f0"
+  integrity sha512-e9G0EtqrrqCcs6QCG7AvEIljjA27I5EqbR6EFQqeQgh/DHv7AIX6J1jzLnDeJfS8HhUqXstUUqxBNlKBWy8MjA==
+
 acorn-jsx@^5.3.2:
   version "5.3.2"
   resolved "https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-5.3.2.tgz"

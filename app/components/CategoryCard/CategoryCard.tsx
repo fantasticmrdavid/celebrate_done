@@ -28,6 +28,7 @@ import {
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import { Todo, TodoStatus } from '@prisma/client'
 import { getSortedTodoList } from '@/pages/api/utils'
+import { isAAAContrast } from 'accessible-colors'
 
 const { Title } = Typography
 
@@ -174,9 +175,17 @@ export const CategoryCard = ({
   const doneCount = category.todos.filter((t) => t.status === TodoStatus.DONE)
     ?.length
 
+  const titleTextColor = category.color
+    ? isAAAContrast(category?.color, '#000000')
+      ? '#000'
+      : '#FFF'
+    : undefined
+
   return (
     <Collapse
-      style={{ backgroundColor: category.color || undefined }}
+      style={{
+        backgroundColor: category.color || undefined,
+      }}
       defaultActiveKey={[category.id]}
       key={`category_${category.id}`}
       collapsible="icon"
@@ -198,6 +207,7 @@ export const CategoryCard = ({
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   margin: 0,
+                  color: titleTextColor,
                 }}
               >
                 <div className={styles.categoryCardTitle}>
@@ -261,7 +271,13 @@ export const CategoryCard = ({
                 </div>
               </Title>
               {category.description.length > 0 && (
-                <Space style={{ marginBottom: '0.75em', fontSize: '0.8rem' }}>
+                <Space
+                  style={{
+                    marginBottom: '0.75em',
+                    fontSize: '0.8rem',
+                    color: titleTextColor,
+                  }}
+                >
                   {category.description}
                 </Space>
               )}
