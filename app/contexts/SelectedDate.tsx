@@ -1,6 +1,5 @@
 import React, { createContext, ReactNode, FC, useState, useEffect } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
-import { useRouter } from 'next/router'
+import { useSearchParams } from 'next/navigation'
 import { isValidDate } from '@/app/utils'
 export interface SelectedDateContextValues {
   currentDate: string
