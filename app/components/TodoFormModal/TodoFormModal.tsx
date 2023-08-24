@@ -153,6 +153,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   category,
                   isRecurring,
                   repeats,
+                  sortOrder: 0,
                   id: `temp_newID`,
                 },
                 ...c.todos,

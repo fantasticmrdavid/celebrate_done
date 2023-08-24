@@ -1,5 +1,9 @@
 import dayjs from 'dayjs'
 
+export const isValidDate = (dateString: string) => {
+  return !isNaN(Date.parse(dateString))
+}
+
 export const getLocalStartOfDay = (date?: string) => {
   return date
     ? dayjs(new Date(date)).startOf('day').toISOString()

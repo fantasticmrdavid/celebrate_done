@@ -19,10 +19,14 @@ import { isMobile } from 'react-device-detect'
 import { EmptyCategoriesMessage } from '@/app/components/CategoryCardList/EmptyCategoriesMessage'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 import { Category } from '@prisma/client'
+import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 
 const { Title } = Typography
 
 export const CategoryCardList = () => {
+  const router = useRouter()
+  const pathname = usePathname()
   const { currentDate, setCurrentDate } = useContext(SelectedDateContext)
   const today = new Date()
 
@@ -129,7 +133,7 @@ export const CategoryCardList = () => {
             value={dayjs(new Date(currentDate))}
             allowClear={false}
             onChange={(_, dateString) => {
-              setCurrentDate(dateString)
+              router.push(`${pathname}?date=${dateString}`)
             }}
           />
         </Space>

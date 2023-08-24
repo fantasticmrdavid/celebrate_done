@@ -25,6 +25,8 @@ import Image from 'next/image'
 import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
 import { useSession } from 'next-auth/react'
 import { TodoSize } from '@prisma/client'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/router'
 
 export enum DateRangeType {
   DAY = 'DAY',
@@ -49,14 +51,28 @@ const emptyTodoListGifList = [
 export const DonePage = () => {
   const today = new Date()
   const { status: sessionStatus } = useSession()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const [currentDate] = useState<string>(
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
       2,
       '0',
     )}-${String(today.getDate()).padStart(2, '0')}`,
   )
+
+  const searchParamsDateRangeType = searchParams?.get('dateRangeType')
+
+  const sanitisedDateRangeType =
+    searchParamsDateRangeType &&
+    Object.values(DateRangeType).includes(
+      searchParamsDateRangeType as unknown as DateRangeType,
+    )
+      ? searchParamsDateRangeType
+      : DateRangeType.DAY
+
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>(
-    DateRangeType.DAY,
+    sanitisedDateRangeType as DateRangeType,
   )
 
   const quote = quoteList[(quoteList.length * Math.random()) | 0]
@@ -117,7 +133,10 @@ export const DonePage = () => {
           size={'small'}
           value={dateRangeType}
           buttonStyle="solid"
-          onChange={(e) => setDateRangeType(e.target.value)}
+          onChange={(e) => {
+            setDateRangeType(e.target.value)
+            router.push(`${pathname}?dateRangeType=${e.target.value}`)
+          }}
           disabled={!isReady}
         >
           <Radio.Button value={DateRangeType.DAY}>Today</Radio.Button>
