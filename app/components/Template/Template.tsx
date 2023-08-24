@@ -57,18 +57,18 @@ export const Template = ({ children }: RootLayoutProps) => {
   if (session && session.user) {
     return (
       <SelectedDateProvider>
-        <CategoriesProvider>
-          {head}
-          <DndProvider backend={HTML5Backend}>
-            <Layout>
-              <div className={styles.layout}>
-                <HeaderNav />
+        {head}
+        <DndProvider backend={HTML5Backend}>
+          <Layout>
+            <div className={styles.layout}>
+              <HeaderNav />
+              <CategoriesProvider>
                 <Content className={styles.content}>{children}</Content>
-                <Footer />
-              </div>
-            </Layout>
-          </DndProvider>
-        </CategoriesProvider>
+              </CategoriesProvider>
+              <Footer />
+            </div>
+          </Layout>
+        </DndProvider>
       </SelectedDateProvider>
     )
   }

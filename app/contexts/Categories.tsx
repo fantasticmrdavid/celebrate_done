@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, FC, useContext } from 'react'
-import { QueryKey, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import { SelectedDateContext } from '@/app/contexts/SelectedDate'
 import { getSortedTodoList } from '@/pages/api/utils'
@@ -31,23 +31,27 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
 }) => {
   const { currentDate } = useContext(SelectedDateContext)
   const { isLoading, error, data } = useQuery(
-    ['getCategories', currentDate] as unknown as QueryKey,
+    ['getCategories', currentDate],
     async () =>
       await fetch(
         `/api/categories?localStartOfDay=${getLocalStartOfDay(
           currentDate,
         )}&localEndOfDay=${getLocalEndOfDay(currentDate)}`,
       ).then((res) => res.json()),
-    {
-      initialData: [],
-    },
   )
 
   if (isLoading || !data) {
     return (
-      <div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          flexDirection: 'column',
+        }}
+      >
         <LoadingSpinner />
-        <div className="content">Loading categories</div>
       </div>
     )
   }
