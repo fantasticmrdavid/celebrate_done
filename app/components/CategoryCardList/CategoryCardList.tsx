@@ -27,7 +27,7 @@ const { Title } = Typography
 export const CategoryCardList = () => {
   const router = useRouter()
   const pathname = usePathname()
-  const { currentDate, setCurrentDate } = useContext(SelectedDateContext)
+  const { currentDate } = useContext(SelectedDateContext)
   const today = new Date()
 
   const [isTodoModalOpen, setIsTodoModalOpen] = useState<boolean>(false)
@@ -191,7 +191,7 @@ export const CategoryCardList = () => {
           onOk={() => {
             localStorage.setItem('isFirstActivityToday', today.toISOString())
             setShouldPromptUserToRefresh(false)
-            setCurrentDate(today.toISOString())
+            router.push(`${pathname}?date=${today.toISOString()}`)
           }}
           onCancel={() => {
             localStorage.setItem('isFirstActivityToday', today.toISOString())
