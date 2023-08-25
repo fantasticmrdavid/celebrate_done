@@ -14,6 +14,6 @@ export const getSortedTodoList = (tList: Omit<Todo, 'userId'>[]) => {
       b.priority === TodoPriority.URGENT
     )
       return 1
-    return a.sortOrder < b.sortOrder ? -1 : 1
+    return a.sortOrder > b.sortOrder ? -1 : 1
   })
 }

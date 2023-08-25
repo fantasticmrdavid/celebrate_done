@@ -93,7 +93,7 @@ export const CategoryCard = ({
       setLocalTodoList((localTodoList) =>
         arrayMoveImmutable(localTodoList, srcIndex, destIndex).map((c, i) => ({
           ...c,
-          sortOrder: i,
+          sortOrder: localTodoList.length - i,
         })),
       )
     },

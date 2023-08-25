@@ -70,7 +70,7 @@ export const getCategories = async (
           include: {
             schedule: true,
           },
-          orderBy: [{ sortOrder: 'asc' }],
+          orderBy: [{ sortOrder: 'desc' }],
         },
       },
       where: {

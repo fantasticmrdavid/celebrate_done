@@ -20,6 +20,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
       startDate,
       isRecurring,
       repeats,
+      sortOrder,
     } = req.body
 
     const result = await prisma.todo.create({
@@ -30,6 +31,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
         size,
         startDate: getLocalStartOfDay(startDate),
         status: TodoStatus.INCOMPLETE,
+        sortOrder,
         user: {
           connect: {
             id: sub,
