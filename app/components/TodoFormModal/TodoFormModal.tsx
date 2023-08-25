@@ -132,8 +132,12 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         category,
         isRecurring,
         repeats,
-        sortOrder: categoryList.find((c) => c.id === category?.id)?.todos
-          .length,
+        sortOrder:
+          Math.max(
+            ...(categoryList
+              .find((c) => c.id === category?.id)
+              ?.todos.map((t) => t.sortOrder) || [0]),
+          ) + 1,
       }),
     onMutate: async () => {
       const previousCategoriesList = queryClient.getQueryData([
@@ -155,7 +159,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   category,
                   isRecurring,
                   repeats,
-                  sortOrder: c.todos.length,
+                  sortOrder:
+                    Math.max(...(c.todos.map((t) => t.sortOrder) || [0])) + 1,
                   id: `temp_newID`,
                 },
                 ...c.todos,
