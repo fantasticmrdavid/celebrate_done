@@ -314,7 +314,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       id: todo.id,
       status: shouldMarkCompleted ? TodoStatus.DONE : TodoStatus.INCOMPLETE,
       completedDateTime: shouldMarkCompleted
-        ? new Date().toISOString()
+        ? new Date(currentDate).toISOString()
         : undefined,
     })
   }
