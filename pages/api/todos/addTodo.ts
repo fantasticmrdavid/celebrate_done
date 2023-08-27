@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
-import { getLocalStartOfDay } from '@/app/utils'
 import { TodoStatus } from '@prisma/client'
 import { getToken } from 'next-auth/jwt'
 
@@ -29,7 +28,7 @@ export const addTodo = async (req: NextApiRequest, res: NextApiResponse) => {
         notes,
         priority,
         size,
-        startDate: getLocalStartOfDay(startDate),
+        startDate,
         status: TodoStatus.INCOMPLETE,
         sortOrder,
         user: {

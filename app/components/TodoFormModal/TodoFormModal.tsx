@@ -128,7 +128,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     mutationFn: () =>
       axios.post('/api/todos', {
         name,
-        startDate,
+        startDate: getLocalStartOfDay(startDate),
         notes,
         size,
         priority,
@@ -153,7 +153,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
               todos: [
                 {
                   name,
-                  startDate,
+                  startDate: getLocalStartOfDay(startDate),
                   notes,
                   size,
                   priority,
@@ -205,7 +205,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       axios.patch('/api/todos', {
         id: todo?.id,
         name,
-        startDate,
+        startDate: getLocalStartOfDay(startDate),
         notes,
         size,
         priority,
@@ -229,7 +229,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
                   ? {
                       ...t,
                       name,
-                      startDate,
+                      startDate: getLocalStartOfDay(startDate),
                       notes,
                       size,
                       priority,
