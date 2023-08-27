@@ -178,7 +178,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       return { previousCategoriesList }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['getCategories'])
+      queryClient.invalidateQueries(['getCategories', currentDate])
       queryClient.invalidateQueries(['generateScheduledTodos'])
       notification.success({
         placement: 'bottomRight',
