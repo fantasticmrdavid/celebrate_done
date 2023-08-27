@@ -121,6 +121,9 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
   const { categoryList, isFetchingCategories, isFetchingCategoriesError } =
     useContext(CategoriesContext)
 
+  const categoryTodoList =
+    categoryList.find((c) => c.id === category?.id)?.todos || []
+
   const createTodo = useMutation({
     mutationFn: () =>
       axios.post('/api/todos', {
@@ -133,11 +136,9 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         isRecurring,
         repeats,
         sortOrder:
-          Math.max(
-            ...(categoryList
-              .find((c) => c.id === category?.id)
-              ?.todos.map((t) => t.sortOrder) || [0]),
-          ) + 1,
+          categoryTodoList.length > 0
+            ? Math.max(...categoryTodoList.map((t) => t.sortOrder)) + 1
+            : 0,
       }),
     onMutate: async () => {
       const previousCategoriesList = queryClient.getQueryData([
