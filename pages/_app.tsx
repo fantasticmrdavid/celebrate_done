@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { SessionProvider } from 'next-auth/react'
 import type { AppProps } from 'next/app'
 import 'antd/dist/reset.css'
+import 'react-toastify/dist/ReactToastify.css'
 import '../styles/globals.css'
 
 import dayjs from 'dayjs'
@@ -12,6 +13,7 @@ import '@fontsource/raleway/700.css'
 import { ConfigProvider } from 'antd'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Template } from '@/app/components/Template/Template'
+import { ToastContainer } from 'react-toastify'
 
 dayjs.extend(updateLocale)
 dayjs.updateLocale('en', {
@@ -36,6 +38,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         >
           <Template>
             <Component {...pageProps} />
+            <ToastContainer />
           </Template>
         </ConfigProvider>
       </QueryClientProvider>

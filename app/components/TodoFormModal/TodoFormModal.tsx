@@ -5,7 +5,6 @@ import {
   Form,
   Input,
   Modal,
-  notification,
   Radio,
   Select,
   Space,
@@ -34,6 +33,7 @@ import {
   TodoSize,
 } from '@prisma/client'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
+import { toast } from 'react-toastify'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -180,22 +180,25 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories', currentDate])
       queryClient.invalidateQueries(['generateScheduledTodos'])
-      notification.success({
-        placement: 'bottomRight',
-        message: (
-          <>
-            <strong>{name}</strong> added to <strong>{category?.name}</strong>!
-          </>
-        ),
-      })
+      toast.success(
+        <>
+          <strong>{name}</strong> added to <strong>{category?.name}</strong>!
+        </>,
+        {
+          position: 'bottom-right',
+          autoClose: 1500,
+          theme: 'colored',
+        },
+      )
       setName('')
       if (onCancel) onCancel()
     },
     onError: (error) => {
       console.log('ERROR: ', error)
-      notification.error({
-        placement: 'bottomRight',
-        message: <>Error adding Todo. Check console for details.</>,
+      toast.error(<>Error adding Todo. Check console for details.</>, {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
       })
     },
   })
@@ -256,21 +259,24 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories', currentDate])
       queryClient.invalidateQueries(['generateScheduledTodos'])
-      notification.success({
-        placement: 'bottomRight',
-        message: (
-          <>
-            <strong>{name}</strong> updated!
-          </>
-        ),
-      })
+      toast.success(
+        <>
+          <strong>{name}</strong> updated!
+        </>,
+        {
+          position: 'bottom-right',
+          autoClose: 1500,
+          theme: 'colored',
+        },
+      )
       if (onCancel) onCancel()
     },
     onError: (error) => {
       console.log('ERROR: ', error)
-      notification.error({
-        placement: 'bottomRight',
-        message: <>Error saving todo. Check console for details.</>,
+      toast.error(<>Error saving todo. Check console for details.</>, {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
       })
     },
   })

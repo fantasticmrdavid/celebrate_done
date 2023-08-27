@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Form, Input, Modal, notification, Space } from 'antd'
+import { Form, Input, Modal, Space } from 'antd'
 import axios from 'axios'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { EditOutlined, FolderAddOutlined } from '@ant-design/icons'
@@ -9,6 +9,7 @@ import {
 } from '@/app/components/CategoryFormModal/utils'
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 import { Category } from '@prisma/client'
+import { toast } from 'react-toastify'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',
@@ -48,23 +49,26 @@ export const CategoryFormModal = ({
       } as Category),
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
-      notification.success({
-        placement: 'bottomRight',
-        message: (
-          <>
-            Category <strong>{name}</strong> added!
-          </>
-        ),
-      })
+      toast.success(
+        <>
+          Category <strong>{name}</strong> added!
+        </>,
+        {
+          position: 'bottom-right',
+          autoClose: 1500,
+          theme: 'colored',
+        },
+      )
       setName('')
       setDescription('')
       if (onCancel) onCancel()
     },
     onError: () => {
       console.log('ERROR')
-      notification.error({
-        placement: 'bottomRight',
-        message: <>Error creating category. Check console for details.</>,
+      toast.error(<>Error creating category. Check console for details.</>, {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
       })
     },
   })
@@ -80,21 +84,24 @@ export const CategoryFormModal = ({
       } as Category),
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
-      notification.success({
-        placement: 'bottomRight',
-        message: (
-          <>
-            <strong>{name}</strong> updated!
-          </>
-        ),
-      })
+      toast.success(
+        <>
+          <strong>{name}</strong> updated!
+        </>,
+        {
+          position: 'bottom-right',
+          autoClose: 1500,
+          theme: 'colored',
+        },
+      )
       if (onCancel) onCancel()
     },
     onError: (error) => {
       console.log('ERROR: ', error)
-      notification.error({
-        placement: 'bottomRight',
-        message: <>Error saving category. Check console for details.</>,
+      toast.error(<>Error saving category. Check console for details.</>, {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
       })
     },
   })

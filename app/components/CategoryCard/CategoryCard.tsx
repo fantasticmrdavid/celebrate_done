@@ -1,12 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import {
-  Button,
-  Collapse,
-  notification,
-  Space,
-  Tooltip,
-  Typography,
-} from 'antd'
+import { Button, Collapse, Space, Tooltip, Typography } from 'antd'
 import styles from './categoryCard.module.scss'
 import {
   ArrowUpOutlined,
@@ -29,6 +22,7 @@ import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import { Todo, TodoStatus } from '@prisma/client'
 import { getSortedTodoList } from '@/pages/api/utils'
 import { isAAAContrast } from 'accessible-colors'
+import { toast } from 'react-toastify'
 
 const { Title } = Typography
 
@@ -130,9 +124,10 @@ export const CategoryCard = ({
     },
     onError: (error) => {
       console.log('ERROR: ', error)
-      notification.error({
-        placement: 'bottomRight',
-        message: <>Error sorting todo list. Check console for details.</>,
+      toast.error(<>Error sorting todo list. Check console for details.</>, {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
       })
     },
   })
@@ -168,9 +163,10 @@ export const CategoryCard = ({
     },
     onError: (error) => {
       console.log('ERROR: ', error)
-      notification.error({
-        placement: 'bottomRight',
-        message: <>Error updating category. Check console for details.</>,
+      toast.error(<>Error updating category. Check console for details.</>, {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
       })
     },
   })

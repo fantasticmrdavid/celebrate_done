@@ -1,13 +1,4 @@
-import {
-  Checkbox,
-  Dropdown,
-  MenuProps,
-  Modal,
-  notification,
-  Space,
-  Tag,
-  Tooltip,
-} from 'antd'
+import { Checkbox, Dropdown, MenuProps, Modal, Space, Tag, Tooltip } from 'antd'
 import classNames from 'classnames'
 import React, { memo, useContext, useEffect, useRef, useState } from 'react'
 import {
@@ -42,6 +33,7 @@ import {
   TodoSize,
   TodoStatus,
 } from '@prisma/client'
+import { toast } from 'react-toastify'
 
 type TodoProps = {
   todo: TodoWithRelationsNoCategory
@@ -290,16 +282,18 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       return { previousCategoriesList }
     },
     onSuccess: () => {
-      notification.success({
-        placement: 'bottomRight',
-        message: 'Task deleted.',
+      toast.success('Task deleted.', {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
       })
     },
     onError: (e) => {
       console.error('ERROR: ', e)
-      notification.error({
-        placement: 'bottomRight',
-        message: <>Error deleting todo. Check console for details.</>,
+      toast.success(<>Error deleting todo. Check console for details.</>, {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
       })
     },
     onSettled: () => {
