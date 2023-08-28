@@ -10,6 +10,7 @@ import {
 import { ValidationMessage } from '@/app/components/ValidationMessage/ValidationMessage'
 import { Category } from '@prisma/client'
 import { toast } from 'react-toastify'
+import styles from './categoryFormModal.module.scss'
 
 export enum CategoryModal_Mode {
   ADD = 'ADD',
@@ -142,7 +143,7 @@ export const CategoryFormModal = ({
       }}
     >
       <Space style={{ padding: '1em', width: '100%' }} direction={'vertical'}>
-        <Form.Item label={'Name'}>
+        <Form.Item label={'Name'} className={styles.formItem}>
           <Input
             value={name}
             placeholder={'Enter the name for the category'}
@@ -150,14 +151,14 @@ export const CategoryFormModal = ({
           />
           {validation.name && <ValidationMessage message={validation.name} />}
         </Form.Item>
-        <Form.Item label={'Description'}>
+        <Form.Item label={'Description'} className={styles.formItem}>
           <Input
             value={description}
             placeholder={'Enter a description for the category'}
             onChange={(e) => setDescription(e.target.value)}
           />
         </Form.Item>
-        <Form.Item label={'Colour'}>
+        <Form.Item label={'Colour'} className={styles.formItem}>
           <Input
             type={'color'}
             value={color}

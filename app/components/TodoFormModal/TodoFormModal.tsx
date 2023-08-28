@@ -34,6 +34,7 @@ import {
 } from '@prisma/client'
 import { CategoryWithRelations } from '@/pages/api/categories/getCategories'
 import { toast } from 'react-toastify'
+import styles from './todoFormModal.module.scss'
 
 type TodoFormModalProps = {
   isOpen: boolean
@@ -322,7 +323,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       }}
     >
       <Space style={{ padding: '1em', width: '100%' }} direction={'vertical'}>
-        <Form.Item label={'Name'}>
+        <Form.Item label={'Name'} className={styles.formItem}>
           <AutoComplete
             options={suggestionList.map((s: { name: string }) => ({
               value: s.name,
@@ -341,7 +342,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
           />
           {validation.name && <ValidationMessage message={validation.name} />}
         </Form.Item>
-        <Form.Item label={'Size'}>
+        <Form.Item label={'Size'} className={styles.formItem}>
           <Radio.Group
             value={size}
             options={sizeList}
@@ -350,7 +351,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             onChange={(e) => setSize(e.target.value)}
           />
         </Form.Item>
-        <Form.Item label={'Priority'}>
+        <Form.Item label={'Priority'} className={styles.formItem}>
           <Radio.Group
             value={priority}
             options={priorityList}
@@ -359,7 +360,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             onChange={(e) => setPriority(e.target.value)}
           />
         </Form.Item>
-        <Form.Item label={'Category'}>
+        <Form.Item label={'Category'} className={styles.formItem}>
           <Select
             defaultValue={isFetchingCategories ? undefined : category?.id}
             disabled={isFetchingCategories}
@@ -380,7 +381,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label={'Is visible from'}>
+        <Form.Item label={'Is visible from'} className={styles.formItem}>
           <DatePicker
             value={dayjs(new Date(startDate))}
             allowClear={false}
@@ -389,7 +390,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             }
           />
         </Form.Item>
-        <Form.Item label={'Recurring Task'}>
+        <Form.Item label={'Recurring Task'} className={styles.formItem}>
           <Radio.Group
             value={isRecurring}
             options={[
@@ -408,7 +409,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
           />
         </Form.Item>
         {isRecurring && (
-          <Form.Item label={'Repeat'}>
+          <Form.Item label={'Repeat'} className={styles.formItem}>
             <div
               style={{
                 display: 'grid',
@@ -433,7 +434,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             </div>
           </Form.Item>
         )}
-        <Form.Item label={'Notes'}>
+        <Form.Item label={'Notes'} className={styles.formItem}>
           <Input.TextArea
             placeholder={'Add any notes (optional)'}
             value={notes || ''}
