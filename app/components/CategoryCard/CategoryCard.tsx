@@ -51,7 +51,7 @@ export const CategoryCard = ({
   const [localTodoList, setLocalTodoList] = useState<
     TodoWithRelationsNoCategory[]
   >(category.todos)
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(!category.isCollapsed)
   const { currentDate } = useContext(SelectedDateContext)
 
   useEffect(() => {
@@ -171,6 +171,26 @@ export const CategoryCard = ({
     },
   })
 
+  const toggleExpand = useMutation({
+    mutationFn: () =>
+      axios.patch('/api/categories', {
+        action: 'toggleCollapse',
+        id: category.id,
+        isCollapsed: !isExpanded,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['getCategories', currentDate])
+    },
+    onError: (error) => {
+      console.log('ERROR: ', error)
+      toast.error(<>Error updating category. Check console for details.</>, {
+        position: 'bottom-right',
+        autoClose: 1500,
+        theme: 'colored',
+      })
+    },
+  })
+
   const doneCount = category.todos.filter((t) => t.status === TodoStatus.DONE)
     ?.length
 
@@ -185,12 +205,15 @@ export const CategoryCard = ({
       style={{
         backgroundColor: category.color || undefined,
       }}
-      defaultActiveKey={[category.id]}
+      defaultActiveKey={isExpanded ? [category.id] : []}
       key={`category_${category.id}`}
       collapsible="icon"
       expandIconPosition={'end'}
       size={'small'}
-      onChange={(idList) => setIsExpanded(idList.includes(category.id))}
+      onChange={(idList) => {
+        setIsExpanded(idList.includes(category.id))
+        toggleExpand.mutate()
+      }}
       items={[
         {
           key: category.id,

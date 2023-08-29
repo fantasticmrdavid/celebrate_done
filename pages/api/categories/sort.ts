@@ -1,12 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { Category } from '@prisma/client'
 import { dbConnect } from '@/config/dbConnect'
+import { getToken } from 'next-auth/jwt'
 
 export const sortCategories = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
   try {
+    const token = await getToken({ req })
+    if (!token) return res.status(401)
+    const { sub } = token
+    if (!sub) return res.status(401)
+
     const { categoryList } = req.body
 
     if (categoryList && Array.isArray(categoryList)) {

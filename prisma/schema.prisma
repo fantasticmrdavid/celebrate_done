@@ -41,6 +41,7 @@ model Category {
   sortOrder   Int     @default(0)
   color       String? @db.VarChar(32)
   todos       Todo[]
+  isCollapsed Boolean? @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

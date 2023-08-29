@@ -77,12 +77,14 @@ export const CategoryFormModal = ({
   const saveCategory = useMutation({
     mutationFn: () =>
       axios.patch('/api/categories', {
+        action: 'update',
         id: (category as Category).id,
         name,
         description,
         color,
         sortOrder: (category as Category).sortOrder,
-      } as Category),
+      }),
+
     onSuccess: () => {
       queryClient.invalidateQueries(['getCategories'])
       toast.success(

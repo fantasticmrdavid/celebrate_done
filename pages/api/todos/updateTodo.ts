@@ -10,6 +10,11 @@ export const updateTodos = async (
   res: NextApiResponse,
 ) => {
   try {
+    const token = await getToken({ req })
+    if (!token) return res.status(401)
+    const { sub } = token
+    if (!sub) return res.status(401)
+
     const { action } = req.body
     let result
 
