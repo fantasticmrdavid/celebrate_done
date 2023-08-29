@@ -27,6 +27,7 @@ import { useSession } from 'next-auth/react'
 import { TodoSize } from '@prisma/client'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/router'
+import { PieChartOutlined } from '@ant-design/icons'
 
 export enum DateRangeType {
   DAY = 'DAY',
@@ -51,6 +52,7 @@ const emptyTodoListGifList = [
 export const DonePage = () => {
   const today = new Date()
   const [isFireworksOn, setIsFireworksOn] = useState(false)
+  const [isChartLoaded, setIsChartLoaded] = useState(false)
   const { status: sessionStatus } = useSession()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -228,7 +230,13 @@ export const DonePage = () => {
                 <h1>
                   What I did {titleStrings[dateRangeType].toLocaleLowerCase()}:
                 </h1>
-                <div className={styles.chartContainer}>
+                <div
+                  className={
+                    isChartLoaded
+                      ? styles.chartContainer
+                      : styles.chartContainerHidden
+                  }
+                >
                   <Chart
                     chartType="PieChart"
                     data={[
@@ -237,6 +245,12 @@ export const DonePage = () => {
                         c.name,
                         getCategoryTotalCount(c),
                       ]),
+                    ]}
+                    chartEvents={[
+                      {
+                        eventName: 'ready',
+                        callback: () => setIsChartLoaded(true),
+                      },
                     ]}
                     options={{
                       is3D: true,
@@ -261,6 +275,13 @@ export const DonePage = () => {
                     height={'400px'}
                   />
                 </div>
+                {!isChartLoaded && (
+                  <div className={styles.chartContainerLoading}>
+                    <PieChartOutlined
+                      style={{ fontSize: 120, color: '#dedede' }}
+                    />
+                  </div>
+                )}
                 {doneCategoriesList.map((c) => {
                   const categoryTotal = getCategoryTotalCount(c)
                   return doneCategoriesList.length > 0 ? (
