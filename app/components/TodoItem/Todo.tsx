@@ -195,6 +195,10 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
                   t.id === todo.id
                     ? {
                         ...t,
+                        priority:
+                          todo.priority == TodoPriority.URGENT
+                            ? TodoPriority.NORMAL
+                            : TodoPriority.URGENT,
                         status: status || TodoStatus.INCOMPLETE,
                       }
                     : t,
@@ -297,7 +301,9 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['getCategories'] })
+      queryClient.invalidateQueries({
+        queryKey: ['getCategories', currentDate],
+      })
     },
   })
 
