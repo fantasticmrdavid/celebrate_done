@@ -17,6 +17,7 @@ import {
   getLocalPastSevenDays,
   getLocalStartOfDay,
   getLocalStartOfYear,
+  getRandomColor,
 } from '@/app/utils'
 import { CategoryWithTodoCounts } from '@/pages/api/todos/done'
 import { Quote } from '@/app/components/Quote/Quote'
@@ -28,7 +29,6 @@ import { TodoSize } from '@prisma/client'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/router'
 import { PieChartOutlined } from '@ant-design/icons'
-import { getRandomColor } from './utils'
 
 export enum DateRangeType {
   DAY = 'DAY',

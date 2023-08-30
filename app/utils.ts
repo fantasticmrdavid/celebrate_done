@@ -72,3 +72,11 @@ export const isYesterday = (d: string) =>
 export const isTomorrow = (d: string) =>
   new Date(d).getDate() ===
   new Date(new Date().setDate(new Date().getDate() + 1)).getDate()
+
+export const getRandomColor = () => {
+  let color = Math.floor(Math.random() * 16777215).toString(16)
+  while (color.length < 6) {
+    color = '0' + color
+  }
+  return `#${color}`
+}
