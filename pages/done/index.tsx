@@ -28,6 +28,7 @@ import { TodoSize } from '@prisma/client'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/router'
 import { PieChartOutlined } from '@ant-design/icons'
+import { getRandomColor } from './utils'
 
 export enum DateRangeType {
   DAY = 'DAY',
@@ -264,13 +265,7 @@ export const DonePage = () => {
                       },
                       colors: doneCategoriesList
                         .reverse()
-                        .map(
-                          (c) =>
-                            c.color ||
-                            `#${Math.floor(Math.random() * 16777215).toString(
-                              16,
-                            )}`,
-                        ),
+                        .map((c) => c.color || getRandomColor()),
                       reverseCategories: true,
                     }}
                     width={'100%'}
