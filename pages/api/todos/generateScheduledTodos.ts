@@ -6,7 +6,6 @@ import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import prisma from '@/app/lib/prisma'
 import { Prisma, TodoStatus } from '@prisma/client'
-import { getLocalStartOfDay } from '@/app/utils'
 import { getSession } from 'next-auth/react'
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -80,7 +79,10 @@ export const generateScheduledTodos = async (
             notes: s.todo.notes,
             priority: s.todo.priority,
             size: s.todo.size,
-            startDate: getLocalStartOfDay(),
+            startDate: dayjs()
+              .tz(tz as string)
+              .startOf('day')
+              .toISOString(),
             status: TodoStatus.INCOMPLETE,
             user: {
               connect: {
