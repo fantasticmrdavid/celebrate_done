@@ -39,6 +39,15 @@
   }
 }
 
+.contentEmpty {
+  position: relative;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  gap: 2em;
+  z-index: 9;
+}
+
 .chartContainer {
   position: relative;
   z-index: 2;

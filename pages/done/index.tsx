@@ -154,7 +154,13 @@ export const DonePage = () => {
         </Radio.Group>
       </div>
       <Space size={'middle'} className={styles.container}>
-        <div className={styles.content}>
+        <div
+          className={
+            doneCategoriesList && doneCategoriesList.length > 0
+              ? styles.content
+              : styles.contentEmpty
+          }
+        >
           {!isReady && (
             <>
               <div>
