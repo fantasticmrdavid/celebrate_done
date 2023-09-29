@@ -192,7 +192,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         },
       )
       setName('')
-      if (onCancel) onCancel()
+      // if (onCancel && name === todo?.name) onCancel()
     },
     onError: (error) => {
       console.log('ERROR: ', error)
@@ -254,7 +254,6 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         ['getCategories', currentDate],
         updatedCategoriesList,
       )
-      if (onCancel) onCancel()
       return { previousCategoriesList }
     },
     onSuccess: () => {
