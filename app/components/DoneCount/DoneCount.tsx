@@ -56,7 +56,9 @@ export const DoneCount = ({ dateRangeType, date, onCountComplete }: Props) => {
 
   const counterClassNames = classNames({
     [styles.count]: true,
-    [styles.countComplete]: isComplete,
+    [styles.countComplete]: isComplete && doneCount && doneCount < 1000,
+    [styles.countCompleteThousand]:
+      isComplete && doneCount && doneCount >= 1000,
   })
 
   return (

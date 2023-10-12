@@ -14,10 +14,14 @@
 }
 
 .count {
-  font-size: 8em;
+  font-size: 6em;
   transition: 0.3s;
 }
 
 .countComplete {
   font-size: 10em;
+}
+
+.countCompleteThousand {
+  font-size: 8em;
 }
