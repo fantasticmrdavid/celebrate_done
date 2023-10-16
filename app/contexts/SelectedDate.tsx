@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, FC, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { isValidDate } from '@/app/utils'
+import { getLocalStartOfDay, isValidDate } from '@/app/utils'
 export interface SelectedDateContextValues {
   currentDate: string
   setCurrentDate: (d: string) => void
@@ -11,7 +11,7 @@ interface SelectedDateContextProps {
 }
 
 const SelectedDateContextInitialValues = {
-  currentDate: new Date().toISOString(),
+  currentDate: getLocalStartOfDay(),
   setCurrentDate: () => {},
 }
 
