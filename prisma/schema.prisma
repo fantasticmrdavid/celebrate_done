@@ -33,26 +33,27 @@ enum TodoRepeatFrequency {
 }
 
 model Category {
-  id          String  @id @default(cuid())
-  userId      String  @db.VarChar(255)
-  name        String  @db.VarChar(255)
-  description String  @db.Text
+  id          String   @id @default(cuid())
+  userId      String   @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  description String   @db.Text
   maxPerDay   Int?
-  sortOrder   Int     @default(0)
-  color       String? @db.VarChar(32)
+  sortOrder   Int      @default(0)
+  color       String?  @db.VarChar(32)
   todos       Todo[]
   isCollapsed Boolean? @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, name])
+  @@index(fields: [userId, sortOrder(sort: Asc), name(sort: Asc)])
 }
 
 model Schedule {
-  id     String @id @default(cuid())
-  userId String @db.VarChar(255)
-  todoId String @unique @db.VarChar(255)
-  count  Int    @default(1) @db.SmallInt
+  id     String              @id @default(cuid())
+  userId String              @db.VarChar(255)
+  todoId String              @unique @db.VarChar(255)
+  count  Int                 @default(1) @db.SmallInt
   unit   TodoRepeatFrequency @default(DAILY)
 
   todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
@@ -62,23 +63,25 @@ model Schedule {
 }
 
 model Todo {
-  id                String    @id @default(cuid())
+  id                String       @id @default(cuid())
   categoryId        String
   userId            String
   scheduleId        String?
-  created           DateTime  @default(now()) @db.Timestamp(6)
-  startDate         DateTime  @default(now()) @db.DateTime(0)
-  name              String    @db.VarChar(255)
-  notes             String?   @db.Text
-  size              TodoSize    @default(SMALL)
-  priority          TodoPriority    @default(NORMAL)
-  status            TodoStatus    @default(INCOMPLETE)
-  completedDateTime DateTime? @db.DateTime(6)
-  sortOrder         Int       @default(0)
+  created           DateTime     @default(now()) @db.Timestamp(6)
+  startDate         DateTime     @default(now()) @db.DateTime(0)
+  name              String       @db.VarChar(255)
+  notes             String?      @db.Text
+  size              TodoSize     @default(SMALL)
+  priority          TodoPriority @default(NORMAL)
+  status            TodoStatus   @default(INCOMPLETE)
+  completedDateTime DateTime?    @db.DateTime(6)
+  sortOrder         Int          @default(0)
   schedule          Schedule?
 
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index(fields: [userId, sortOrder(sort: Asc)])
 }
 
 model User {
