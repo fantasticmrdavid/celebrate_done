@@ -60,6 +60,7 @@ model Schedule {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, todoId])
+  @@index(fields: [userId])
 }
 
 model Todo {
