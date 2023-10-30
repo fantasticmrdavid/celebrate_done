@@ -49,7 +49,7 @@ export const CategoryFormModal = ({
         color,
       } as Category),
     onSuccess: () => {
-      queryClient.invalidateQueries(['getCategories'])
+      queryClient.invalidateQueries({ queryKey: ['getCategories'] })
       toast.success(
         <>
           Category <strong>{name}</strong> added!
@@ -86,7 +86,7 @@ export const CategoryFormModal = ({
       }),
 
     onSuccess: () => {
-      queryClient.invalidateQueries(['getCategories'])
+      queryClient.invalidateQueries({ queryKey: ['getCategories'] })
       toast.success(
         <>
           <strong>{name}</strong> updated!
@@ -109,7 +109,8 @@ export const CategoryFormModal = ({
     },
   })
 
-  const isLoading = createCategory.isLoading || saveCategory.isLoading
+  const isLoading =
+    createCategory.status === 'pending' || saveCategory.status === 'pending'
 
   return (
     <Modal

@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { Radio, Skeleton, Space, Tag } from 'antd'
-import { QueryKey, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { DoneCount } from '@/app/components/DoneCount/DoneCount'
 import { sizeTags } from '@/app/components/TodoItem/Todo'
 
@@ -116,13 +116,13 @@ export const DonePage = () => {
     isLoading,
     error,
     data: doneCategoriesList,
-  } = useQuery<CategoryWithTodoCounts[]>(
-    ['getDoneTodos', currentDate, dateRangeType] as unknown as QueryKey,
-    async () =>
+  } = useQuery<CategoryWithTodoCounts[]>({
+    queryKey: ['getDoneTodos', currentDate, dateRangeType],
+    queryFn: async () =>
       await fetch(`/api/todos/done?${getDateRangeQuery()}`).then((res) =>
         res.json(),
       ),
-  )
+  })
   const ref = useRef<FireworksHandlers>(null)
 
   if (error) return <div>ERROR FETCHING TODOS...</div>

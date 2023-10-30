@@ -60,7 +60,9 @@ export const CategoryCard = ({
 
   const optimisticUpdateTodoList = async (t: Omit<Todo, 'userId'>) => {
     const newTodoList = getSortedTodoList([...localTodoList, t])
-    await queryClient.cancelQueries(['getCategories', currentDate])
+    await queryClient.cancelQueries({
+      queryKey: ['getCategories', currentDate],
+    })
     const previousCategoriesList = queryClient.getQueryData([
       'getCategories',
       currentDate,
@@ -104,7 +106,9 @@ export const CategoryCard = ({
         action: 'updateSortOrder',
       }),
     onMutate: async () => {
-      await queryClient.cancelQueries(['getCategories', currentDate])
+      await queryClient.cancelQueries({
+        queryKey: ['getCategories', currentDate],
+      })
       const previousTodoList = queryClient.getQueryData([
         'getCategories',
         currentDate,
@@ -150,7 +154,9 @@ export const CategoryCard = ({
       })
     },
     onMutate: async (req: SortParams) => {
-      await queryClient.cancelQueries(['getCategories', currentDate])
+      await queryClient.cancelQueries({
+        queryKey: ['getCategories', currentDate],
+      })
       const previousCategoriesList = queryClient.getQueryData([
         'getCategories',
         currentDate,
@@ -179,7 +185,9 @@ export const CategoryCard = ({
         isCollapsed: !isExpanded,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['getCategories', currentDate])
+      queryClient.invalidateQueries({
+        queryKey: ['getCategories', currentDate],
+      })
     },
     onError: (error) => {
       console.log('ERROR: ', error)

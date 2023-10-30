@@ -57,15 +57,19 @@ export const ComingUpPage = () => {
     }
   }
 
-  const { isLoading, error, data } = useQuery(
-    ['getFutureTodos', currentDate, dateRangeType] as unknown as QueryKey,
-    async () =>
+  const { isLoading, error, data } = useQuery({
+    queryKey: [
+      'getFutureTodos',
+      currentDate,
+      dateRangeType,
+    ] as unknown as QueryKey,
+    queryFn: async () =>
       await fetch(
         `/api/todos/future?${getDateRangeQuery()}&tz=${
           Intl.DateTimeFormat().resolvedOptions().timeZone
         }`,
       ).then((res) => res.json()),
-  )
+  })
 
   const isReady = !isLoading && data && data.todos && data.schedules
 

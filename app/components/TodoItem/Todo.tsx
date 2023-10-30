@@ -180,7 +180,9 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
     onMutate: async (updateTodoParams) => {
       const { status, action } = updateTodoParams
       if (action === 'complete') {
-        await queryClient.cancelQueries(['getCategories', currentDate])
+        await queryClient.cancelQueries({
+          queryKey: ['getCategories', currentDate],
+        })
 
         const previousCategoriesList = queryClient.getQueryData([
           'getCategories',
@@ -228,7 +230,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       queryClient.invalidateQueries({
         queryKey: ['getCategories', currentDate],
       })
-      queryClient.invalidateQueries(['generateScheduledTodos'])
+      queryClient.invalidateQueries({ queryKey: ['generateScheduledTodos'] })
     },
   })
 
@@ -269,7 +271,9 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
   const deleteTodo = useMutation({
     mutationFn: () => axios.delete(`/api/todos/${todo.id}`),
     onMutate: async () => {
-      await queryClient.cancelQueries(['getCategories', currentDate])
+      await queryClient.cancelQueries({
+        queryKey: ['getCategories', currentDate],
+      })
       const previousCategoriesList: CategoryWithRelations[] =
         queryClient.getQueryData(['getCategories', currentDate]) || []
       queryClient.setQueryData(
@@ -452,9 +456,9 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
           <span style={{ textDecoration: 'line-through' }}>{content}</span>
         )}
       </div>
-      {!updateTodo.isLoading && (
+      {updateTodo.status !== 'pending' && (
         <div className={styles.actions}>
-          {todo.id === 'temp_newID' || updateTodo.isLoading ? (
+          {todo.id === 'temp_newID' ? (
             <LoadingOutlined />
           ) : (
             <Dropdown
@@ -467,7 +471,7 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
           )}
         </div>
       )}
-      {updateTodo.isLoading && <LoadingOutlined />}
+      {updateTodo.status === 'pending' && <LoadingOutlined />}
       {isTodoModalOpen && (
         <TodoFormModal
           isOpen={true}

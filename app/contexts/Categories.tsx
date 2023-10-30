@@ -30,15 +30,15 @@ export const CategoriesProvider: FC<CategoriesContextProps> = ({
   children,
 }) => {
   const { currentDate } = useContext(SelectedDateContext)
-  const { isLoading, error, data } = useQuery(
-    ['getCategories', currentDate],
-    async () =>
+  const { isLoading, error, data } = useQuery({
+    queryKey: ['getCategories', currentDate],
+    queryFn: async () =>
       await fetch(
         `/api/categories?localStartOfDay=${getLocalStartOfDay(
           currentDate,
         )}&localEndOfDay=${getLocalEndOfDay(currentDate)}`,
       ).then((res) => res.json()),
-  )
+  })
 
   if (isLoading || !data) {
     return (

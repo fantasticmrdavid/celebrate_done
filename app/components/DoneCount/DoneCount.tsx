@@ -11,7 +11,7 @@ import {
   getLocalStartOfYear,
 } from '@/app/utils'
 import { DateRangeType } from '@/pages/done'
-import { QueryKey, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { DoneCountSkeleton } from '@/app/components/DoneCount/DoneCountSkeleton'
 
 type Props = {
@@ -45,13 +45,13 @@ export const DoneCount = ({ dateRangeType, date, onCountComplete }: Props) => {
     }
   }
 
-  const { data: doneCount, isLoading } = useQuery<number>(
-    ['getDoneTodosCount', date, dateRangeType] as unknown as QueryKey,
-    async () =>
+  const { data: doneCount, isLoading } = useQuery<number>({
+    queryKey: ['getDoneTodosCount', date, dateRangeType],
+    queryFn: async () =>
       await fetch(`/api/todos/doneCount?${getDateRangeQuery()}`).then((res) =>
         res.json(),
       ),
-  )
+  })
   const isReady = doneCount && !isLoading
 
   const counterClassNames = classNames({

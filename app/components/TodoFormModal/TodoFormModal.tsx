@@ -10,12 +10,7 @@ import {
   Space,
 } from 'antd'
 import axios from 'axios'
-import {
-  QueryKey,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { CategoriesContext } from '@/app/contexts/Categories'
 import { EditOutlined, PlusSquareOutlined } from '@ant-design/icons'
@@ -28,6 +23,7 @@ import { TodoWithRelationsNoCategory } from '@/pages/api/todos/getTodos'
 import {
   Category,
   Schedule,
+  Todo,
   TodoPriority,
   TodoRepeatFrequency,
   TodoSize,
@@ -108,14 +104,12 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
 
   const [validation, setValidation] = useState<TodoValidation>({})
 
-  const { data: suggestionList } = useQuery(
-    ['getTodoSuggestions'] as unknown as QueryKey,
-    async () =>
+  const { data: suggestionList } = useQuery({
+    queryKey: ['getTodoSuggestions'],
+    queryFn: async () =>
       await fetch(`/api/todos/getSuggestions`).then((res) => res.json()),
-    {
-      initialData: [],
-    },
-  )
+    initialData: [],
+  })
 
   const queryClient = useQueryClient()
 
@@ -138,7 +132,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
         repeats,
         sortOrder:
           categoryTodoList.length > 0
-            ? Math.max(...categoryTodoList.map((t) => t.sortOrder)) + 1
+            ? Math.max(...categoryTodoList.map((t: Todo) => t.sortOrder)) + 1
             : 0,
       }),
     onMutate: async () => {
@@ -179,8 +173,10 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       return { previousCategoriesList }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['getCategories', currentDate])
-      queryClient.invalidateQueries(['generateScheduledTodos'])
+      queryClient.invalidateQueries({
+        queryKey: ['getCategories', currentDate],
+      })
+      queryClient.invalidateQueries({ queryKey: ['generateScheduledTodos'] })
       toast.success(
         <>
           <strong>{name}</strong> added to <strong>{category?.name}</strong>!
@@ -257,8 +253,10 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
       return { previousCategoriesList }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['getCategories', currentDate])
-      queryClient.invalidateQueries(['generateScheduledTodos'])
+      queryClient.invalidateQueries({
+        queryKey: ['getCategories', currentDate],
+      })
+      queryClient.invalidateQueries({ queryKey: ['generateScheduledTodos'] })
       toast.success(
         <>
           <strong>{name}</strong> updated!
@@ -283,7 +281,8 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
 
   if (isFetchingCategoriesError) return <div>ERROR LOADING CATEGORIES...</div>
 
-  const isLoading = createTodo.isLoading || saveTodo.isLoading
+  const isLoading =
+    createTodo.status === 'pending' || saveTodo.status === 'pending'
   const getOkButtonLabel = () => {
     if (isLoading) return mode === TodoModal_Mode.ADD ? 'Adding Task' : 'Saving'
     return mode === TodoModal_Mode.ADD ? 'Add Task' : 'Save'
