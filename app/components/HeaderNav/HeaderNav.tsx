@@ -9,7 +9,7 @@ import { useSession, signOut } from 'next-auth/react'
 
 const menuItemList: MenuProps['items'] = [
   {
-    label: <Link href={'/'}>To Do</Link>,
+    label: <a href={'/'}>To Do</a>,
     key: 'todo',
   },
   {
