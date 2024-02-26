@@ -384,7 +384,7 @@ export const TodoFormFormModal = (props: TodoFormModalProps) => {
             value={dayjs(new Date(startDate))}
             allowClear={false}
             onChange={(_, dateString) =>
-              setStartDate(getLocalStartOfDay(dateString))
+              setStartDate(getLocalStartOfDay(dateString as string))
             }
           />
         </Form.Item>
