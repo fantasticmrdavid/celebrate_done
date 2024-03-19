@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '@/app/lib/prisma'
-import dayjs from 'dayjs'
 import { TodoStatus } from '@prisma/client'
 import { dbConnect } from '@/config/dbConnect'
 import { getToken } from 'next-auth/jwt'
@@ -140,7 +139,7 @@ export const updateTodos = async (
           },
           data: {
             name,
-            startDate: dayjs(new Date(startDate)).startOf('day').toISOString(),
+            startDate,
             notes,
             size,
             priority,
