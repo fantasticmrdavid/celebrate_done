@@ -13,6 +13,7 @@ export const addProgress = async (
     const { sub } = token
     if (!sub) return res.status(401)
     const { name, category, startDate, completedDateTime } = req.body
+    console.log('TEST: ', startDate, completedDateTime)
 
     const result = await prisma.todo.create({
       data: {

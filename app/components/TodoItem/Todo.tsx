@@ -34,6 +34,7 @@ import {
   TodoStatus,
 } from '@prisma/client'
 import { toast } from 'react-toastify'
+import { getLocalStartOfDay } from '@/app/utils'
 
 type TodoProps = {
   todo: TodoWithRelationsNoCategory
@@ -239,6 +240,9 @@ export const UnmemoizedTodoItem = (props: TodoProps) => {
       axios.post('/api/todos/progress', {
         name: todo.name,
         category: category,
+        created: getLocalStartOfDay(currentDate),
+        startDate: getLocalStartOfDay(currentDate),
+        completedDateTime: getLocalStartOfDay(currentDate),
       }),
     onMutate: async () => {
       if (onAddProgress) {
