@@ -18,7 +18,7 @@
     "@prisma/client": "^5.10.2",
     "@tanstack/react-query": "^5.24.2",
     "@types/node": "20.12.2",
-    "@types/react": "18.2.73",
+    "@types/react": "18.2.74",
     "@types/react-dom": "18.2.23",
     "accessible-colors": "^1.0.4",
     "antd": "^5.14.0",
