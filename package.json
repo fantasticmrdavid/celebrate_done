@@ -21,7 +21,7 @@
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
     "accessible-colors": "^1.0.4",
-    "antd": "^5.14.0",
+    "antd": "^5.18.1",
     "array-move": "^4.0.0",
     "axios": "^1.6.4",
     "classnames": "^2.3.2",
