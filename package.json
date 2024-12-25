@@ -46,7 +46,7 @@
     "sqlstring": "^2.3.3",
     "typescript": "5.7.2",
     "use-count-up": "^3.0.1",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.0"
   },
   "devDependencies": {
     "@types/sqlstring": "^2.3.0",
